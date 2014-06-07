@@ -1,0 +1,17 @@
+table
+{
+border-collapse:collapse;
+}
+table, th, td
+{
+border: 1px solid black;
+}
+
+
+tr.update_safe, td.update_safe {
+    background-color:lightgreen
+}
+
+tr.update_risky, td.update_risky {
+    background-color:#FF3333
+}

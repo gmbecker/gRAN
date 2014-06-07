@@ -1,0 +1,46 @@
+#!/bin/bash
+
+FILESTOCOPY="DESCRIPTION
+NAMESPACE
+cleanup
+configure
+inst/session.rda
+inst/testBioc.R"
+
+DIRSTOCOPY="R
+man
+vignettes
+inst/bibliography
+inst/js_css
+inst/templates
+inst/toypkg"
+
+DIR="GRAN"
+echo "Creating copy of GRAN package in inst/$DIR to be installed in any created repositories."
+
+if [ ! -d "inst/$DIR" ]; then
+   mkdir -p inst/$DIR
+fi
+
+for d in $DIRSTOCOPY
+do
+   mkdir -p inst/$DIR/$d
+   cp -R $d  inst/$DIR/
+done
+
+for f in $FILESTOCOPY
+do 
+   cp $f inst/$DIR/
+done
+
+
+
+HOME=`pwd`		
+#ls | grep -v  "\(inst\|tst\)" | xargs -ILIST cp LIST -r inst/$DIR/
+#cd inst;
+#ls | grep -v $DIR | xargs -ILIST cp LIST -r $DIR/inst/
+cd inst/$DIR/vignettes
+sed -i -e 's/eval=TRUE/eval=FALSE/g' *.Rnw
+#INCEPTIONDIR=$DIR/inst/$DIR
+cd "$HOME"
+
