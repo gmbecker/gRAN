@@ -4,13 +4,24 @@ Title: GRAN
 Version: 0.9.32
 Author: Gabriel Becker, Cory Barr
 Maintainer: Gabriel Becker <becker.gabriel@gene.com>
-Description: Repository based tools for department and analysis level reproduciblity. 
-	     With this package, users can: create custom branched, continuous integration-ready 
-	     R repositories, recreate R installation libraries from sessionInfo objects or
-	     outputs, and assess the risk changing package versions.
+Description: Repository based tools for department and analysis level
+    reproduciblity. With this package, users can: create custom branched,
+    continuous integration-ready R repositories, recreate R installation
+    libraries from sessionInfo objects or outputs, and assess the risk changing
+    package versions.
 License: Artistic-2.0
-Imports: tools, BiocInstaller, parallel, XML, brew, hwriter, digest
-Depends: methods
-Suggests: getopt, BiocStyle
+Imports:
+    tools,
+    BiocInstaller,
+    parallel,
+    XML,
+    brew,
+    hwriter,
+    digest
+Depends:
+    methods
+Suggests:
+    getopt,
+    BiocStyle
 SystemRequirements: svn, git, git-svn
 Packaged: 2014-06-07 16:35:52 UTC; beckerg4
