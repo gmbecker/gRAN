@@ -20,6 +20,9 @@ The full path to the downloaded file , or NULL if unable to
 locate the package
 }
 \description{
-Locate and download the exact version of a single package.
+Locate and download/build the exact version of a single package.
+}
+\author{
+Gabriel Becker
 }
 

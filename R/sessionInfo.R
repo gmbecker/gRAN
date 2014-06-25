@@ -40,7 +40,7 @@ getPkgs = function(string, pattern = "other attached packages:")
     pkgnames = gsub("([^_]*)_.*", "\\1", stuff)
     versions = gsub("[^_]*_(.*)", "\\1", stuff)
 
-    ret = mapply(function(x,y) data.frame(package = x, version = y, stringsAsFactors = FALSE), x = pkgnames, y = versions, SIMPLIFY=FALSE)
+    ret = mapply(function(x,y) data.frame(Package = x, Version = y, stringsAsFactors = FALSE), x = pkgnames, y = versions, SIMPLIFY=FALSE)
     ret = do.call(rbind.data.frame, ret)
     ##    names(ret) = pkgnames
     ret

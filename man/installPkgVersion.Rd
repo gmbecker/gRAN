@@ -17,6 +17,8 @@ installPkgVersion(name, version, repo = NULL, dir = if (is.null(repo))
 
 \item{libloc}{library to install into. Defaults to first
 element of \code{.libPaths()}}
+
+\item{...}{Additional arguments to be passed to install.packages}
 }
 \value{
 The full path to the downloaded file , or NULL if unable to
@@ -27,7 +29,10 @@ Install an exact version of a single package
 }
 \note{
 This function does *NOT* find old versions of the package's
-dependencies. It is safer to create a full (temporary) sessionRepository
-using \code{sessionRepo}
+dependencies. It is safer to create a full (temporary) virtual Repository
+using \code{makeVirtualRepo} or \code{sessionRepo}
+}
+\author{
+Gabriel Becker
 }
 
