@@ -28,6 +28,8 @@ GRANRepo = new.env()
 
 GRANRepo$repo = NULL
 
+defaultGRAN = function() GRANREpo$repo
+
 ##' currentPackage
 ##'
 ##' Returns the name of the GRAN package loaded (GRAN or GRANBase)

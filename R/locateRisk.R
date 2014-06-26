@@ -99,9 +99,10 @@ buildRiskReport = function(to_update = old.packages(repos = repo_urls),
 ##' @return A data.frame with 3 counts for each updatable package: bugfixes, u_visible_changes (user visible changes) and deprec (deprecation and defunct entries). All counts are NA if the package does not have parsable NEWS.
 ##' @importFrom utils news
 ##' @export
-readPkgsNEWS = function(df, tmplib = file.path(tempdir(), "libloc")) {
+readPkgsNEWS = function(df, tmplib = file.path(tempdir(), "libloc"), repos = biocinstallRepos()) {
     if(!file.exists(tmplib))
         dir.create(tmplib, recursive=TRUE)
+    pkgstat = packageStatus(lib.loc = tmplib, repositories = contrib.url(repos))
     newsres = t(mapply(innerReadNEWS, pkg = df$Package, instver = df$Installed, repo = df$Repository, tmplib = tmplib))
     unlink(tmplib)
     as.data.frame(newsres)
