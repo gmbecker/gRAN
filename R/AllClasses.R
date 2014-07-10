@@ -147,20 +147,21 @@ prepDirStructure = function(basedir, subrepo, temprepo, tempcheckout,
     
 }
 
-        
+
+##'@export
 setClass("parsedSessionInfo", representation(version = "character",
                                              platform="character",
                                              attached = "data.frame",
                                              loaded = "data.frame"))
 
 
-
+##'@export
 setClass("RComputingEnv", representation(name = "character",
                                          libpaths = "character",
                                          exclude.site = "logical",
                                          packages = "data.frame"))
 
-
+##'@export
 RComputingEnv = function(name, libpaths, exclude.site = TRUE) {
     if(exclude.site)
         pathsToLook = unique(c(libpaths, .Library))

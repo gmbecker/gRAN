@@ -15,7 +15,7 @@ basepkgs = pkgs[ pkgs[,"Priority"] %in% "base", "Package"]
 sessionRepo = function(sinfo = sessionInfo(),
     repo_dir, doi= NULL, dir,
     name = NULL , replace = FALSE, stoponfail = TRUE, GRepo = GRANRepo$repo,
-    install = FALSE, libloc = NULL)
+    install = FALSE, libloc = NULL, biocUseSVN = FALSE)
 {
     
     
@@ -37,7 +37,7 @@ sessionRepo = function(sinfo = sessionInfo(),
  
    # fils = getSessionPackages(sinfo, dir = dir, repo= GRepo, stoponfail)
     pkgdf = sinfoToPkgDF(sinfo)
-    makeVirtualRepo(pkgdf, repo_dir, doi, dir, name, replace, stoponfail, GRepo, install, libloc)
+    makeVirtualRepo(pkgdf, repo_dir, doi, dir, name, replace, stoponfail, GRepo, install, libloc, biocUseSVN = biocUseSVN)
     
 }
 
@@ -57,7 +57,7 @@ sinfoToPkgDF = function(sinfo) {
 ##' @rdname virtualRepo-funs
 ##' @return for \code{getPkgVersions} and \code{getSessionPackages}, a character vector with the full path to each downloaded/built tar.gz file.
 ##' @export
-getSessionPackages = function(sinfo, dir, GRepo = NULL, stoponfail = FALSE) {
+getSessionPackages = function(sinfo, dir, GRepo = NULL, stoponfail = FALSE, biocUseSVN = FALSE) {
     if(!(is(sinfo, "sessionInfo") || is(sinfo, "character") || is(sinfo, "parsedSessionInfo"))){
         stop("sinfo must be a character vector or sessionInfo object")
     }
@@ -69,7 +69,7 @@ getSessionPackages = function(sinfo, dir, GRepo = NULL, stoponfail = FALSE) {
 ##' @param pkgcol The column in \code{pkgs} or \code{pkgsdf} containing the package names
 ##' @param verscol The column in \code{pkgs} or \code{pkgsdf} containing the package versions
 ##' @export
-getPkgVersions = function(pkgs, dir, GRepo = NULL, stoponfail = FALSE,pkgcol = "Package", verscol = "Version") {
+getPkgVersions = function(pkgs, dir, GRepo = NULL, stoponfail = FALSE,pkgcol = "Package", verscol = "Version", biocUseSVN = FALSE) {
   
     if(!(is.null(GRepo) || is(GRepo, "character") || is(GRepo, "GRANRepository"))){
         stop("if GRepo is specified it must be a GRANRepository object or directory path")
@@ -88,7 +88,7 @@ getPkgVersions = function(pkgs, dir, GRepo = NULL, stoponfail = FALSE,pkgcol = "
     ##they are not in any repo and only ship with R itself
     pkgs = pkgs[!pkgs[[pkgcol]] %in% basepkgs,]
     fils = mapply(locatePkgVersion, name = pkgs[[pkgcol]], version = pkgs[[verscol]],
-        repo = list(GRepo), SIMPLIFY=FALSE)
+        repo = list(GRepo), SIMPLIFY=FALSE, biocUseSVN = biocUseSVN)
     if(any(sapply(fils, function(x) length(x) == 0)))
     {
         msg = "Unable to locate the correct version of some packages."
@@ -140,13 +140,16 @@ getPkgVersions = function(pkgs, dir, GRepo = NULL, stoponfail = FALSE,pkgcol = "
 ##' contain only the packages for this set of package versions. In generally this should
 ##' *not* be your standard library location.
 ##' @param Rvers The R version to build into the repository structure, if desired. Defaults to no specific version (suitable for src packages).
+##' @param pkgcol  Column in the dataframe that contains package name
+##' @param verscol Column in the dataframe taht contains package version
+##' @param biocUseSVN Use SVN instead of git-svn to trawl Bioc repository. This is faster (though not fast) for single use but does NOT amortize future costs.
 ##' 
 ##' @return for \code{makeVirtualRepo} and \code{sessionRepo}, the path to the created virtual repository
 ##' @author Gabriel Becker
 ##' @importFrom digest digest
 ##' @export
 
-makeVirtualRepo = function(pkgdf, repo_dir, doi,  dir, name=NULL, replace=FALSE, stoponfail=TRUE, GRepo, install=FALSE, libloc = NULL, Rvers="", pkgcol = "Package", verscol = "Version") {
+makeVirtualRepo = function(pkgdf, repo_dir, doi,  dir, name=NULL, replace=FALSE, stoponfail=TRUE, GRepo, install=FALSE, libloc = NULL, Rvers="", pkgcol = "Package", verscol = "Version", biocUseSVN = FALSE) {
 
     if(!is.null(GRepo) && !is(GRepo, "character") && !is(GRepo, "GRANRepository")) {
         stop("if GRepo is specified it must be a GRANRepository object or directory path")
@@ -192,7 +195,7 @@ makeVirtualRepo = function(pkgdf, repo_dir, doi,  dir, name=NULL, replace=FALSE,
         }
     }
 
-    fils = getPkgVersions(pkgs = pkgdf, dir = dir, GRepo = GRepo, stoponfail = stoponfail, pkgcol = pkgcol, verscol = verscol)
+    fils = getPkgVersions(pkgs = pkgdf, dir = dir, GRepo = GRepo, stoponfail = stoponfail, pkgcol = pkgcol, verscol = verscol, biocUseSVN)
     
     if(!file.exists(vrepoloc))
         dir.create(vrepoloc, recursive=TRUE)
@@ -234,12 +237,13 @@ makeVirtualRepo = function(pkgdf, repo_dir, doi,  dir, name=NULL, replace=FALSE,
 ##' using \code{makeVirtualRepo} or \code{sessionRepo}
 ##' @author Gabriel Becker
 ##' @export
-installPkgVersion = function(name, version, repo = NULL,
+installPkgVersion = function(name, version, repo = NULL, 
     dir = if(is.null(repo)) tempdir() else notrack(repo),
     libloc = .libPaths()[1],
+    biocUseSVN = FALSE,
     ...) {
     fname = locatePkgVersion(name = name, repo = repo,
-        version = version, dir = dir)
+        version = version, dir = dir, biocUseSVN = biocUseSVN)
     if(is.null(fname))
         stop(paste("Unable to find version", version,
                    "of package", name))
@@ -256,11 +260,12 @@ installPkgVersion = function(name, version, repo = NULL,
 ##' @param version package version string
 ##' @param repo (optional) GRANRepository object to search
 ##' @param dir directory to download package into
+##' @param biocUseSVN logical. Should svn be used instead of git-svn to trawl  Bioc repositories. This is faster (but  not fast) for single use but does not reduce the cost of future searches.
 ##' @return The full path to the downloaded file , or NULL if unable to
 ##' locate the package
 ##' @author Gabriel Becker
 ##' @export
-locatePkgVersion = function(name, version, repo = NULL, dir = if(is.null(repo)) tempdir() else notrack(repo)) {
+locatePkgVersion = function(name, version, repo = NULL, dir = if(is.null(repo)) tempdir() else notrack(repo), biocUseSVN = FALSE) {
     ##There are %three places we might find what we need in increasing order of computational cost:
     ##1. Already in the parent repository (including the associated notrack directory)
     ##2. In the cran archives
@@ -279,7 +284,7 @@ locatePkgVersion = function(name, version, repo = NULL, dir = if(is.null(repo)) 
         return(fname)
 
     ##round 2b: Look in bioc repo and SVN
-    fname = findPkgVersionInBioc(name, version, repo, dir = dir)
+    fname = findPkgVersionInBioc(name, version, repo, dir = dir, useSVN = biocUseSVN)
     if(length(fname) && file.exists(fname))
         return(fname)
     
@@ -339,59 +344,192 @@ findPkgVersionInCRAN = function(name, version, repo, dir)
     destfile
 }
         
-##' @importFrom BiocInstaller biocinstallRepos
+##' @importFrom BiocInstaller biocinstallRepos biocVersion
 ##XXX This will only find package versions that exist on the trunk! New pkg versions created on old branches after a new release are missed!!!
-findPkgVersionInBioc = function(name, version, repo, dir)
+findPkgVersionInBioc = function(name, version, repo, dir, useSVN = FALSE)
 {
-    destpath = dir
-    urls = contrib.url(biocinstallRepos())
-    urls = urls[-length(urls)]
-    pkgs = as.data.frame(available.packages(urls, fields = c("Package", "Version")))
-    pkg = pkgs[pkgs$Package == name,]
-    if(!nrow(pkg))
-        return(NULL)
     
-    if(nrow(pkg) && pkg$Version == version)
-    {
-        ret = download.packages(name, destdir = destpath, repos = biocinstallRepos())[1,2]
-    } else {
-        src = makeSource(url = paste0("https://hedgehog.fhcrc.org/bioconductor/trunk/madman/Rpacks/", name), type = "gitsvn", user = "readonly", password="readonly")
-        ret = makePkgSourceDir(name = name, source = src, path = destpath, repo = repo)
-        if(!ret)
-            return(NULL)
-        oldwd = getwd()
-        setwd(file.path(destpath, name))
-        on.exit(setwd(oldwd))
-        revs = tryCatch(system_w_init("git svn log -p DESCRIPTION",
-            intern = TRUE, repo = repo), error = function(e) e)
-        if(is(revs, "error") || !length(revs))
-            return(NULL)
+    ret = .biocTryToDL(name, version, dir = dir)
+    if(!is.null(ret$file))
+        return(ret$file)
+    else {
+        br = ret$biocVers
+        ##XXX need to figure out how to deal with bioc branches.
+        ## they aren't at the package level so this is difficult
 
-        revspots  = grep("^r([0-9]+)", revs)
-        found = grep(paste0("\\+[Vv]ersion:.*", version), revs)
-        if(!length(found))
-            return(NULL)
-        pos = max(revspots[revspots < found])
-        commit = gsub("^(r[0-9]+).*", "\\1", revs[pos])
-        gitcommit = system_w_init(paste("git svn find-rev", commit),
-            intern=TRUE, repo = repo)
-        cmd = paste0("git checkout ", gitcommit)
-        res = system_w_init(cmd, intern=TRUE, repo = repo)
-        if(is(res, "error")) {
-            warning("git svn was unable to checkout the identified commit")
-            return(NULL)
-        }
+        if(!file.exists(dir))
+            dir.create(dir, recursive=TRUE)
+        oldwd = getwd()
+        setwd(dir)
+        on.exit(setwd(oldwd))
         
-        pkgdir = getwd()
-        setwd(destpath)
+        commit = findSVNRev(name, version, destpath = dir, repo = repo, ret$biocVers)
+        if(is.null(commit))
+            return(NULL)
+     ##   pkgdir = file.path(getwd(), name)
+     ##   setwd(pkgdir)
+     ##   cmd = paste0("svn switch -r", commit) #commit has the r so we get -rXXXX
+     ##   browser()
+     ##   res = system_w_init(cmd, intern=TRUE, repo = repo)
+     ##   if(is(res, "error")) {
+     ##       warning(" unable to checkout the identified commit")
+     ##       return(NULL)
+     ##   }
+        pkgdir = file.path(dir, name)
         system_w_init(paste("R CMD build --no-build-vignettes --no-resave-data --no-manual", pkgdir), repo = repo)
         ret = normalizePath2(list.files(pattern  = paste0(name, "_", version, ".tar.gz"), full.names=TRUE))
-
         setwd(pkgdir)
-        system_w_init("git checkout master", repo = repo)
+        system_w_init("svn up", repo = repo) #this gets us back to the trunk
+
     }
     ret
 }
 
 
-    ##svn log -q VERSION | grep ^r | awk '{print $1}' | sed -e 's/^r//' 
+## tries to download the file. Returns list with two elements (file:dl'ed file or NULL and versionToSearch:bioc version)
+.biocTryToDL = function(name, version, repo, dir, verbose = FALSE) {
+    
+    destpath = dir
+    ##    urls = contrib.url(biocinstallRepos())
+    ##    urls = urls[-length(urls)]
+    urls = contrib.url(highestBiocVers())
+#    biocVers = as.character(biocVersion())
+    biocVers = biocVersFromRepo(urls)
+    
+    pkgAvail = TRUE
+    everAvail = FALSE
+    ret = NULL
+    while(!is.null(urls) && pkgAvail && is.null(ret)) {
+        if(verbose)
+            message(sprintf("Searching Bioc repository for release %s", biocVersFromRepo(urls)))
+        
+        pkgs = as.data.frame(available.packages(urls, fields = c("Package", "Version")), stringsAsFactors=FALSE)
+        pkg = pkgs[pkgs$Package == name,]       
+        
+        pkgAvail = nrow(pkg) > 0
+        
+        if(pkgAvail) {
+            everAvail = TRUE
+            versAvail = pkg[,"Version"]       
+            if(compareVersion(versAvail, version) < 0) {
+                if(verbose)
+                    message(sprintf("Bioc repo for release %s has package version %s, earlier than desired version %s", biocVersFromRepo(urls), versAvail, version))
+                pkgAvail = FALSE
+            } else if (compareVersion(versAvail, version) == 0) {
+                                        #                ret = download.packages(name, destdir = destpath, repos = urls)[1,2]
+                filname = paste0(name, "_", version, .getExt(pkg[1,"Repository"]))
+                dstfile = file.path(dir, filname)
+                ret = tryCatch(download.file(paste(pkg[1,"Repository"], filname, sep="/"), destfile=dstfile), error=function(x) x)
+                if(!is(ret, "error") && ret == 0) {
+                    ret = dstfile
+                    if(verbose)
+                        message(sprintf("FOUND package %s version %s in Bioc release repository %s", name, version, biocVersFromRepo(urls)))
+                } else {
+                    stop(paste("Package version found but error occured when trying to retrieve it:", ret))
+                }
+            } else {
+                biocVers = biocVersFromRepo(urls)
+                urls = decrBiocRepo(urls)
+            }
+            
+        }
+        
+    }
+    list(file = ret, biocVers = biocVers)
+    
+}
+
+.getExt = function(repourl) {
+    typ = gsub(".*/(.*)/contrib", "\\1", repourl)
+    switch(typ,
+           src = ".tar.gz",
+           win = ".zip",
+           mac = ".tgz")
+}
+
+
+findSVNRev = function(name, version, destpath, repo, biocVers="trunk")
+{
+    if(biocVers != biocVersFromRepo(highestBiocVers()) && biocVers != "trunk") {
+##        addl_dir = paste0("BioC_", biocVers)
+        biocVers = paste("branches/RELEASE", gsub(".", "_", biocVers, fixed=TRUE), sep="_")
+    } else {
+##        biocVers = "trunk"
+        addl_dir = ""
+    }
+
+    pkgdir = file.path(destpath, name) ##file.path(destpath, addl_dir)
+    repoloc = paste0("https://hedgehog.fhcrc.org/bioconductor/", biocVers, "/madman/Rpacks/", name)
+    if(!file.exists(pkgdir)) {
+        src = makeSource(url = repoloc, type = "svn", user = "readonly", password="readonly")
+        ##ret = makePkgSourceDir(name = name, source = src, path = file.path(destpath, addl_dir), repo = repo)
+        ret = makePkgSourceDir(name = name, source = src, path = destpath, repo = repo)
+        
+        if(!ret)
+            return(NULL)
+    }         
+
+    oldwd = getwd()
+    setwd(file.path(destpath,  name))
+    on.exit(setwd(oldwd))
+    system_w_init(paste("svn switch --ignore-ancestry", repoloc))
+    
+    cmd0 = "svn log -r 1:HEAD --limit 1 DESCRIPTION"
+    revs = system_w_init(cmd0, intern=TRUE, repo = repo)
+    minrev = as.numeric(gsub("r([[:digit:]]*).*", "\\1", revs[2])) #first line is -------------------
+     cmd1 = "svn log -r HEAD:1 --limit 1 DESCRIPTION"
+    revs2 = system_w_init(cmd1, intern=TRUE, repo= repo)
+    maxrev = as.numeric(gsub("r([[:digit:]]*).*", "\\1", revs2[2]))
+    
+    currev = floor((maxrev+minrev)/2)
+    
+    commit = binRevSearch(version, currev = currev, maxrev = maxrev, minrev = minrev, found = FALSE)
+    cmd2 = paste("svn switch --ignore-ancestry -r", commit, repoloc)
+    system_w_init(cmd2, repo = repo)
+    return(commit)
+        
+}
+    
+binRevSearch = function(version, currev, maxrev, minrev, repo, found = FALSE)
+{
+    cmd = paste("svn diff --revision", paste(currev, maxrev, sep=":"), "DESCRIPTION")
+                                        #  revs = tryCatch(system_w_init(cmd, intern=TRUE, repo=repo), error=function(x) x)
+    revs = tryCatch(system(cmd, intern=TRUE), error=function(x) x)
+    
+    revVersions = grep(".*[Vv]ersion:", revs, value=TRUE)
+    if(is(revs, "error"))
+        return(NULL)
+
+    if(!length(revVersions)) {
+        if(minrev == maxrev - 1) {
+            if(found)
+                return(minrev)
+            else
+                return(NULL)
+        } else {
+            return(binRevSearch(version, floor((minrev + currev )/2),  currev, minrev, repo, found = found))
+        }
+    }
+        
+    revVNums = gsub(".*:(.*)", "\\1", revVersions)
+    afterInd = grep("+", revVersions, fixed=TRUE)
+    after = revVNums[afterInd]
+    before = revVNums[-afterInd]
+    if(compareVersion(after, version) == 0)
+        found = TRUE
+    if(minrev == maxrev -1) {
+        if(compareVersion(after, version) == 0)
+            return(maxrev)
+        else if (compareVersion(before, version) == 0)
+            return(minrev)
+        else
+            return(NULL)
+    } else if(compareVersion(before, version) == -1)
+        return(binRevSearch(version, floor((currev + maxrev)/2), maxrev, currev, repo, found = found))
+    else
+        return(binRevSearch(version, floor((minrev + currev )/2),  currev, minrev, repo, found = found))
+}
+                                        #-1 is second is later, 1 if first is later
+        
+        ##svn log -q VERSION | grep ^r | awk '{print $1}' | sed -e 's/^r//' 
+        

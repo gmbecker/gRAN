@@ -237,7 +237,8 @@ getBuildingManifest = function(repo, manifest = repo@manifest)
 
 normalizePath2 = function(path, follow.symlinks=FALSE)
     {
-        if(follow.symlinks)
+        
+        if(follow.symlinks || Sys.info()["sysname"]=="Windows")
             normalizePath(path)
         else {
             if(substr(path, 1, 1) == "~")
@@ -275,3 +276,47 @@ system_w_init = function(cmd, ..., repo = NULL)
         cmd = paste(paste("source", repo@shell_init), cmd, sep = " ; ")
     system(cmd, ...)
 }
+
+highestVs = c(9, 14, 0)
+
+decrBiocVersion = function(biocVers) {
+    vals = strsplit(biocVers, ".", fixed=TRUE)[[1]]
+    vals  = as.numeric(vals)
+    if(identical(vals, c(1,0))) {
+        NULL
+    } else if (vals[2] == 0) {
+        vals[1] = vals[1] - 1 #decrement major version
+        vals[2] = highestVs[ vals[1] ] #set to highest minor version for that major
+    } else {
+        vals[2] = vals[2] - 1
+    }
+    paste(vals, collapse=".")
+}
+
+decrBiocRepo = function(repos, vers = biocVersFromRepo(repos)) {
+    if(!is.character(vers))
+        vers = as.character(vers)
+
+    pieces = strsplit(repos, vers, fixed=TRUE)
+    newvers = decrBiocVersion(vers)
+    if(is.null(newvers)) {
+        warning("Cannot decrement bioc repo version below 1.0")
+        return(NULL)
+    }
+    sapply(pieces, function(x) paste0(x, collapse = newvers))
+}
+
+biocVersFromRepo = function(repos) gsub(".*/([0-9][^/]*)/.*", "\\1", repos[1])
+
+highestBiocVers = function(repos = biocinstallRepos()[-length(biocinstallRepos())] ) {
+    majvers = length(highestVs)
+##    if(highestVs[majvers] > 0)
+##        vers = paste(majvers, highestVs[majvers] - 1, sep=".")
+##    else
+##        vers = paste(majvers -1, highestVs[majvers-1], sep=".")
+    vers = paste(majvers, highestVs[majvers], sep=".")
+    bef= gsub("(.*/)[0-9][^/]*/.*", "\\1", repos)
+    af = gsub(".*/[0-9][^/]*(/.*)", "\\1", repos)
+    paste0(bef, vers, af)
+}
+    
