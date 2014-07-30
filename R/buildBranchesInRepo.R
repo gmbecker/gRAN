@@ -3,17 +3,14 @@
 ##' 
 ##' @title Build SVN Checkouts Into Repository Directory 
 ##' @param repo a GRANRepository object
-##' @param cores number of cores to use during build process. defaults to detected cores/2
+##' @param cores number of cores to use during build process. defaults to 1
 ##' @param temp logical. whether we are building the temp or final version of the repository
 ##' @param incremental logical. whether packages should only be rebuilt if the version number has increased. Default is TRUE
 ##' @param manifest data.frame containing a GRAN manifest of pkgs to build. Defaults to the full manifest associated with repo
 ##' @return a list with success and fail elements containing the directories which succeeded and failed the build
 ##' @author Cory Barr, Gabriel Becker
-##' @importFrom parallel mclapply
-##' @importFrom parallel mcmapply
-##' @importFrom parallel detectCores
 ##' @importFrom tools write_PACKAGES
-buildBranchesInRepo <- function( repo, cores = detectCores()/2L, temp=FALSE, incremental = TRUE, manifest = repo@manifest) {
+buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE, manifest = repo@manifest) {
   
 #  if(temp)
  #       binds = which(manifest$building)
@@ -26,7 +23,7 @@ buildBranchesInRepo <- function( repo, cores = detectCores()/2L, temp=FALSE, inc
         return(repo)
     }
     manifest = getBuildingManifest(repo, manifest) #manifest[binds,]
-    svnCheckoutsLoc = getCheckoutLocs(repo@tempCheckout, manifest, manifest$branch)
+    svnCheckoutsLoc = getCheckoutLocs(checkout_dir(repo), manifest, manifest$branch)
     if(temp) {
         repoLoc = repo@tempRepo
         if(!grepl("src/contrib", repoLoc, fixed=TRUE))
@@ -49,7 +46,7 @@ buildBranchesInRepo <- function( repo, cores = detectCores()/2L, temp=FALSE, inc
     setwd(repoLoc)
     writeGRANLog("NA", paste0("Attempting to build ", sum(manifest$building), " into ", repoLoc), repo = repo)
 
-    res <- mcmapply(#svnCheckoutsLoc,
+    res <- mcmapply2(#svnCheckoutsLoc,
                     ##res <- mapply(
                     function (checkout, repo, opts, oldver, incremental) {
                         #incremental build logic. If incremental == TRUE, we only rebuild if the package version number has bumped.
@@ -109,7 +106,7 @@ buildBranchesInRepo <- function( repo, cores = detectCores()/2L, temp=FALSE, inc
     res2 = res[!sameversion]
     manifest$status[!sameversion] = ifelse(res2=="ok", "ok", "build failed")
     manifest$version[built] = versions[built]
-    manifest$maintainer = getMaintainers(repo@tempCheckout,
+    manifest$maintainer = getMaintainers(checkout_dir(repo),
                            manifest = manifest)
     repo@manifest[binds,] = manifest
     repo

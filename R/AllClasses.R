@@ -153,25 +153,3 @@ setClass("parsedSessionInfo", representation(version = "character",
                                              platform="character",
                                              attached = "data.frame",
                                              loaded = "data.frame"))
-
-
-##'@export
-setClass("RComputingEnv", representation(name = "character",
-                                         libpaths = "character",
-                                         exclude.site = "logical",
-                                         packages = "data.frame"))
-
-##'@export
-RComputingEnv = function(name, libpaths, exclude.site = TRUE) {
-    if(exclude.site)
-        pathsToLook = unique(c(libpaths, .Library))
-    else
-        pathsToLook = unique(c(libpaths, .Library.site, .Library))
-
-    pkgs = installed.packages(pathsToLook, noCache=TRUE)[,c("Package", "Version", "LibPath")]
-    pkgs = pkgs[!duplicated(pkgs[,"Package"]),]
-    pkgs = as.data.frame(pkgs, stringsAsFactors = FALSE)
-    
-    new("RComputingEnv", name= name, libpaths = libpaths, exclude.site = exclude.site, packages = pkgs)
-
-}

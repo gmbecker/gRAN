@@ -76,8 +76,11 @@ installTest = function(repo, cores = 3L)
                      type ="full", repo = repo)
         return(repo)
     }
-    
-    res = install.packages2(bman$name, lib = loc, repos = c(paste0("file://",repo@tempRepo), BiocInstaller::biocinstallRepos(), "http://R-Forge.R-project.org"), dependencies = TRUE, type = "source")
+
+    oldlp = .libPaths()
+    .libPaths(loc)
+    on.exit(.libPaths(oldlp))
+    res = install.packages2(bman$name, lib = loc, repos = c(paste0("file://",repo@tempRepo), BiocInstaller::biocinstallRepos(), "http://R-Forge.R-project.org"), type = "source", dependencies=TRUE)
     success = processInstOut(names(res), res, repo)
     cleanupInstOut(res)
     
@@ -99,8 +102,11 @@ processInstOut = function(pkg, out, repo)
     if(out == "ok") {
         writeGRANLog(pkg, paste0("Successfully installed package ", pkg, " from temporary repository"), repo = repo)
         ret = TRUE
+    } else if (out == "unavailable") {
+        writeGRANLog(pkg, paste("Package", pkg, "unavailable in temporary repository. Likely package name mismatch between manifest and DESCRIPTION file"), repo = repo, type = "both")
+        ret = FALSE
     } else {
-        writeGRANLog(pkg, paste0("Installation of ", pkg, " from temporary repository failedf"), repo = repo, type="both")
+        writeGRANLog(pkg, paste0("Installation of ", pkg, " from temporary repository failed"), repo = repo, type="both")
         writeGRANLog(pkg, c("Installation output:", readLines(out)), type = "error", repo = repo)
         ret = FALSE
     }
@@ -142,7 +148,7 @@ checkTest = function(repo, cores = 3L)
     ord = mapply(function(nm, vr) grep(paste0(nm, "_", vr), tars), nm = bman$name, vr = bman$version)
     
     tars = tars[unlist(ord)]
-    outs = mcmapply( function(tar, nm, repo) {
+    outs = mcmapply2( function(tar, nm, repo) {
         writeGRANLog(nm, paste("Running R CMD check on ", tar), repo = repo)
         cmd = paste0("R_LIBS='", LibLoc(repo), "'  ", repo@rversion, " CMD check ", tar)
         out = tryCatch(system_w_init(cmd, intern=TRUE, repo = repo),

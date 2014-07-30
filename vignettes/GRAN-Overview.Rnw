@@ -55,7 +55,9 @@ The \Rfunction{makeManifestRow} convenience function is provided to assist in th
 Given a \gran manifest, initial construction and rebuilding of individual \gran repositories (referred to as \textit{subrepositories} because \gran supports a form of branched deployment) is performed via the \Rfunction{makeSingleGRANRepo} function. For example:
 
 <<eval=TRUE>>=
-man = makeManifestRow(name="toypkg", url = system.file("toypkg", package = currentPackage()),
+#man = makeManifestRow(name="toypkg", url = system.file("testpkgs", "toypkg", package = currentPackage()),
+testpkgs = list.files(system.file("testpkgs", package = currentPackage()), full.names = TRUE)
+man = makeManifestRow(name = basename(testpkgs), url = testpkgs, 
     type = "local", subrepo = "stable", subdir=".")
 repdir = file.path(tempdir(), "repos")
 dir.create(repdir)

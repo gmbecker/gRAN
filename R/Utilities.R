@@ -201,7 +201,7 @@ isOkStatus = function(status= manifest$status, manifest = repo@manifest, repo)
                       (repo@checkNoteOk & status == "check note(s)"))
 }
 
-install.packages2 = function(pkgs, ...)
+install.packages2 = function(pkgs, repos, ...)
 {
     outdir = tempdir()
     wd = getwd()
@@ -210,9 +210,12 @@ install.packages2 = function(pkgs, ...)
     ## the keep_outputs=dir logic doesn't work, the files just
     ##end up in both locations!
     ##install.packages(pkgs, ..., keep_outputs=outdir)
-    install.packages(pkgs, ..., keep_outputs=TRUE)
+    avail = available.packages(contrib.url(repos))
+    install.packages(pkgs, repos, ..., keep_outputs=TRUE)
     ret = sapply(pkgs, function(p)
     {
+        if(! p %in% avail[,"Package"])
+            return("unavailable")
         fil = file.path(outdir, paste0(p, ".out"))
         tmp = readLines(fil)
         outcome = tmp[length(tmp)]

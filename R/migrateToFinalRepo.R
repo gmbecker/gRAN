@@ -5,7 +5,8 @@ migrateToFinalRepo = function(repo)
 
     man = repo@manifest
     bman = getBuildingManifest(repo = repo)
-    
+
+    repo = markFailedRevDeps(repo)
     writeGRANLog("NA", paste("Migrating", sum(getBuilding(repo)), "successfully built and tested packages to final repository at", repoLoc), repo = repo)
 
     
@@ -44,8 +45,25 @@ migrateToFinalRepo = function(repo)
 
     repo
 }
-    
 
+##' @importFrom tools package_dependencies
+markFailedRevDeps = function(repo) {
+    bman = getBuildingManifest(repo)
+    rdpkgs = package_dependencies(bman$name, which = c("Depends", "Imports", "LinkingTo"),
+        db = installed.packages(LibLoc(repo), noCache = TRUE), recursive= TRUE)
+    keep = sapply(rdpkgs, function(x, bman) {
+        length(rdpkgs) == 0 || all(rdpkgs %in% bman$name)
+    }, bman = bman)
+    
+    rempkgs = bman[!keep, "package"]
+    if(!all(keep)) {
+        sapply(rempkgs, function(x) writeGRANLog(x, "One or more package dependencies failed to build. Not deploying package.", repo = repo, type = "both"))
+        repo@manifest$status[repo@manifest$name %in% rempkgs] = "Dependency build failure"
+    }
+    repo
+}
+    
+    
 
 
    

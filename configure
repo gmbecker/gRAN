@@ -13,7 +13,7 @@ vignettes
 inst/bibliography
 inst/js_css
 inst/templates
-inst/toypkg"
+inst/testpkgs"
 
 DIR="GRAN"
 echo "Creating copy of GRAN package in inst/$DIR to be installed in any created repositories."

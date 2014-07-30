@@ -220,6 +220,8 @@ makeSingleGRANRepo = function(
     repo = makeSrcDirs(repo, cores = cores, scm_auth = scm_auth)
     #add reverse dependencies to build list
     repo = addRevDeps(repo)
+    ##do checkouts again to grab reverse deps
+    repo = makeSrcDirs(repo, cores = cores, scm_auth = scm_auth)
     #build temp repository
     print(paste("Starting buildBranchesInRepo", Sys.time()))
     print(paste("Building", sum(getBuilding(repo)), "packages"))

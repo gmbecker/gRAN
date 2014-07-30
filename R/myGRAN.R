@@ -28,7 +28,11 @@ GRANRepo = new.env()
 
 GRANRepo$repo = NULL
 
-defaultGRAN = function() GRANREpo$repo
+##' defaultGRAN
+##'
+##' Return the default GRAN repository for this package, or NULL.
+##' @export
+defaultGRAN = function() GRANRepo$repo
 
 ##' currentPackage
 ##'

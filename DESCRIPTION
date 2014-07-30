@@ -13,7 +13,6 @@ License: Artistic-2.0
 Imports:
     tools,
     BiocInstaller,
-    parallel,
     XML,
     brew,
     hwriter,
@@ -22,6 +21,7 @@ Depends:
     methods
 Suggests:
     getopt,
+    parallel,
     BiocStyle
-SystemRequirements: svn, git, git-svn
+SystemRequirements: svn, git
 Packaged: 2014-06-07 16:35:52 UTC; beckerg4

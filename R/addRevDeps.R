@@ -8,14 +8,7 @@ addRevDeps = function(repo)
     ##manfiest
     repo@manifest$revDepOf = ""
     repo@manifest$revdepends = ""
-    
-    ##if(is.null(repo@manifest$revDepOf))
-    ##    repo@manifest$revDepOf = ""
-    ##else
-    ##    repo@manifest$revDepOf[is.na(repo@manifest$revDepOf)] = ""
-    ##if(is.null(repo@manifest$revdepends))
-    ##    repo@manifest$revdepends = ""
-    
+
     if(is.null(repo@manifest$buildReason))
         repo@manifest$buildReason = ifelse(repo@manifest$building, "vbump", "")
     else {
@@ -28,8 +21,7 @@ addRevDeps = function(repo)
     manifest = repo@manifest
     ##if this is the first time we are building the repository all the packages
     ##will be being built, so no need to check rev deps
-    if(!file.exists(repo@tempLibLoc) || all(getBuilding(repo)))
-    {
+    if(!file.exists(repo@tempLibLoc) || all(getBuilding(repo)))    {
         writeGRANLog("NA", paste("All packages are being built, skipping",
                                  "reverse dependency check."), repo = repo)
         return(repo)
@@ -55,7 +47,7 @@ addRevDeps = function(repo)
                 })
                 rows = unlist(rows)
                 prefix = ifelse(nchar(manifest$revDepOf[rows]) > 0, ",", "")
-##                prefix = ifelse(!is.na(manifest$revDepOf), ",", "")
+
                 manifest$revDepOf[rows] = paste0(manifest$revDepOf[rows],
                                      prefix, pkgname)
             }
@@ -65,8 +57,6 @@ addRevDeps = function(repo)
     }
 
 
-    ##manifest$revdepends[pkgs] = sapply(revdeps, function(x)
-    ##paste(x, collapse = ", "))
     rdepBuildPkgs = manifest$buildReason != "vbump" & !manifest$suspended & grepl(paste0("(", paste(pkgs, collapse="|"), ")"), manifest$revDepOf)
     manifest[rdepBuildPkgs, "buildReason"] = "is rdep"
     manifest[rdepBuildPkgs, "building"] = TRUE 

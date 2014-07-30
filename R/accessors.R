@@ -218,3 +218,23 @@ setMethod("repo_url","GRANRepository",
                                repo@subrepoName,
                                sep="/"))
 
+setMethod("repo_url","NULL", function(repo) NULL)
+
+
+##' checkout_dir
+##' Return the directory that package sources will be checked-out into
+##' for use in the build process
+##'
+##' @rdname checkout_dir-methods
+##' @param repo a GRANRepository object
+##' @return For destination, the full path to the contrib directory the packages
+##' will be deployed to
+##' @export
+setGeneric("checkout_dir", function(repo) standardGeneric("checkout_dir"))
+##' @rdname checkout_dir-methods
+##' @aliases checkout_dir,GRANRepository-method
+##' @export
+setMethod("checkout_dir","GRANRepository",
+          function(repo) repo@tempCheckout)
+
+setMethod("checkout_dir","NULL", function(repo) NULL)
