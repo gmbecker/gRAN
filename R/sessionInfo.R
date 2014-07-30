@@ -25,7 +25,7 @@ getPkgs = function(string, pattern = "other attached packages:")
 {
     start = grep(pattern, string)
     if(!length(start))
-        return(list())
+        return(data.frame())
     ##what we care about starts AFTER the other attacehd pkgs line
     start = start + 1
     end = grep("^$", string[start:length(string)])
