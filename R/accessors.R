@@ -239,16 +239,24 @@ setMethod("checkout_dir","GRANRepository",
 
 setMethod("checkout_dir","NULL", function(repo) NULL)
 
+
 ##' depRepos
 ##'
 ##' Get repositories to be used to fullfill dependencies beyond packages within the manifest
-##' @export
-##' @aliases depRepos,PkgManifest-method
+##' @return Character vector with existing repository urls
 ##' 
+##' @rdname depRepos
+##' @export
+setGeneric("depRepos", function(x) standardGeneric("depRepos"))
+
+
 setMethod("depRepos", "PkgManifest", function(x) x@dependency_repos)
+
+
 
 ##' manifest
 ##' Extract manifest data.frame associated with the manifest
 ##' @aliases manifest,PkgManifest-method
 ##' @export
+setGeneric("manifest", function(x) standardGeneric("manifest"))
 setMethod("manifest", "PkgManifest", function(x) x@manifest)

@@ -4,16 +4,16 @@
 \title{Build a set of GRAN repositories}
 \usage{
 makeGRANRepos(manifest = read.table(file.path(baseDir, subRepos,
-  "GRANmanifest.dat")), Rlocs = c(stable = "R", dev = "Rdevel"),
-  tmpRepoBase = "./tmpRepos", baseDir = "./GRANRepos",
-  tmpCheckout = "./tmpSourceDirs", logfiles = file.path(baseDir, subRepos,
-  paste0("GRANLog-", Sys.Date(), ".log")), errfiles = file.path(baseDir,
-  subRepos, paste0("GRANErrors-", Sys.Date(), ".log")),
-  tempLibLocs = file.path(baseDir, subRepos, "LibLoc"), checkWarnOk = FALSE,
-  checkNoteOk = TRUE, cores = 3L, repos = list(NULL), auth = "",
-  scm_auths = list(list()), dest_bases = normalizePath2(baseDir),
-  dest_urls = paste0("file://", normalizePath2(dest_bases)),
-  shell_inits = "")
+  "GRANmanifest.dat"), header = TRUE, sep = ",", stringsAsFactors = FALSE),
+  Rlocs = c(stable = "R", dev = "Rdevel"), tmpRepoBase = "./tmpRepos",
+  baseDir = "./GRANRepos", tmpCheckout = "./tmpSourceDirs",
+  logfiles = file.path(baseDir, subRepos, paste0("GRANLog-", Sys.Date(),
+  ".log")), errfiles = file.path(baseDir, subRepos, paste0("GRANErrors-",
+  Sys.Date(), ".log")), tempLibLocs = file.path(baseDir, subRepos, "LibLoc"),
+  checkWarnOk = FALSE, checkNoteOk = TRUE, cores = 3L,
+  repos = list(NULL), auth = "", scm_auths = list(list()),
+  dest_bases = normalizePath2(baseDir), dest_urls = paste0("file://",
+  normalizePath2(dest_bases)), shell_inits = "")
 }
 \arguments{
 \item{manifest}{a data.frame containing the name, url, type of checkout, subdir, subrepo, branch, and extra. This single manifest should contain information for all repositories to be built. Overridden if repos are specified}

@@ -3,11 +3,11 @@
 \alias{readPkgsNEWS}
 \title{Read and summarize the NEWS files for packages at risk (updatable)}
 \usage{
-readPkgsNEWS(df, tmplib = file.path(tempdir(), "libloc"),
-  repos = biocinstallRepos())
+readPkgsNEWS(df, oldlib = .libPaths(), tmplib = file.path(tempdir(),
+  "libloc"), repos = unique(df$Repository), newlib = NULL)
 }
 \arguments{
-\item{df}{A data.frame or matrix of out-of-date packages currently installed, with columns Package, Installed (installed version), and Repository (contriburl of repo with newer version). Other columns are ignored.}
+\item{df}{A data.frame or matrix of out-of-date packages currently installed, with columns Package, Installed (installed version), and Repository (contriburl of repo with newer version). Other columns are ignored. A}
 
 \item{tmplib}{A temporary library directory to install new versions of the packages into so that their NEWS files can be accessed.}
 }

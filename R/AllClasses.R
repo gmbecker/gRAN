@@ -161,7 +161,7 @@ setClass("PkgManifest", representation( manifest = "data.frame",
                                           dependency_repos = "character"))
 
 ##'@export
-##' @import Rcurl
+##' @import RCurl
 PkgManifest = function(manifest, dep_repos = c(biocinstallRepos(), defaultGRAN()), ...) {
     if(is.character(manifest)) {
         if(is.url(manifest)) {

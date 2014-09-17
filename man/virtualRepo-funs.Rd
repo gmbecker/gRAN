@@ -23,7 +23,7 @@ The repository is the constructed as a sibling to \code{repo}'s repository using
 \usage{
 sessionRepo(sinfo = sessionInfo(), repo_dir, doi = NULL, dir, name = NULL,
   replace = FALSE, stoponfail = TRUE, GRepo = GRANRepo$repo,
-  install = FALSE, libloc = NULL, biocUseSVN = FALSE)
+  install = FALSE, libloc = NULL, biocUseSVN = TRUE)
 
 getSessionPackages(sinfo, dir, GRepo = NULL, stoponfail = FALSE,
   biocUseSVN = FALSE)
