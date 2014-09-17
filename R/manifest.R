@@ -50,12 +50,12 @@ emptyManifest = data.frame(name = character(),
 ##' removal from the manifest). Defaults to FALSE
 ##' @return A valid GRAN manifest data.frame
 ##' @export
-makeManifestRow = function(name = NA,
+ManifestRow = function(name = NA,
     url = NA,
     type = NA,
     subrepo = "current",
     branch = NA,
-    subdir = NA,
+    subdir = ".",
     extra = NA,
     status = NA,
     building = NA,
@@ -71,7 +71,11 @@ makeManifestRow = function(name = NA,
     suspended  = FALSE
     ) {
 
-data.frame(name = name, url = url, type = type, subrepo = subrepo,
+    if(is.na(type) && !is.na(url))
+        type = .inferType(url)
+    if(is.na(branch) && !is.na(type))
+        branch = .inferDefaultBranch(branch, type)
+    data.frame(name = name, url = url, type = type, subrepo = subrepo,
            branch = branch, subdir = subdir, extra = extra, status = status,
            version = version, lastAttempt = lastAttempt,
            lastAttemptVersion = lastAttemptVersion,
@@ -81,6 +85,19 @@ data.frame(name = name, url = url, type = type, subrepo = subrepo,
            suspended=suspended, building = building, maintainer = maintainer,
            stringsAsFactors = FALSE)
 }
+
+Manifest = function(..., dep_repos = c(biocinstallRepos(), defaultGRAN())) {
+    rows = mapply(ManifestRow, ..., SIMPLIFY=FALSE)
+    PkgManifest(manifest = do.call(rbind.data.frame, rows), dep_repos = dep_repos)
+}
+
+GithubManifest = function( ..., pkgrepos = as.character(list(...))) {
+
+    names = gsub(".*/(.*)(.git){0,1}$", "\\1", repos)
+    Manifest(url = paste0("https://github.com/", repos, ".git"),
+             type = "git", branch = "master", name = names)
+}
+    
 
 readManifest =function(file = repoManifest(repo), repo, returnFull = FALSE)
 {
@@ -186,4 +203,20 @@ addToManifest = function(repo, row)
     ret
 }
         
+gitregex = "^(git:.*|http{0,1}://(www.){0,1}(github|bitbucket)\\.com.*|.*\\.git)$"
 
+
+.inferType = function(urls) {
+    types = character(length(urls))
+    gits = grep(gitregex, urls)
+    types[gits] = "git"
+    types
+}
+
+.inferDefaultBranch= function(branch, type) {
+    switch(type,
+           git = "master",
+           svn = "trunk",
+           NA)
+}
+           

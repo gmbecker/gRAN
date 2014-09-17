@@ -26,7 +26,8 @@
 ##' @family buildRepos
 ##' @export
 makeGRANRepos <- function(
-    manifest = read.table(file.path(baseDir, subRepos, "GRANmanifest.dat")),
+    manifest = read.table(file.path(baseDir, subRepos, "GRANmanifest.dat"), header = TRUE, sep=",",
+        stringsAsFactors=FALSE),
     Rlocs = c(stable = "R", dev = "Rdevel"),
     tmpRepoBase = "./tmpRepos",
     baseDir= "./GRANRepos",
@@ -162,7 +163,7 @@ makeSingleGRANRepo = function(
         manifest = readManifest(repo = repo)
     
     if(is(manifest, "character"))
-        manifest = read.table(manifest, header = TRUE, stringsAsFactors = FALSE)
+        manifest = read.table(manifest, header = TRUE, stringsAsFactors = FALSE, sep=",")
 
     if(!is(manifest, "data.frame"))
         stop("manifest doesn't seem to be or point to a GRAN manifest")

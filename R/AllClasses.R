@@ -153,3 +153,31 @@ setClass("parsedSessionInfo", representation(version = "character",
                                              platform="character",
                                              attached = "data.frame",
                                              loaded = "data.frame"))
+
+
+##'@export
+##'
+setClass("PkgManifest", representation( manifest = "data.frame",
+                                          dependency_repos = "character"))
+
+##'@export
+##' @import Rcurl
+PkgManifest = function(manifest, dep_repos = c(biocinstallRepos(), defaultGRAN()), ...) {
+    if(is.character(manifest)) {
+        if(is.url(manifest)) {
+            fil = tempfile()
+            download.file(manifest, method = "curl", fil)
+            manifest  = fil
+        }
+
+        if(file.exists(manifest))
+            manifest = read.table(manifest, ...)
+        else
+            stop("invalid manifest")
+    }
+
+    new("PkgManifest", manifest - manifest, dep_repos = dep_repos)
+}
+
+
+                                          

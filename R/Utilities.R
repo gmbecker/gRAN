@@ -271,7 +271,7 @@ normalizePath2 = function(path, follow.symlinks=FALSE)
 
 ##source an initialization script (e.g. .bashrc) if specified
 ## in repo@shell_init
-system_w_init = function(cmd, ..., repo = NULL)
+system_w_init = function(cmd, ..., repo = defaultGRAN())
 {
     if(length(cmd) > 1)
         stop("cmd should be of length 1")

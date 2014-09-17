@@ -94,30 +94,44 @@ buildRiskReport = function(to_update = old.packages(repos = repo_urls),
 ##'
 ##' Attempts to generate a per-package summary of risky-to-ignore changes for updatable packages.
 ##' @title Read and summarize the NEWS files for packages at risk (updatable)
-##' @param df A data.frame or matrix of out-of-date packages currently installed, with columns Package, Installed (installed version), and Repository (contriburl of repo with newer version). Other columns are ignored.
+##' @param df A data.frame or matrix of out-of-date packages currently installed, with columns Package, Installed (installed version), and Repository (contriburl of repo with newer version). Other columns are ignored. A
 ##' @param tmplib A temporary library directory to install new versions of the packages into so that their NEWS files can be accessed.
 ##' @return A data.frame with 3 counts for each updatable package: bugfixes, u_visible_changes (user visible changes) and deprec (deprecation and defunct entries). All counts are NA if the package does not have parsable NEWS.
 ##' @importFrom utils news
 ##' @export
-readPkgsNEWS = function(df, tmplib = file.path(tempdir(), "libloc"), repos = biocinstallRepos()) {
-    if(!file.exists(tmplib))
-        dir.create(tmplib, recursive=TRUE)
-    pkgstat = packageStatus(lib.loc = tmplib, repositories = contrib.url(repos))
-    newsres = t(mapply(innerReadNEWS, pkg = df$Package, instver = df$Installed, repo = df$Repository, tmplib = tmplib))
-    unlink(tmplib)
+readPkgsNEWS = function(df, oldlib = .libPaths(), tmplib = file.path(tempdir(), "libloc"), repos = unique(df$Repository), newlib = NULL) {
+    if(is.matrix(df))
+        df = as.data.frame(df, stringsAsFactors=FALSE)
+    if(is.null(newlib)) {
+        tmp=TRUE
+        newlib = tmplib
+        if(!file.exists(tmplib))
+            dir.create(tmplib, recursive=TRUE)
+    } else {
+        tmp = FALSE
+        tmplib = newlib
+    }
+                                        # pkgstat = packageStatus(lib.loc = tmplib, repositories = contrib.url(repos))
+    prevlp = .libPaths()
+    .libPaths(newlib)
+    on.exit(.libPaths(prevlp))
+    install.packages(unique(df$Package), contriburl= repos)
+#    pkgstat = packageStatus(lib.loc = tmplib, repositories = repos)
+    newsres = t(mapply(innerReadNEWS, pkg = df$Package, instver = df$Installed, repo = df$Repository, newlib = tmplib, oldlib = oldlib))
+    if(tmp)
+        unlink(tmplib)
     as.data.frame(newsres)
 }
 
-innerReadNEWS = function(pkg, instver, repo, tmplib) {
-    oldlp = .libPaths()
-    .libPaths(c(tmplib))
-    on.exit(.libPaths(oldlp))
-    install.packages(pkgs = pkg,  contriburl = repo)
-    newsdf = tryCatch(as.data.frame(news(Version > instver, package=pkg, lib.loc = tmplib)), error=function(x) x)
+innerReadNEWS = function(pkg, instver, repo, newlib, oldlib) {
+    .libPaths(c(newlib))
+    on.exit(.libPaths(oldlib))
+   # install.packages(pkgs = pkg,  contriburl = repo)
+    newsdf = tryCatch(as.data.frame(news(Version > instver, package=pkg, lib.loc = newlib)), error=function(x) x)
     if(is(newsdf, "error") || !nrow(newsdf))
-        return(data.frame(bugfixes = NA, u_visible_changes = NA, deprecs = NA))
+        return(data.frame(bugfixes = NA, u_visible_changes = NA, deprecs = NA, total_listed_changes = NA))
     bugs = sum(newsdf$Category == "BUG FIXES")
     u_visible_changes = length(grep("USER.VISIBLE.CHANGES", newsdf$Category, ignore.case=TRUE))
     deprecs = length(grep("(DEPRECATE|DEFUNCT)", newsdf$Category, ignore.case=TRUE))
-    data.frame(bugfixes = bugs, u_visible_changes = u_visible_changes, deprecs = deprecs)
+    data.frame(bugfixes = bugs, u_visible_changes = u_visible_changes, deprecs = deprecs, total_listed_changes = nrow(newsdf))
 }

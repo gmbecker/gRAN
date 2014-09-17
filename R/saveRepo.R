@@ -17,7 +17,7 @@ saveRepoFiles = function(repo)
         saveRepo(repo = repo, filename = normalizePath2(file.path(destination(repo), "repo.R")))
         file.remove(repolock)
         NULL
-        }
+    }
 
 finalizeRepo = function(repo)
     {

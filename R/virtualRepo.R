@@ -15,10 +15,8 @@ basepkgs = pkgs[ pkgs[,"Priority"] %in% "base", "Package"]
 sessionRepo = function(sinfo = sessionInfo(),
     repo_dir, doi= NULL, dir,
     name = NULL , replace = FALSE, stoponfail = TRUE, GRepo = GRANRepo$repo,
-    install = FALSE, libloc = NULL, biocUseSVN = FALSE)
+    install = FALSE, libloc = NULL, biocUseSVN = TRUE)
 {
-    
-    
     if(!(is(sinfo, "sessionInfo") || is(sinfo, "character") || is(sinfo, "parsedSessionInfo"))) {
         stop("sinfo must be a character vector or sessionInfo object")
     }
@@ -29,7 +27,7 @@ sessionRepo = function(sinfo = sessionInfo(),
         sinfo = parseSessionInfoString(sinfo)
     else if(is(sinfo, "sessionInfo"))
         sinfo = parseSessionInfoString(capture.output(print(sinfo)))
-
+    
         #name = substr(fastdigest(sinfo), 1, 32)
     
     Rvers = sinfo@version
@@ -37,10 +35,9 @@ sessionRepo = function(sinfo = sessionInfo(),
  
    # fils = getSessionPackages(sinfo, dir = dir, repo= GRepo, stoponfail)
     pkgdf = sinfoToPkgDF(sinfo)
-    makeVirtualRepo(pkgdf, repo_dir, doi, dir, name, replace, stoponfail, GRepo, install, libloc, biocUseSVN = biocUseSVN)
+    makeVirtualRepo(pkgdf, repo_dir, doi, dir, name, replace, stoponfail = stoponfail, GRepo, install, libloc, biocUseSVN = biocUseSVN)
     
 }
-
 
 sinfoToPkgDF = function(sinfo) {
        ##probably want to do better but for now this will do
@@ -100,9 +97,6 @@ getPkgVersions = function(pkgs, dir, GRepo = NULL, stoponfail = FALSE,pkgcol = "
     fils = unlist(fils)
     fils
 }
-
-
-
 
 ##'makeVirtualRepo
 ##'
@@ -181,17 +175,22 @@ makeVirtualRepo = function(pkgdf, repo_dir, doi,  dir, name=NULL, replace=FALSE,
     if(is.null(name)) {
         if(!is.null(doi))
             name = gsub("/", "_", doi, fixed=TRUE)
-        else
-        name = digest(pkgdf[order(pkgdf[,1])])
+        else {
+            ord = order(pkgdf[, "Package"])
+            name = digest(paste(pkgdf[ord, 1], #Package name
+                pkgdf[ord, 2])) #Pacakge version
+        }
     }
-       vrepoloc = file.path(repo_dir, name,  Rvers, "src", "contrib")
+    repo_dir = gsub("/$", "", repo_dir)
+    vrepoloc = file.path(repo_dir, name,  Rvers, "src", "contrib")
     if(file.exists(vrepoloc)) {
         if(replace)
         {
             warning(paste("Replacing existing repository at", vrepoloc,
                           "Disregard warnings about file.symlnk"))
         } else {
-            stop("A virtual repository already exists with that name.")
+            warning("A virtual repository already exists with that name in the specified location. Returning that repository.")
+            return(vrepoloc)
         }
     }
 
