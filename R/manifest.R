@@ -103,7 +103,7 @@ readManifest =function(file = repoManifest(repo), repo, returnFull = FALSE)
 {
     ##during the initial build of the repository the GRAN package needs to be loadable before the manifest exists!
     if(file.exists(file))
-        man = read.table(file, stringsAsFactors=FALSE, header=TRUE)
+        man = read.table(file, stringsAsFactors=FALSE, header=TRUE, sep=",")
     else
         man = emptyManifest
 
@@ -182,7 +182,7 @@ addToManifest = function(repo, row)
     locked = lockManifest(repo)
     if(locked)
     {
-        man = read.table(mfile)
+        man = read.table(mfile, header=TRUE, stringsAsFactors = FALSE, sep=",")
         ind = which(man$name == row$name & man$subrepo == repo@subrepoName)
         if(length(ind))
         {

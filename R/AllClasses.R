@@ -171,7 +171,7 @@ PkgManifest = function(manifest, dep_repos = c(biocinstallRepos(), defaultGRAN()
         }
 
         if(file.exists(manifest))
-            manifest = read.table(manifest, ...)
+            manifest = read.table(manifest, header= TRUE, sep= ",", stringsAsFactors = FALSE, ...)
         else
             stop("invalid manifest")
     }

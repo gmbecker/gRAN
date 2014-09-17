@@ -52,7 +52,7 @@ makeGRANRepos <- function(
         subRepos = sapply(repos, function(x) x@subrepoName)
     } else {
         if(is(manifest, "character"))
-            manifest = read.table(manifest, header = TRUE, stringsAsFactors = FALSE)
+            manifest = read.table(manifest, header = TRUE, stringsAsFactors = FALSE, sep=",")
         
         
         manis = split(manifest, manifest$subrepo)
