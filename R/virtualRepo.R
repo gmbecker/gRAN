@@ -15,7 +15,7 @@ basepkgs = pkgs[ pkgs[,"Priority"] %in% "base", "Package"]
 sessionRepo = function(sinfo = sessionInfo(),
     repo_dir, doi= NULL, dir,
     name = NULL , replace = FALSE, stoponfail = TRUE, GRepo = GRANRepo$repo,
-    install = FALSE, libloc = NULL, biocUseSVN = TRUE)
+    install = FALSE, libloc = NULL)
 {
     if(!(is(sinfo, "sessionInfo") || is(sinfo, "character") || is(sinfo, "parsedSessionInfo"))) {
         stop("sinfo must be a character vector or sessionInfo object")
@@ -35,7 +35,7 @@ sessionRepo = function(sinfo = sessionInfo(),
  
    # fils = getSessionPackages(sinfo, dir = dir, repo= GRepo, stoponfail)
     pkgdf = sinfoToPkgDF(sinfo)
-    makeVirtualRepo(pkgdf, repo_dir, doi, dir, name, replace, stoponfail = stoponfail, GRepo, install, libloc, biocUseSVN = biocUseSVN)
+    makeVirtualRepo(pkgdf, repo_dir, doi, dir, name, replace, stoponfail = stoponfail, GRepo, install, libloc)
     
 }
 
@@ -54,7 +54,7 @@ sinfoToPkgDF = function(sinfo) {
 ##' @rdname virtualRepo-funs
 ##' @return for \code{getPkgVersions} and \code{getSessionPackages}, a character vector with the full path to each downloaded/built tar.gz file.
 ##' @export
-getSessionPackages = function(sinfo, dir, GRepo = NULL, stoponfail = FALSE, biocUseSVN = FALSE) {
+getSessionPackages = function(sinfo, dir, GRepo = NULL, stoponfail = FALSE) {
     if(!(is(sinfo, "sessionInfo") || is(sinfo, "character") || is(sinfo, "parsedSessionInfo"))){
         stop("sinfo must be a character vector or sessionInfo object")
     }
@@ -66,7 +66,7 @@ getSessionPackages = function(sinfo, dir, GRepo = NULL, stoponfail = FALSE, bioc
 ##' @param pkgcol The column in \code{pkgs} or \code{pkgsdf} containing the package names
 ##' @param verscol The column in \code{pkgs} or \code{pkgsdf} containing the package versions
 ##' @export
-getPkgVersions = function(pkgs, dir, GRepo = NULL, stoponfail = FALSE,pkgcol = "Package", verscol = "Version", biocUseSVN = FALSE) {
+getPkgVersions = function(pkgs, dir, GRepo = NULL, stoponfail = FALSE,pkgcol = "Package", verscol = "Version") {
   
     if(!(is.null(GRepo) || is(GRepo, "character") || is(GRepo, "GRANRepository"))){
         stop("if GRepo is specified it must be a GRANRepository object or directory path")
@@ -85,7 +85,7 @@ getPkgVersions = function(pkgs, dir, GRepo = NULL, stoponfail = FALSE,pkgcol = "
     ##they are not in any repo and only ship with R itself
     pkgs = pkgs[!pkgs[[pkgcol]] %in% basepkgs,]
     fils = mapply(locatePkgVersion, name = pkgs[[pkgcol]], version = pkgs[[verscol]],
-        repo = list(GRepo), SIMPLIFY=FALSE, biocUseSVN = biocUseSVN)
+        repo = list(GRepo), SIMPLIFY=FALSE)
     if(any(sapply(fils, function(x) length(x) == 0)))
     {
         msg = "Unable to locate the correct version of some packages."
@@ -136,14 +136,12 @@ getPkgVersions = function(pkgs, dir, GRepo = NULL, stoponfail = FALSE,pkgcol = "
 ##' @param Rvers The R version to build into the repository structure, if desired. Defaults to no specific version (suitable for src packages).
 ##' @param pkgcol  Column in the dataframe that contains package name
 ##' @param verscol Column in the dataframe taht contains package version
-##' @param biocUseSVN Use SVN instead of git-svn to trawl Bioc repository. This is faster (though not fast) for single use but does NOT amortize future costs.
-##' 
 ##' @return for \code{makeVirtualRepo} and \code{sessionRepo}, the path to the created virtual repository
 ##' @author Gabriel Becker
 ##' @importFrom digest digest
 ##' @export
 
-makeVirtualRepo = function(pkgdf, repo_dir, doi,  dir, name=NULL, replace=FALSE, stoponfail=TRUE, GRepo, install=FALSE, libloc = NULL, Rvers="", pkgcol = "Package", verscol = "Version", biocUseSVN = FALSE) {
+makeVirtualRepo = function(pkgdf, repo_dir, doi,  dir, name=NULL, replace=FALSE, stoponfail=TRUE, GRepo, install=FALSE, libloc = NULL, Rvers="", pkgcol = "Package", verscol = "Version") {
 
     if(!is.null(GRepo) && !is(GRepo, "character") && !is(GRepo, "GRANRepository")) {
         stop("if GRepo is specified it must be a GRANRepository object or directory path")
@@ -194,7 +192,7 @@ makeVirtualRepo = function(pkgdf, repo_dir, doi,  dir, name=NULL, replace=FALSE,
         }
     }
 
-    fils = getPkgVersions(pkgs = pkgdf, dir = dir, GRepo = GRepo, stoponfail = stoponfail, pkgcol = pkgcol, verscol = verscol, biocUseSVN)
+    fils = getPkgVersions(pkgs = pkgdf, dir = dir, GRepo = GRepo, stoponfail = stoponfail, pkgcol = pkgcol, verscol = verscol)
     
     if(!file.exists(vrepoloc))
         dir.create(vrepoloc, recursive=TRUE)
@@ -239,10 +237,9 @@ makeVirtualRepo = function(pkgdf, repo_dir, doi,  dir, name=NULL, replace=FALSE,
 installPkgVersion = function(name, version, repo = NULL, 
     dir = if(is.null(repo)) tempdir() else notrack(repo),
     libloc = .libPaths()[1],
-    biocUseSVN = FALSE,
     ...) {
     fname = locatePkgVersion(name = name, repo = repo,
-        version = version, dir = dir, biocUseSVN = biocUseSVN)
+        version = version, dir = dir)
     if(is.null(fname))
         stop(paste("Unable to find version", version,
                    "of package", name))
@@ -259,12 +256,11 @@ installPkgVersion = function(name, version, repo = NULL,
 ##' @param version package version string
 ##' @param repo (optional) GRANRepository object to search
 ##' @param dir directory to download package into
-##' @param biocUseSVN logical. Should svn be used instead of git-svn to trawl  Bioc repositories. This is faster (but  not fast) for single use but does not reduce the cost of future searches.
 ##' @return The full path to the downloaded file , or NULL if unable to
 ##' locate the package
 ##' @author Gabriel Becker
 ##' @export
-locatePkgVersion = function(name, version, repo = NULL, dir = if(is.null(repo)) tempdir() else notrack(repo), biocUseSVN = FALSE) {
+locatePkgVersion = function(name, version, repo = NULL, dir = if(is.null(repo)) tempdir() else notrack(repo)) {
     ##There are %three places we might find what we need in increasing order of computational cost:
     ##1. Already in the parent repository (including the associated notrack directory)
     ##2. In the cran archives
@@ -283,7 +279,7 @@ locatePkgVersion = function(name, version, repo = NULL, dir = if(is.null(repo)) 
         return(fname)
 
     ##round 2b: Look in bioc repo and SVN
-    fname = findPkgVersionInBioc(name, version, repo, dir = dir, useSVN = biocUseSVN)
+    fname = findPkgVersionInBioc(name, version, repo, dir = dir)
     if(length(fname) && file.exists(fname))
         return(fname)
     
@@ -345,7 +341,7 @@ findPkgVersionInCRAN = function(name, version, repo, dir)
         
 ##' @importFrom BiocInstaller biocinstallRepos biocVersion
 ##XXX This will only find package versions that exist on the trunk! New pkg versions created on old branches after a new release are missed!!!
-findPkgVersionInBioc = function(name, version, repo, dir, useSVN = FALSE)
+findPkgVersionInBioc = function(name, version, repo, dir)
 {
     
     ret = .biocTryToDL(name, version, dir = dir)
@@ -365,15 +361,6 @@ findPkgVersionInBioc = function(name, version, repo, dir, useSVN = FALSE)
         commit = findSVNRev(name, version, destpath = dir, repo = repo, ret$biocVers)
         if(is.null(commit))
             return(NULL)
-     ##   pkgdir = file.path(getwd(), name)
-     ##   setwd(pkgdir)
-     ##   cmd = paste0("svn switch -r", commit) #commit has the r so we get -rXXXX
-     ##   browser()
-     ##   res = system_w_init(cmd, intern=TRUE, repo = repo)
-     ##   if(is(res, "error")) {
-     ##       warning(" unable to checkout the identified commit")
-     ##       return(NULL)
-     ##   }
         pkgdir = file.path(dir, name)
         system_w_init(paste("R CMD build --no-build-vignettes --no-resave-data --no-manual", pkgdir), repo = repo)
         ret = normalizePath2(list.files(pattern  = paste0(name, "_", version, ".tar.gz"), full.names=TRUE))

@@ -24,7 +24,7 @@ GRANonGRAN = function(repo)
     DESC = readLines(file.path(babyGRAN, "DESCRIPTION"))
     DESC[1] = "Package: GRAN"
     writeLines(DESC, con = file.path(babyGRAN, "DESCRIPTION"))
-    manrow = makeManifestRow(name="GRAN", url = babyGRAN, type="local",
+    manrow = ManifestRow(name="GRAN", url = babyGRAN, type="local",
         subdir=".", subrepo = repo@subrepoName, building=TRUE, extra = "",
         status="ok", branch = "trunk", lastbuiltversion = "0.0-0",
         version = "0.0-0", lastAttemptStatus="never built",

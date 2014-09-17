@@ -129,12 +129,12 @@ updateManifest = function(repo)
     reminds = which(names(fullman) %in% c("status", "building"))
     if(lockManifest(repo))
         {
-            write.table(fullman[,-reminds], file = repoManifest(repo), col.names=TRUE)
+            write.table(fullman[,-reminds], file = repoManifest(repo), col.names=TRUE, sep = ",")
             unlockManifest(repo)
         } else {
             stop("Unable to lock manifest. manifest overflow handling not yet supported")
             warning("Unable to lock manifest file, writing to overflow manifest")
-            write.table(fullman, file= file.path(paste0(repoManifest(repo), ".overflow")), append=TRUE, col.names=TRUE)
+            write.table(fullman, file= file.path(paste0(repoManifest(repo), ".overflow")), append=TRUE, col.names=TRUE, sep=",")
         }
     repo@manifest = fullman
     repo
@@ -192,7 +192,7 @@ addToManifest = function(repo, row)
             writeGRANLog("NA", paste("Adding new package", row$name, "to this repository"), repo = repo)
             
             man = rbind(man, row)
-            write.table(man, file = mfile)
+            write.table(man, file = mfile, sep=",")
             unlockManifest(repo)
             ret = TRUE
         }
