@@ -176,8 +176,8 @@ PkgManifest = function(manifest, dep_repos = c(biocinstallRepos(), defaultGRAN()
             stop("invalid manifest")
     }
 
-    new("PkgManifest", manifest - manifest, dep_repos = dep_repos)
+    new("PkgManifest", manifest = manifest, dependency_repos = dep_repos)
 }
 
-
+setClass("GithubPkgManifest", contains = "PkgManifest")
                                           
