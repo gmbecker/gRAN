@@ -91,6 +91,7 @@ Manifest = function(..., dep_repos = c(biocinstallRepos(), defaultGRAN())) {
     PkgManifest(manifest = do.call(rbind.data.frame, rows), dep_repos = dep_repos)
 }
 
+##XXX can't specify non-defaults in a lot of the columns
 GithubManifest = function( ..., pkgrepos = as.character(list(...))) {
 
     names = gsub(".*/(.*)(.git){0,1}$", "\\1", pkgrepos)

@@ -12,10 +12,6 @@
 ##' @importFrom tools write_PACKAGES
 buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE, manifest = repo@manifest) {
   
-#  if(temp)
- #       binds = which(manifest$building)
-  #  else
-  #      binds = which(manifest$building && isOkStatus(manifest, repo))
     binds = getBuilding(repo, manifest)       
     if(!sum(binds))
     {
@@ -53,7 +49,7 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE
                         vnum = read.dcf(file.path(checkout, "DESCRIPTION"))[1,"Version"]
                         pkg = getPkgNames(checkout)
                         ##if(is.na(oldver)) oldver = "0.0-0"
-                        if(compareVersion(vnum, oldver) == 1 || is.na(oldver))
+                        if(is.na(oldver) || compareVersion(vnum, oldver) == 1 )
                         {
                             writeGRANLog(pkg, paste0("Had version ", oldver, ". Building new version ", vnum), repo = repo)
                         } else if (incremental) {
@@ -105,6 +101,7 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE
 
     res2 = res[!sameversion]
     manifest$status[!sameversion] = ifelse(res2=="ok", "ok", "build failed")
+    manifest$status[sameversion] = "up-to-date"
     manifest$version[built] = versions[built]
     manifest$maintainer = getMaintainers(checkout_dir(repo),
                            manifest = manifest)

@@ -159,8 +159,8 @@ makeSingleGRANRepo = function(
 
 
     
-    if(!is.null(repo))
-        manifest = readManifest(repo = repo)
+#    if(!is.null(repo) && !is(manifest, "data.frame"))
+#        manifest = readManifest(repo = repo)
     
     if(is(manifest, "character"))
         manifest = read.table(manifest, header = TRUE, stringsAsFactors = FALSE, sep=",")

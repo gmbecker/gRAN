@@ -23,7 +23,6 @@ invokePkgTests = function( repo, dir = file.path(tempdir(), repo@subrepoName), c
     if(is(res, "error"))
     {
         writeGRANLog("NA", c("CRITICAL GRAN FAILURE! Failed to invoke package testing in external R session:", res), type="both", repo = repo)
-#        repo@manifest$building = FALSE
         repo@manifest$status[repo@manifest$building] = "GRAN FAILURE"
     }  else {
         repo = loadRepo(repfile)
@@ -87,7 +86,6 @@ installTest = function(repo, cores = 3L)
     writeGRANLog("NA", paste0("Installation successful for ", sum(success), " of ", length(success), " packages."), type = "full", repo = repo)
 
     #update the packages in the manifest we tried to build with success/failure
-    ## repo@manifest$building[binds] = success
     repo@manifest$status[binds][!success] = "install failed"
     repo
     
