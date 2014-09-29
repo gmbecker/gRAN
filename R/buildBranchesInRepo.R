@@ -42,13 +42,27 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE
     setwd(repoLoc)
     writeGRANLog("NA", paste0("Attempting to build ", sum(manifest$building), " into ", repoLoc), repo = repo)
 
+    if(temp) {
+        ## Only build  packages into the temp repo that aren't already there.
+        ## Not doing this was causing unreasonably slow times when
+        ## not very many packages ended up being actually built
+        oldvers = character(length(svnCheckoutsLoc))
+        names(oldvers) = manifest$name
+        avl = available.packages(repoLoc, filters= "duplicates")
+        inds = match(avl[,"Package"], names(oldvers))
+        inds = inds[!is.na(inds)]
+        oldvers[inds] = avl[inds,"Version"]
+        oldvers[!nchar(oldvers)] = NA
+    } else {
+        oldvers = as.character(manifest$lastbuiltversion)
+    }
+        
     res <- mcmapply2(#svnCheckoutsLoc,
                     ##res <- mapply(
                     function (checkout, repo, opts, oldver, incremental) {
                         #incremental build logic. If incremental == TRUE, we only rebuild if the package version number has bumped.
                         vnum = read.dcf(file.path(checkout, "DESCRIPTION"))[1,"Version"]
                         pkg = getPkgNames(checkout)
-                        ##if(is.na(oldver)) oldver = "0.0-0"
                         if(is.na(oldver) || compareVersion(vnum, oldver) == 1 )
                         {
                             writeGRANLog(pkg, paste0("Had version ", oldver, ". Building new version ", vnum), repo = repo)
@@ -81,18 +95,22 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE
                     repo = list(repo), opts = opts,
                     mc.cores=cores,
          #XXX shouldn't need the as.character...
-                    oldver = as.character(manifest$lastbuiltversion),
+                    oldver = oldvers,
                     incremental = incremental,
                     USE.NAMES=FALSE
 
                     )
     versions = names(res)
     res = unlist(res)
-    built = res == "ok"
+    ## at the temp stage we don't want to include anything
+    ## from the list of potential builds, we just want
+    ## to avoid unnecessary building within the temporary
+    ## repository
+    built = res == "ok" | (temp && res == "up-to-date")
 
     ##We can only ever get the "up-to-date" return status if incremental=FALSE, so
     ## this is safe
-    sameversion = res == "up-to-date" 
+    sameversion = res == "up-to-date" & !temp
     ##this may need to be more sophisticated later if we are building binaries for mac/win?
     write_PACKAGES(".", type="source")
     if(any(res == "failed")) {

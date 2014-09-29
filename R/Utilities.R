@@ -281,6 +281,7 @@ system_w_init = function(cmd, ..., repo = defaultGRAN())
 }
 
 highestVs = c(9, 14, 0)
+develVers = 3.0
 
 decrBiocVersion = function(biocVers) {
     vals = strsplit(biocVers, ".", fixed=TRUE)[[1]]

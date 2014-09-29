@@ -76,7 +76,8 @@ addRevDeps = function(repo)
         tmprepo@manifest$building = TRUE
         tmprepo@manifest$status="ok"
         tmprepo = buildBranchesInRepo(repo = tmprepo, temp = TRUE,
-            incremental = FALSE)
+           # incremental = FALSE)
+            incremental = TRUE)
         manifest[rdepBuildPkgs, ] = tmprepo@manifest
     }
     repo@manifest = manifest

@@ -121,7 +121,10 @@ cleanupInstOut = function(out)
 
 checkTest = function(repo, cores = 3L)
 {
-    repo = buildBranchesInRepo(repo, temp=FALSE, incremental=FALSE, cores = cores)
+    repo = buildBranchesInRepo(repo, temp=FALSE,
+        #incremental=FALSE,
+        incremental = TRUE, ## want to skip testing if pkg already passed
+        cores = cores)
     oldwd = getwd()
     setwd(staging(repo))
     on.exit(setwd(oldwd))

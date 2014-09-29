@@ -440,7 +440,7 @@ findSVNRev = function(name, version, destpath, repo, biocVers="trunk")
 ##        addl_dir = paste0("BioC_", biocVers)
         biocVers = paste("branches/RELEASE", gsub(".", "_", biocVers, fixed=TRUE), sep="_")
     } else {
-##        biocVers = "trunk"
+        biocVers = "trunk"
         addl_dir = ""
     }
 
