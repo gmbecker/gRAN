@@ -48,7 +48,7 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE
         ## not very many packages ended up being actually built
         oldvers = character(length(svnCheckoutsLoc))
         names(oldvers) = manifest$name
-        avl = available.packages(repoLoc, filters= "duplicates")
+        avl = available.packages(paste0("file://", repoLoc), filters= "duplicates")
         inds = match(avl[,"Package"], names(oldvers))
         inds = inds[!is.na(inds)]
         oldvers[inds] = avl[inds,"Version"]

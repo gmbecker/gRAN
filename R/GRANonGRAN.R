@@ -35,7 +35,7 @@ GRANonGRAN = function(repo)
         repo@manifest$status[repo@manifest$name == "GRAN"] = "ok"
         ##force there always to be a "version bump"
         repo@manifest$version = "0.0-0"
-    } else
+    } else 
         repo@manifest = merge(repo@manifest, manrow, all.x=TRUE, all.y=TRUE)
     repo
     

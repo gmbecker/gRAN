@@ -180,6 +180,9 @@ makeSingleGRANRepo = function(
         manifest$buildReason = ifelse(manifest$building, "forced", "")
         manifest$suspended[manifest$building] = FALSE
     }
+
+    if(is.null(manifest$status))
+        manifest$status = "notbuilt"
     
     manifest$status[manifest$building] = "ok"
 
