@@ -9,11 +9,13 @@ inst/testBioc.R"
 
 DIRSTOCOPY="R
 man
-vignettes
-inst/bibliography
-inst/js_css
-inst/templates
-inst/testpkgs"
+vignettes"
+
+INSTDIRS="
+bibliography
+js_css
+templates
+testpkgs"
 
 DIR="GRAN"
 echo "Creating copy of GRAN package in inst/$DIR to be installed in any created repositories."
@@ -26,7 +28,17 @@ for d in $DIRSTOCOPY
 do
    mkdir -p inst/$DIR/$d
    cp -R $d  inst/$DIR/
+#   rsync -d $d inst/$DIR/$d
 done
+
+mkdir -p inst/$DIR/inst
+for d in $INSTDIRS
+do
+   mkdir -p inst/$DIR/inst/$d
+   cp -R inst/$d  inst/$DIR/inst/
+#   rsync -d $d inst/$DIR/$d
+done
+
 
 for f in $FILESTOCOPY
 do 
@@ -43,4 +55,3 @@ cd inst/$DIR/vignettes
 sed -i -e 's/eval=TRUE/eval=FALSE/g' *.Rnw
 #INCEPTIONDIR=$DIR/inst/$DIR
 cd "$HOME"
-
