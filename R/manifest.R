@@ -58,7 +58,7 @@ ManifestRow = function(name = NA,
     subdir = ".",
     extra = NA,
     status = NA,
-    building = NA,
+    building = TRUE,
     version = NA,
     lastAttempt = NA,
     lastAttemptVersion = NA,
@@ -86,17 +86,20 @@ ManifestRow = function(name = NA,
            stringsAsFactors = FALSE)
 }
 
-Manifest = function(..., dep_repos = c(biocinstallRepos(), defaultGRAN())) {
+Manifest = function(..., dep_repos = c(biocinstallRepos(), repo_url(defaultGRAN()))) {
     rows = mapply(ManifestRow, ..., SIMPLIFY=FALSE)
     PkgManifest(manifest = do.call(rbind.data.frame, rows), dep_repos = dep_repos)
 }
 
 ##XXX can't specify non-defaults in a lot of the columns
-GithubManifest = function( ..., pkgrepos = as.character(list(...))) {
+
+
+##' @export
+GithubManifest = function( ..., pkgrepos = as.character(list(...)), subrepo = "current") {
 
     names = gsub(".*/(.*)(.git){0,1}$", "\\1", pkgrepos)
     res =Manifest(url = paste0("https://github.com/", pkgrepos, ".git"),
-             type = "git", branch = "master", name = names)
+             type = "git", branch = "master", name = names, subrepo = subrepo)
     as(res, "GithubPkgManifest")
 }
     

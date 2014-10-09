@@ -4,8 +4,7 @@
 \title{installPkgVersion}
 \usage{
 installPkgVersion(name, version, repo = NULL, dir = if (is.null(repo))
-  tempdir() else notrack(repo), libloc = .libPaths()[1], biocUseSVN = FALSE,
-  ...)
+  tempdir() else notrack(repo), libloc = .libPaths()[1], ...)
 }
 \arguments{
 \item{name}{package name}

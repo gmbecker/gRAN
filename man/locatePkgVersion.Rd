@@ -4,7 +4,7 @@
 \title{locatePkgVersion}
 \usage{
 locatePkgVersion(name, version, repo = NULL, dir = if (is.null(repo))
-  tempdir() else notrack(repo), biocUseSVN = FALSE)
+  tempdir() else notrack(repo))
 }
 \arguments{
 \item{name}{package name}
@@ -14,8 +14,6 @@ locatePkgVersion(name, version, repo = NULL, dir = if (is.null(repo))
 \item{repo}{(optional) GRANRepository object to search}
 
 \item{dir}{directory to download package into}
-
-\item{biocUseSVN}{logical. Should svn be used instead of git-svn to trawl  Bioc repositories. This is faster (but  not fast) for single use but does not reduce the cost of future searches.}
 }
 \value{
 The full path to the downloaded file , or NULL if unable to

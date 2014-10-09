@@ -56,7 +56,8 @@ buildAvailable = function(repo_manifest, dep_repos, dir, fakerepo) {
                 
 basepkgs = installed.packages(priority="base")[, "Package"]
 
-lazyGithubRepo = function(pkgs, ghMan, depRepos = getOption("repos"), avail = available.packages(contrib.url(depRepos)), dir = tempdir(), forceRefresh = FALSE, reppath = file.path(dir, "repo"), grabSuggests = FALSE) {
+##' @export
+lazyGithubRepo = function(pkgs, ghMan, depRepos = getOption("repos"), avail = available.packages(contrib.url(depRepos)), dir = tempdir(), forceRefresh = FALSE, reppath = file.path(dir, "repo"), grabSuggests = FALSE, verbose = FALSE) {
 
     pkgsNeeded = pkgs
 
@@ -64,10 +65,17 @@ lazyGithubRepo = function(pkgs, ghMan, depRepos = getOption("repos"), avail = av
     dir.create(repdir, recursive = TRUE)
     fakerepo = paste0("file://", normalizePath(repdir))
     innerFun = function(zipUrl, pkgname, branch) {
+        if(is.null(dim((avail))))
+            avail = t(as.matrix(avail)) ## if we only select 1 row we get a character :(
         if(pkgname %in% avail[,"Package"] || pkgname %in% basepkgs) {
+            if(verbose)
+                message(sprintf("Package %s already available from repository at %s", pkg, avail[avail[,"Package"] == pkg, "Repository"]))
             pkgsNeeded <<- setdiff(pkgsNeeded, pkgname)
             return()
         }
+        if(verbose)
+            message(sprintf("Retrieving package %s from %s (branch %s)", pkgname, zipUrl, branch)) 
+
         zpfile =  file.path(dir, paste0(pkgname, "_", gsub(".*/(.*)", "\\1", zipUrl)))
         if(!file.exists(zpfile) || forceRefresh)
             success = download.file(zipUrl, zpfile, method = "wget")
@@ -118,35 +126,48 @@ lazyGithubRepo = function(pkgs, ghMan, depRepos = getOption("repos"), avail = av
         ##update
         pkgsNeeded <<- setdiff(c(pkgsNeeded, newreqs), pkgname)
         
-        avail <<- rbind(avail,
-                        matrix(row, nrow = 1, dimnames = list(pkgname, names(row))))
+        avail <<- rbind(avail, t(as.matrix(row)))
+                     #   matrix(row, nrow = 1, dimnames = list(pkgname, names(row))))
 
     }
-
+    
     force(avail)
-    while(length(pkgsNeeded)) {
+    avail = avail[!avail[,"Package"] %in% ghMan$name,]
+    cnt =1 
+    while(length(pkgsNeeded) && cnt < 1000){
         pkg = pkgsNeeded[1]
-        if(!pkg %in% avail[,"Package"]) 
-        manrow = ghMan[ghMan$name == pkg, ]
-        ##https://github.com/gmbecker/ProteinVis/archive/IndelsOverlay.zip  for IndelsOverlay branch
-        zipurl = paste0(gsub("\\.git", "", manrow$url), "/archive/", manrow$branch, ".zip")
-        innerFun(zipurl, pkg, manrow$branch)
-    }
+   #     if(!pkg %in% avail[,"Package"])  {
+        if(pkg %in% ghMan$name) {
+            manrow = ghMan[ghMan$name == pkg, ]
+            ##https://github.com/gmbecker/ProteinVis/archive/IndelsOverlay.zip  for IndelsOverlay branch
+            zipurl = paste0(gsub("\\.git", "", manrow$url), "/archive/", manrow$branch, ".zip")
+            innerFun(zipurl, pkg, manrow$branch)
+        } else
+            stop(sprintf("Unable to locate package %s", pkg))
 
+    #    }
+        cnt = cnt + 1
+    }
+    
     write_PACKAGES(repdir)
     fakerepo
 }
 
 
+##' @export
+setGeneric("Install", function(pkgs, repos, verbose = FALSE, ...) standardGeneric("Install"))
 
-setGeneric("Install", function(pkgs, repos, ...) standardGeneric("Install"))
+setMethod("Install", c("character", "character"), function(pkgs, repos, verbose, ...) install.packages(pkgs, repos = repos, ...))
 
-setMethod("Install", c("character", "character"), function(pkgs, repos, ...) install.packages(pkgs, repos = repos, ...))
+setMethod("Install", c("character", "GithubPkgManifest"), function(pkgs, repos, verbose, ...) {
 
-setMethod("Install", c("character", "GithubPkgManifest"), function(pkgs, repos, ...) {
-
-    contriburls = c(lazyGithubRepo(pkgs, manifest(repos), depRepos(repos)),contrib.url(depRepos(repos)))
-    install.packages(pkgs, contriburl = contriburls)
+    ghrepo= lazyGithubRepo(pkgs, manifest(repos), depRepos(repos), verbose = verbose)
+    avail1 = available.packages(ghrepo)
+    avail2 = available.packages(contrib.url(depRepos(repos)))
+    browser()
+    new = !avail2[,"Package"] %in% avail1[,"Package"]
+    avail = rbind(avail1, avail2[new,])
+    install.packages(pkgs, available = avail, ...)
 })
     
     

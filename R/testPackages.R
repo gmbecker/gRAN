@@ -36,7 +36,7 @@ invokePkgTests = function( repo, dir = file.path(tempdir(), repo@subrepoName), c
 doPkgTests = function(repo, cores = 3L)
 {
 
-    writeGRANLog("NA", paste0("Beginning testing of GRAN packages before migration to final repository: ", paste(repo@manifest$name, collapse = " , ")), type = "full", repo = repo)
+    writeGRANLog("NA", paste0("Beginning testing of GRAN packages before migration to final repository using ", cores, " cores: ", paste(repo@manifest$name, collapse = " , ")), type = "full", repo = repo)
 
      writeGRANLog("NA", paste0("Performing 'extra' commands before installation. ", paste(repo@manifest$name, collapse = " , ")), type = "full", repo = repo)
 
@@ -151,7 +151,9 @@ checkTest = function(repo, cores = 3L)
     tars = tars[unlist(ord)]
     outs = mcmapply2( function(tar, nm, repo) {
         writeGRANLog(nm, paste("Running R CMD check on ", tar), repo = repo)
-        cmd = paste0("R_LIBS='", LibLoc(repo), "'  ", repo@rversion, " CMD check ", tar)
+        ## We built the vignettes during this round of building, so if the pkg is going to
+        ##fail on building vignettes it will have already happened by this point
+        cmd = paste0("R_LIBS='", LibLoc(repo), "'  ", repo@rversion, " CMD check ", tar, " --no-build-vignettes")
         out = tryCatch(system_w_init(cmd, intern=TRUE, repo = repo),
             error=function(x) x)
         out

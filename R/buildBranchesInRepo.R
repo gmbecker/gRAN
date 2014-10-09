@@ -48,13 +48,15 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE
         ## not very many packages ended up being actually built
         oldvers = character(length(svnCheckoutsLoc))
         names(oldvers) = manifest$name
-        avl = tryCatch(available.packages(paste0("file://", repoLoc), filters= "duplicates"))
+        avl = tryCatch(available.packages(paste0("file://", repoLoc), filters= "duplicates"),
+            error = function(x) x)
         if(is(avl, "error"))
             oldvers = rep(NA, times = nrow(manifest))
         else {
             inds = match(avl[,"Package"], names(oldvers))
             inds = inds[!is.na(inds)]
-            oldvers[inds] = avl[inds,"Version"]
+            pkgs = names(oldvers)[inds]
+            oldvers[pkgs] = avl[pkgs,"Version"]
             oldvers[!nchar(oldvers)] = NA
         }
     } else {
@@ -110,11 +112,13 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE
     ## from the list of potential builds, we just want
     ## to avoid unnecessary building within the temporary
     ## repository
-    built = res == "ok" | (temp && res == "up-to-date")
+    if(temp)
+        res[res=="up-to-date"] = "ok"
+    built = res == "ok"
 
     ##We can only ever get the "up-to-date" return status if incremental=FALSE, so
     ## this is safe
-    sameversion = res == "up-to-date" & !temp
+    sameversion = res == "up-to-date"
     ##this may need to be more sophisticated later if we are building binaries for mac/win?
     write_PACKAGES(".", type="source")
     if(any(res == "failed")) {

@@ -15,7 +15,6 @@ getMyGRAN = function()
     ##if we are in the GRAN package (created via GRANonGRAN.R) then we have a specific repo to use.
     if(inGRAN()) {
         GRANRepo = loadRepo(system.file("myrepo.R", package="GRAN"))
-        GRANRepo@manifest = readManifest(repo = GRANRepo)
     }
     GRANRepo
 }

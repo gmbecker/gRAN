@@ -3,3 +3,4 @@
 **/.\#*
 inst/GRAN
 !**/*.R
+**/.Rhistory

@@ -23,17 +23,16 @@ The repository is the constructed as a sibling to \code{repo}'s repository using
 \usage{
 sessionRepo(sinfo = sessionInfo(), repo_dir, doi = NULL, dir, name = NULL,
   replace = FALSE, stoponfail = TRUE, GRepo = GRANRepo$repo,
-  install = FALSE, libloc = NULL, biocUseSVN = TRUE)
+  install = FALSE, libloc = NULL)
 
-getSessionPackages(sinfo, dir, GRepo = NULL, stoponfail = FALSE,
-  biocUseSVN = FALSE)
+getSessionPackages(sinfo, dir, GRepo = NULL, stoponfail = FALSE)
 
 getPkgVersions(pkgs, dir, GRepo = NULL, stoponfail = FALSE,
-  pkgcol = "Package", verscol = "Version", biocUseSVN = FALSE)
+  pkgcol = "Package", verscol = "Version")
 
 makeVirtualRepo(pkgdf, repo_dir, doi, dir, name = NULL, replace = FALSE,
   stoponfail = TRUE, GRepo, install = FALSE, libloc = NULL, Rvers = "",
-  pkgcol = "Package", verscol = "Version", biocUseSVN = FALSE)
+  pkgcol = "Package", verscol = "Version")
 }
 \arguments{
 \item{sinfo}{A sessionInfo object or character vector containing the text from printing such an object}
@@ -73,8 +72,6 @@ contain only the packages for this set of package versions. In generally this sh
 \item{pkgcol}{Column in the dataframe that contains package name}
 
 \item{verscol}{Column in the dataframe taht contains package version}
-
-\item{biocUseSVN}{Use SVN instead of git-svn to trawl Bioc repository. This is faster (though not fast) for single use but does NOT amortize future costs.}
 }
 \value{
 for \code{getPkgVersions} and \code{getSessionPackages}, a character vector with the full path to each downloaded/built tar.gz file.
