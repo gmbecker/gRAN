@@ -48,11 +48,15 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE
         ## not very many packages ended up being actually built
         oldvers = character(length(svnCheckoutsLoc))
         names(oldvers) = manifest$name
-        avl = available.packages(paste0("file://", repoLoc), filters= "duplicates")
-        inds = match(avl[,"Package"], names(oldvers))
-        inds = inds[!is.na(inds)]
-        oldvers[inds] = avl[inds,"Version"]
-        oldvers[!nchar(oldvers)] = NA
+        avl = tryCatch(available.packages(paste0("file://", repoLoc), filters= "duplicates"))
+        if(is(avl, "error"))
+            oldvers = rep(NA, times = nrow(manifest))
+        else {
+            inds = match(avl[,"Package"], names(oldvers))
+            inds = inds[!is.na(inds)]
+            oldvers[inds] = avl[inds,"Version"]
+            oldvers[!nchar(oldvers)] = NA
+        }
     } else {
         oldvers = as.character(manifest$lastbuiltversion)
     }
