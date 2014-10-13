@@ -5,7 +5,6 @@ invokePkgTests = function( repo, dir = file.path(tempdir(), repo@subrepoName), c
         dir.create(dir, recursive=TRUE)
     testscript = file.path(dir, "GRANtestscript.R")
     tmpmanfile = file.path(dir, "tempmanifest.dat")
-    binds = getBuilding(repo = repo)
     write.table(repo@manifest, file = tmpmanfile, sep=",")
     repfile = file.path(dir, "repo.R")
     saveRepo(repo, filename = repfile)

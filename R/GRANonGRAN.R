@@ -36,7 +36,9 @@ GRANonGRAN = function(repo)
         ##force there always to be a "version bump"
         repo@manifest$version = "0.0-0"
     } else 
-        repo@manifest = merge(repo@manifest, manrow, all.x=TRUE, all.y=TRUE)
+        repo@manifest = merge(repo@manifest, manrow,
+            by = intersect(names(repo@manifest), names(manrow)),
+            all.x=TRUE, all.y=TRUE)
     repo
     
         

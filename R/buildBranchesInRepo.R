@@ -34,7 +34,7 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE
         repoLoc = staging(repo)
         opts = "--resave-data"
     }
-
+    
     if(!file.exists(repoLoc))
         dir.create(repoLoc, recursive=TRUE)
     startDir <- getwd()
