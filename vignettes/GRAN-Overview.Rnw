@@ -1,5 +1,5 @@
 % \VignetteIndexEntry{GRANBase overview}
-% \VignetteDepends{}
+% \VignetteDepends{BiocStyle}
 % \VignetteKeywords{reprise}
 % \VignettePackage{GRANBase}
 \documentclass[10pt]{article}

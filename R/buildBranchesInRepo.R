@@ -74,7 +74,7 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE
                             writeGRANLog(pkg, paste0("Had version ", oldver, ". Building new version ", vnum), repo = repo)
                         } else if (incremental) {
                             writeGRANLog(pkg, paste0("Package up to date at version ", vnum, ". Not rebuilding."), repo = repo)
-                            return("up-to-date")
+                            return(c(vnum = "up-to-date"))
                         } else {
                             writeGRANLog(pkg, paste0("Forcing rebuild of version ", vnum, "."), repo = repo)
                         }
