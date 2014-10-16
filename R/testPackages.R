@@ -1,5 +1,5 @@
 ##'@importFrom brew brew
-invokePkgTests = function( repo, dir = file.path(tempdir(), repo@subrepoName), cores = 3L)
+invokePkgTests_old= function( repo, dir = file.path(tempdir(), repo@subrepoName), cores = 3L)
 {
     if(!file.exists(dir))
         dir.create(dir, recursive=TRUE)
@@ -30,6 +30,10 @@ invokePkgTests = function( repo, dir = file.path(tempdir(), repo@subrepoName), c
     }
  
     repo
+}
+
+invokePkgTests = function( repo, dir = file.path(tempdir(), repo@subrepoName), cores = 3L) {
+    doPkgTests(repo = repo, cores = cores)
 }
 
 doPkgTests = function(repo, cores = 3L)

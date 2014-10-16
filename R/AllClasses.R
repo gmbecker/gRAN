@@ -82,10 +82,10 @@ GRANRepository = function(basedir,
     checkWarnOk = TRUE,
     tempLibLoc = file.path(basedir, subrepoName, "LibLoc"),
     extraFun = function(...) NULL,
-    destination,
+    destination = basedir,
     auth = "",
     manifest = emptyManifest,
-    dest_url,
+    dest_url = paste0("file://", normalizePath2(destination)),
     shell_init = "")
 {
     
@@ -93,9 +93,6 @@ GRANRepository = function(basedir,
         dir.create(basedir, recursive = TRUE)
     
     basedir = normalizePath2(basedir)
-
-    if(missing(destination))
-        destination = basedir
 
     prepDirStructure(basedir, subrepoName, tempRepo, tempCheckout, tempLibLoc,
                      destination)

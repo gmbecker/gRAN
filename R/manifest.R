@@ -98,7 +98,7 @@ Manifest = function(..., dep_repos = c(biocinstallRepos(), repo_url(defaultGRAN(
 GithubManifest = function( ..., pkgrepos = as.character(list(...)), subrepo = "current") {
 
     names = gsub(".*/(.*)(.git){0,1}$", "\\1", pkgrepos)
-    res =Manifest(url = paste0("https://github.com/", pkgrepos, ".git"),
+    res =Manifest(url = paste0("git://github.com/", pkgrepos, ".git"),
              type = "git", branch = "master", name = names, subrepo = subrepo)
     as(res, "GithubPkgManifest")
 }
