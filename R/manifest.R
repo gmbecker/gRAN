@@ -56,7 +56,7 @@ ManifestRow = function(name = NA,
     subrepo = "current",
     branch = NA,
     subdir = ".",
-    extra = NA,
+    extra = NA
     ) {
 
     if(is.na(type) && !is.na(url))

@@ -4,11 +4,7 @@
 \title{makeManifestRow}
 \usage{
 ManifestRow(name = NA, url = NA, type = NA, subrepo = "current",
-  branch = NA, subdir = ".", extra = NA, status = NA, building = TRUE,
-  version = NA, lastAttempt = NA, lastAttemptVersion = NA,
-  lastAttemptStatus = NA, lastbuilt = NA, lastbuiltversion = NA,
-  lastbuiltstatus = NA, buildReason = NA, maintainer = NA,
-  suspended = FALSE)
+  branch = NA, subdir = ".", extra = NA)
 }
 \arguments{
 \item{name}{name of the package}

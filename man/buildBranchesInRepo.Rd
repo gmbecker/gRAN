@@ -4,7 +4,7 @@
 \title{Build SVN Checkouts Into Repository Directory}
 \usage{
 buildBranchesInRepo(repo, cores = 1, temp = FALSE, incremental = TRUE,
-  manifest = repo@manifest)
+  manifest = manifest_df(repo))
 }
 \arguments{
 \item{repo}{a GRANRepository object}

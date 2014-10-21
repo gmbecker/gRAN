@@ -148,7 +148,7 @@ GRANRepository = function(manifest,
 
 RepoBuildParam = function(
     basedir,
-    subrepoName = "stable",
+    repo_name = "stable",
     rversion = "R",
     tempRepo = file.path(basedir, subrepoName, "tmprepo"),
     tempCheckout = file.path(basedir, "tmpcheckout"),

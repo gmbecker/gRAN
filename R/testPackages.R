@@ -5,7 +5,7 @@ invokePkgTests_old= function( repo, dir = file.path(tempdir(), repo@subrepoName)
         dir.create(dir, recursive=TRUE)
     testscript = file.path(dir, "GRANtestscript.R")
     tmpmanfile = file.path(dir, "tempmanifest.dat")
-    write.table(repo@manifest, file = tmpmanfile, sep=",")
+    write.table(manifest_df(repo), file = tmpmanfile, sep=",")
     repfile = file.path(dir, "repo.R")
     saveRepo(repo, filename = repfile)
     libpath = .libPaths()[1]
@@ -22,7 +22,7 @@ invokePkgTests_old= function( repo, dir = file.path(tempdir(), repo@subrepoName)
     if(is(res, "error"))
     {
         writeGRANLog("NA", c("CRITICAL GRAN FAILURE! Failed to invoke package testing in external R session:", res), type="both", repo = repo)
-        repo@manifest$status[repo@manifest$building] = "GRAN FAILURE"
+        manifest_df(repo)$status[manifest_df(repo)$building] = "GRAN FAILURE"
     }  else {
         repo = loadRepo(repfile)
         writeGRANLog("NA", "Package testing complete", repo = repo)
@@ -39,14 +39,14 @@ invokePkgTests = function( repo, dir = file.path(tempdir(), repo@subrepoName), c
 doPkgTests = function(repo, cores = 3L)
 {
 
-    writeGRANLog("NA", paste0("Beginning testing of GRAN packages before migration to final repository using ", cores, " cores: ", paste(repo@manifest$name, collapse = " , ")), type = "full", repo = repo)
+    writeGRANLog("NA", paste0("Beginning testing of GRAN packages before migration to final repository using ", cores, " cores: ", paste(manifest_df(repo)$name, collapse = " , ")), type = "full", repo = repo)
 
-     writeGRANLog("NA", paste0("Performing 'extra' commands before installation. ", paste(repo@manifest$name, collapse = " , ")), type = "full", repo = repo)
+     writeGRANLog("NA", paste0("Performing 'extra' commands before installation. ", paste(manifest_df(repo)$name, collapse = " , ")), type = "full", repo = repo)
 
     repo = doExtra(repo)
     
-    if(is.null(repo@manifest$building))
-        repo@manifest$building = TRUE
+    if(is.null(manifest_df(repo)$building))
+        manifest_df(repo)$building = TRUE
 
     repo = installTest(repo, cores = cores)
     repo = checkTest(repo, cores = cores)
@@ -58,11 +58,11 @@ doPkgTests = function(repo, cores = 3L)
 installTest = function(repo, cores = 3L)
 {
     writeGRANLog("NA", paste0("Attempting to install packages (",
-                              sum(repo@manifest$building),
+                              sum(manifest_df(repo)$building),
                               ") from temporary repository into temporary package library."),
                  type = "full", repo = repo) 
 
-    manifest = repo@manifest
+    manifest = manifest_df(repo)
 
     oldops = options()
     options(warn = 1)
@@ -89,7 +89,7 @@ installTest = function(repo, cores = 3L)
     writeGRANLog("NA", paste0("Installation successful for ", sum(success), " of ", length(success), " packages."), type = "full", repo = repo)
 
     #update the packages in the manifest we tried to build with success/failure
-    repo@manifest$status[binds][!success] = "install failed"
+    manifest_df(repo)$status[binds][!success] = "install failed"
     repo
     
 }
@@ -132,7 +132,7 @@ checkTest = function(repo, cores = 3L)
     setwd(staging(repo))
     on.exit(setwd(oldwd))
     writeGRANLog("NA", paste0("Running R CMD check on remaining packages (", sum(getBuilding(repo = repo)), ") using R at ", repo@rversion, "."), type = "full", repo = repo)
-    manifest = repo@manifest
+    manifest = manifest_df(repo)
     binds  = getBuilding(repo = repo)
     bman = getBuildingManifest(repo = repo)
     if(!nrow(bman))
@@ -144,7 +144,7 @@ checkTest = function(repo, cores = 3L)
         missing = sapply(bman$name, function(x) !any(grepl(x, tars, fixed=TRUE)))
         writeGRANLog("NA", c("Tarballs not found for these packages during check test:", paste(bman$name[missing], collapse = " , ")), type = "both", repo = repo)
         #tars = tars[order(bman$name[!missing])]
-        repo@manifest$status[repo@manifest$name %in% bman$name[missing]] = "Unable to check - missing tarball"
+        manifest_df(repo)$status[manifest_df(repo)$name %in% bman$name[missing]] = "Unable to check - missing tarball"
         bman  = bman[!missing,]
         binds[binds] = binds[binds] & !missing
     }
@@ -204,8 +204,8 @@ checkTest = function(repo, cores = 3L)
     success = unlist(success)
 
     writeGRANLog("NA", paste0(sum(isOkStatus(status = success, repo = repo)), " of ", length(success), " packages passed R CMD check"), repo=repo)
-    repo@manifest$status[binds] = success
-  ##  repo@manifest$building[binds] = (success == "ok")
+    manifest_df(repo)$status[binds] = success
+  ##  manifest_df(repo)$building[binds] = (success == "ok")
     repo
 }
 
@@ -228,6 +228,6 @@ doExtra = function(repo)
         }
     }, nm = bman$name, extra = bman$extra, fun = list(fun))
 
-    repo@manifest$status[getBuilding(repo)] = res
+    manifest_df(repo)$status[getBuilding(repo)] = res
     repo
 }

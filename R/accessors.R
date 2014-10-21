@@ -276,8 +276,10 @@ setMethod("versions<-", "SessionManifest",
 
 setMethod("manifest", "GRANRepository", function(x) x@manifest)
 
+setGeneric("manifest_df", function(x) standardGeneric("manifest_df"))
 setMethod("manifest_df", "GRANRepository", function(x) manifest(x)@manifest)
 
+setGeneric("manifest_df<-", function(x, value) standardGeneric("manifest_df<-"))
 setMethod("manifest_df<-", "GRANRepository", function(x, value) {
     tmp = manifest(x)
     manifest(tmp) <- value
@@ -322,9 +324,23 @@ setMethod("repo_results<-", "GRANRepository", function(x, value) {
     })
 
 
-setGeneric("param", function(x) standardGeneric(x))
+setGeneric("param", function(x) standardGeneric("param"))
 setMethod("param", "GRANRepository",
           function(x) x@param)
+
+
+setGeneric("param<-", function(x, value) standardGeneric("param<-"))
+setMethod("param<-", "GRANRepository",
+          function(x, value){
+              x@param = value
+              x
+          })
+
+setGeneric("repo_name", function(x) standardGeneric("repo_name"))
+setMethod("repo_name", "GRANRepository",
+          function(x) param(x)@repo_name)
+
+
 
 setGeneric("checkWarnOk", function(x) standardGeneric("checkWarnOk"))
 setMethod("checkWarnOk", "GRANRepository",

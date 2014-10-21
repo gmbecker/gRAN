@@ -93,14 +93,14 @@ getPkgNames = function(path)
 }
 
 
-getCheckoutLocs = function(codir, manifest = repo@manifest,
+getCheckoutLocs = function(codir, manifest = manifest_df(repo),
     branch = manifest$branch, repo)
 {
     mapply(getPkgDir, basepath = codir, subdir = manifest$subdir,
            scm_type = manifest$type, branch = branch, name = manifest$name)
 }
 
-getMaintainers = function(codir, manifest = repo@manifest,
+getMaintainers = function(codir, manifest = manifest_df(repo),
     branch = manifest$branch, repo) {
     sapply(getCheckoutLocs(codir, manifest = manifest), function(x) {
         if(!file.exists(file.path(x,"DESCRIPTION")))

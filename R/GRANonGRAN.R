@@ -29,15 +29,15 @@ GRANonGRAN = function(repo)
         status="ok", branch = "trunk", lastbuiltversion = "0.0-0",
         version = "0.0-0", lastAttemptStatus="never built",
         buildReason = "vbump")
-    granrow = repo@manifest[which(repo@manifest$name == "GRAN"), ]
+    granrow = manifest_df(repo)[which(manifest_df(repo)$name == "GRAN"), ]
     if(nrow(granrow) && granrow$type == "local" && granrow$url == babyGRAN) {
-        repo@manifest$building[repo@manifest$name == "GRAN"] = TRUE
-        repo@manifest$status[repo@manifest$name == "GRAN"] = "ok"
+        manifest_df(repo)$building[manifest_df(repo)$name == "GRAN"] = TRUE
+        manifest_df(repo)$status[manifest_df(repo)$name == "GRAN"] = "ok"
         ##force there always to be a "version bump"
-        repo@manifest$version = "0.0-0"
+        manifest_df(repo)$version = "0.0-0"
     } else 
-        repo@manifest = merge(repo@manifest, manrow,
-            by = intersect(names(repo@manifest), names(manrow)),
+        manifest_df(repo) = merge(manifest_df(repo), manrow,
+            by = intersect(names(manifest_df(repo)), names(manrow)),
             all.x=TRUE, all.y=TRUE)
     repo
     

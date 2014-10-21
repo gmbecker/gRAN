@@ -16,7 +16,7 @@ makeSrcDirs = function(repo, cores = 3L, scm_auth)
     res = unlist(res)
     if(!is.logical(res)) 
         print(res)
-    repo@manifest$status[binds][!res] = "source checkout failed"
+    manifest_df(repo)$status[binds][!res] = "source checkout failed"
     repo
 }
 

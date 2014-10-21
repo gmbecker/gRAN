@@ -3,7 +3,7 @@ migrateToFinalRepo = function(repo)
     repoLoc = destination(repo)
     stagingLoc = staging(repo)
 
-    man = repo@manifest
+    man = manifest_df(repo)
     bman = getBuildingManifest(repo = repo)
 
     repo = markFailedRevDeps(repo)
@@ -22,11 +22,11 @@ migrateToFinalRepo = function(repo)
     if(is(out, "error"))
     {
         writeGRANLog("CRITICAL FAILURE", c("Copying built packages into final repository failed. Error message:", out), type="both", repo=repo)
-        repo@manifest$status[getBuilding(repo)] = "GRAN FAILURE"
+        manifest_df(repo)$status[getBuilding(repo)] = "GRAN FAILURE"
         return(repo)
     } else if (any(!out)) {
         writeGRANLog("CRITICAL FAILURE", c("Copying built packages into final repository failed for some packages. Packages", out), type="both", repo=repo)
-        repo@manifest$status[getBuilding(repo)][!out] = "GRAN FAILURE"
+        manifest_df(repo)$status[getBuilding(repo)][!out] = "GRAN FAILURE"
         return(repo)
     }
     out = tryCatch(file.remove(list.files(stagingLoc, pattern = "\\.tar.*", full.names=TRUE)), error=function(x) x)
@@ -58,7 +58,7 @@ markFailedRevDeps = function(repo) {
     rempkgs = bman[!keep, "package"]
     if(!all(keep)) {
         sapply(rempkgs, function(x) writeGRANLog(x, "One or more package dependencies failed to build. Not deploying package.", repo = repo, type = "both"))
-        repo@manifest$status[repo@manifest$name %in% rempkgs] = "Dependency build failure"
+        manifest_df(repo)$status[manifest_df(repo)$name %in% rempkgs] = "Dependency build failure"
     }
     repo
 }

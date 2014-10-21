@@ -195,7 +195,7 @@ makeSingleGRANRepo = function(
     }
 
     if(missing(manifest) && !is.null(repo))
-        manifest = repo@manifest
+        manifest = manifest_df(repo)
 
     if(is.null(repo)) {
         if(!(is(manifest, "character") || is(manifest, "data.frame"))) {
@@ -259,22 +259,22 @@ makeSingleGRANRepo = function(
             stop("repository name on GRANRepository object and repository name passed to makeSingleGRANRepo do not match. Wrong repo object?")
 
     }
-    repo@manifest = manifest    
+    manifest_df(repo) = manifest    
     ##Don't want to accidentally build things we shouldn't
-    if(length(unique(repo@manifest$subrepo))>1) {
+    if(length(unique(manifest_df(repo)$subrepo))>1) {
         warning("multi-repo manifest passed to makeSingleRepo. Removing extraneous entries")
-        repo@manifest = repo@manifest[repo@manifest$subrepo == repo@subrepoName,]
+        manifest_df(repo) = manifest_df(repo)[manifest_df(repo)$subrepo == repo@subrepoName,]
     }
 
-    if(any(repo@manifest$suspended)) {
-        writeGRANLog("NA", paste("Skipping suspended packages:", paste(repo@manifest$name[repo@manifest$suspended], collapse=", ")), repo = repo)
-        warning(paste("Skipping suspended packages:", paste(repo@manifest$name[repo@manifest$suspended], collapse=", ")))
+    if(any(manifest_df(repo)$suspended)) {
+        writeGRANLog("NA", paste("Skipping suspended packages:", paste(manifest_df(repo)$name[manifest_df(repo)$suspended], collapse=", ")), repo = repo)
+        warning(paste("Skipping suspended packages:", paste(manifest_df(repo)$name[manifest_df(repo)$suspended], collapse=", ")))
         
     }
     ##it is important that manifest rows <-> tarballs be a one-to-one relationship
 
-    if(nrow(repo@manifest) != length(unique(repo@manifest$name))) {
+    if(nrow(manifest_df(repo)) != length(unique(manifest_df(repo)$name))) {
         warning("Duplicated entries detected in manifest. Removing.")
-        repo@manifest = repo@manifest[!duplicated(repo@manifest$name),]
+        manifest_df(repo) = manifest_df(repo)[!duplicated(manifest_df(repo)$name),]
     }
 }

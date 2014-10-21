@@ -10,7 +10,7 @@
 ##' @return a list with success and fail elements containing the directories which succeeded and failed the build
 ##' @author Cory Barr, Gabriel Becker
 ##' @importFrom tools write_PACKAGES
-buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE, manifest = repo@manifest) {
+buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE, manifest = manifest_df(repo)) {
   
     binds = getBuilding(repo, manifest)       
     if(!sum(binds))
@@ -133,7 +133,7 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE
     manifest$version[built] = versions[built]
     manifest$maintainer = getMaintainers(checkout_dir(repo),
                            manifest = manifest)
-    repo@manifest[binds,] = manifest
+    manifest_df(repo)[binds,] = manifest
     repo
 
 }
