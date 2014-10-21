@@ -57,18 +57,6 @@ ManifestRow = function(name = NA,
     branch = NA,
     subdir = ".",
     extra = NA,
-    status = NA,
-    building = TRUE,
-    version = NA,
-    lastAttempt = NA,
-    lastAttemptVersion = NA,
-    lastAttemptStatus = NA,
-    lastbuilt = NA,
-    lastbuiltversion = NA,
-    lastbuiltstatus = NA,
-    buildReason = NA,
-    maintainer  = NA,
-    suspended  = FALSE
     ) {
 
     if(is.na(type) && !is.na(url))
@@ -76,13 +64,7 @@ ManifestRow = function(name = NA,
     if(is.na(branch) && !is.na(type))
         branch = .inferDefaultBranch(branch, type)
     data.frame(name = name, url = url, type = type, subrepo = subrepo,
-           branch = branch, subdir = subdir, extra = extra, status = status,
-           version = version, lastAttempt = lastAttempt,
-           lastAttemptVersion = lastAttemptVersion,
-           lastAttemptStatus = lastAttemptStatus, lastbuilt = lastbuilt,
-           lastbuiltversion = lastbuiltversion,
-           lastbuiltstatus = lastbuiltstatus, buildReason = buildReason,
-           suspended=suspended, building = building, maintainer = maintainer,
+           branch = branch, subdir = subdir, extra = extra,
            stringsAsFactors = FALSE)
 }
 
@@ -115,36 +97,6 @@ readManifest =function(file = repoManifest(repo), repo, returnFull = FALSE)
     if(nrow(man) && !returnFull)
         man = man[man$subrepo == repo@subrepoName,]
     man
-}
-
-updateManifest = function(repo)
-{
-    fullman = repo@manifest
-    tried = fullman$building
-    ##succeeded = getBuilding(repo)
-    succeeded = isOkStatus(status = fullman$status, repo = repo) & tried
-    time = as.character(Sys.time())
-    fullman$lastAttempt[tried] = time
-    fullman$lastAttemptStatus[tried] = fullman$status[tried]
-    fullman$lastAttemptVersion[tried] = fullman$version[tried]
-    fullman$lastbuilt[succeeded] = time
-    fullman$lastbuiltversion[succeeded] = fullman$version[succeeded]
-    fullman$lastbuiltstatus[succeeded] = fullman$status[succeeded]
-
-    reminds = which(names(fullman) %in% c("status", "building"))
-    if(lockManifest(repo))
-        {
-            write.table(fullman[,-reminds], file = repoManifest(repo), col.names=TRUE, sep = ",")
-            unlockManifest(repo)
-        } else {
-            stop("Unable to lock manifest. manifest overflow handling not yet supported")
-            warning("Unable to lock manifest file, writing to overflow manifest")
-            write.table(fullman, file= file.path(paste0(repoManifest(repo), ".overflow")), append=TRUE, col.names=TRUE, sep=",")
-        }
-    repo@manifest = fullman
-    repo
-    
-    
 }
 
 lockManifest = function(repo)

@@ -1,9 +1,9 @@
-updateGit = function(dir, source, repo, branch)
+updateGit = function(dir, source, repo)
 {
     oldwd = getwd()
     on.exit(setwd(oldwd))
     setwd(dir)
-    cmd = paste("git checkout", branch, "; git pull origin", branch)
+    cmd = paste("git checkout", branch(source), "; git pull origin", branch(source))
     out = tryCatch(system_w_init(cmd, intern=TRUE, repo = repo),
         error = function(x) x)
     if(errorOrNonZero(out))

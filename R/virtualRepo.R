@@ -447,9 +447,9 @@ findSVNRev = function(name, version, destpath, repo, biocVers="trunk")
     pkgdir = file.path(destpath, name) ##file.path(destpath, addl_dir)
     repoloc = paste0("https://hedgehog.fhcrc.org/bioconductor/", biocVers, "/madman/Rpacks/", name)
     if(!file.exists(pkgdir)) {
-        src = makeSource(url = repoloc, type = "svn", user = "readonly", password="readonly")
+        src = makeSource(name = name, url = repoloc, type = "svn", user = "readonly", password="readonly")
         ##ret = makePkgSourceDir(name = name, source = src, path = file.path(destpath, addl_dir), repo = repo)
-        ret = makePkgSourceDir(name = name, source = src, path = destpath, repo = repo)
+        ret = makePkgDir(name = name, source = src, path = destpath, latest_only = FALSE, repo = repo)
         
         if(!ret)
             return(NULL)

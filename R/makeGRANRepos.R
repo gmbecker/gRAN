@@ -1,3 +1,66 @@
+
+setMethod("makeRepo", "PkgManifest",
+          function(x, cores = 3L, ...,
+                   scm_auth = list("bioconductor.org" = c("readonly", "readonly"))) {
+
+              repo = GRANRepository(manifest = x, ...)
+              makeRepo(repo, cores = cores, scm_auth = scm_auth, ...)
+          })
+
+
+
+
+setMethod("makeRepo", "GRANRepository",
+          function(x, cores = 3L, ...,
+                   scm_auth = list("bioconductor.org" = c("readonly", "readonly"))) {
+
+              repo = x
+              repo2 = loadRepo(paste(repo_url(repo), "repo.R", sep="/"))
+              res = repo_results(repo)
+              res2 = repo_results(repo2)
+              if(max(res$lastAttempt, na.rm=TRUE) < max(res2$lastAttempt, na.rm=TRUE)) {
+                  message("Loading latest results from specified repository")
+                  repo = repo2
+              }
+              
+
+              print(paste("Building", sum(getBuilding(repo)), "packages"))
+              ##package, build thine self!
+              repo = GRANonGRAN(repo)
+              ##do checkouts
+              print(paste("Starting makeSrcDirs", Sys.time()))
+              print(paste("Building", sum(getBuilding(repo)), "packages"))
+              repo = makeSrcDirs(repo, cores = cores, scm_auth = scm_auth)
+              ##add reverse dependencies to build list
+              repo = addRevDeps(repo)
+              ##do checkouts again to grab reverse deps
+              repo = makeSrcDirs(repo, cores = cores, scm_auth = scm_auth)
+              ##build temp repository
+              print(paste("Starting buildBranchesInRepo", Sys.time()))
+              print(paste("Building", sum(getBuilding(repo)), "packages"))
+              ##if we have a single package specified we want to build it with or without a version bump
+              repo = buildBranchesInRepo( repo = repo, temp = TRUE, cores = cores, incremental = is.null(onlyBuild))
+              ##test packges
+              print(paste("Invoking package tests", Sys.time()))
+              print(paste("Building", sum(getBuilding(repo)), "packages"))
+              repo = invokePkgTests(repo, cores = cores)
+              ##copy successfully built tarballs to final repository
+              print(paste("starting migrateToFinalRepo", Sys.time()))
+              print(paste("Built", sum(getBuilding(repo)), "packages"))
+              repo = migrateToFinalRepo(repo)
+              
+              finalizeRepo(repo)
+              repo
+          })
+
+
+
+
+
+
+
+
+
 ##' makeGRANRepos
 ##' Fire build procoess for a GRAN instance (all subrepositories)
 ##'
@@ -214,32 +277,4 @@ makeSingleGRANRepo = function(
         warning("Duplicated entries detected in manifest. Removing.")
         repo@manifest = repo@manifest[!duplicated(repo@manifest$name),]
     }
-
-    print(paste("Building", sum(getBuilding(repo)), "packages"))
-    #package, build thine self!
-    repo = GRANonGRAN(repo)
-    #do checkouts
-    print(paste("Starting makeSrcDirs", Sys.time()))
-    print(paste("Building", sum(getBuilding(repo)), "packages"))
-    repo = makeSrcDirs(repo, cores = cores, scm_auth = scm_auth)
-    #add reverse dependencies to build list
-    repo = addRevDeps(repo)
-    ##do checkouts again to grab reverse deps
-    repo = makeSrcDirs(repo, cores = cores, scm_auth = scm_auth)
-    #build temp repository
-    print(paste("Starting buildBranchesInRepo", Sys.time()))
-    print(paste("Building", sum(getBuilding(repo)), "packages"))
-    ##if we have a single package specified we want to build it with or without a version bump
-    repo = buildBranchesInRepo( repo = repo, temp = TRUE, cores = cores, incremental = is.null(onlyBuild))
-    #test packges
-    print(paste("Invoking package tests", Sys.time()))
-    print(paste("Building", sum(getBuilding(repo)), "packages"))
-    repo = invokePkgTests(repo, cores = cores)
-    #copy successfully built tarballs to final repository
-    print(paste("starting migrateToFinalRepo", Sys.time()))
-    print(paste("Built", sum(getBuilding(repo)), "packages"))
-    repo = migrateToFinalRepo(repo)
-    
-    finalizeRepo(repo)
-    repo
 }

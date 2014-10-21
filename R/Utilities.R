@@ -136,7 +136,9 @@ makeSource = function(url, type, user, password, scm_auth,...) {
         user = makeUserFun(scm_auth = scm_auth, url = url)
     if(missing(password))
         password = makePwdFun(scm_auth= scm_auth, url = url)
-    switch(type,
+    if(type == "git" && grepl("github", url))
+        type = "github"
+    ret = switch(type,
            svn  = new("SVNSource", location = url, user = user,
                password = password, ...),
            local = new("LocalSource", location = url, user = user,
@@ -145,10 +147,13 @@ makeSource = function(url, type, user, password, scm_auth,...) {
                password = password,  ...),
            github = new("GithubSource", location = url, user = user,
                password = password, ...),
-           gitsvn = new("GitSVNSource", location = url, user = user,
-               password = password, ...),
            stop("unsupported source type")
            )
+    if( (type=="git" || type == "github") && is.na(ret@branch))
+        ret@branch = "master"
+    else if (type=="svn" && is.na(ret@branch))
+        ret@branch = "trunk"
+    ret
 }
 
 getPkgDir = function(basepath,name,  subdir, scm_type, branch)
@@ -193,12 +198,15 @@ errorOrNonZero = function(out)
         FALSE
 }
 
-isOkStatus = function(status= manifest$status, manifest = repo@manifest, repo)
+isOkStatus = function(status= results$status,
+    results = repo_results(repo),
+    param = param(repo),
+    repo)
 {
     #status can be NA when the package isn't being built at all
     !is.na(status) & (status == "ok" |
-                      (repo@checkWarnOk & status == "check warning(s)") |
-                      (repo@checkNoteOk & status == "check note(s)"))
+                      (checkWarnOk(param) & status == "check warning(s)") |
+                      (checkNoteOk(param) & status == "check note(s)"))
 }
 
 install.packages2 = function(pkgs, repos, ...)
@@ -228,14 +236,14 @@ install.packages2 = function(pkgs, repos, ...)
 }
 
 
-getBuilding = function(repo, manifest = repo@manifest)
+getBuilding = function(repo, results= repo_results(repo))
 {
-    manifest$building & isOkStatus(manifest = manifest, repo = repo)
+    results$building & isOkStatus(results = results, repo = repo)
 }
 
-getBuildingManifest = function(repo, manifest = repo@manifest)
+getBuildingManifest = function(repo, results = repo_results(repo))
 {
-    manifest[getBuilding(repo, manifest),]
+    results[getBuilding(repo, results),]
 }
 
 normalizePath2 = function(path, follow.symlinks=FALSE)

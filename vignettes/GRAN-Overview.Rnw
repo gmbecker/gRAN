@@ -59,6 +59,7 @@ Given a \gran manifest, initial construction and rebuilding of individual \gran 
 testpkgs = list.files(system.file("testpkgs", package = currentPackage()), full.names = TRUE)
 man = ManifestRow(name = basename(testpkgs), url = testpkgs, 
     type = "local", subrepo = "stable", subdir=".")
+man = PkgManifest(manifest = man)
 repdir = file.path(tempdir(), "repos")
 dir.create(repdir)
 repo = makeSingleGRANRepo(man, subRepoName = "stable", baseDir = repdir,

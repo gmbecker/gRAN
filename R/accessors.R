@@ -14,7 +14,7 @@ setGeneric("logfile", function(repo) standardGeneric("logfile"))
 ##' @rdname GRANRepository-accessors
 ##' @aliases logfile,GRANRepository-method
 setMethod("logfile", "GRANRepository", function(repo) {
-    ret = repo@logfile
+    ret = param(repo)@logfile
     if(!file.exists(dirname(ret)))
         dir.create(dirname(ret), recursive = TRUE)
     ret})
@@ -34,7 +34,7 @@ setGeneric("errlogfile", function(repo) standardGeneric("errlogfile"))
 ##' @rdname errlogfile-methods
 ##' @aliases errlogfile,GRANRepository-method
 setMethod("errlogfile", "GRANRepository", function(repo) {
-        ret = repo@errlog
+        ret = param(repo)@errlog
     if(!file.exists(dirname(ret)))
         dir.create(dirname(ret), recursive = TRUE)
     ret})
@@ -78,7 +78,7 @@ setGeneric("repobase", function(repo) standardGeneric("repobase"))
 ##' @aliases repobase,GRANRepository-method
 ##' @export
 setMethod("repobase", "GRANRepository", function(repo) {
-    ret = file.path(repo@baseDir, repo@subrepoName)
+    ret = file.path(param(repo)@baseDir, param(repo)@subrepoName)
     if(!file.exists(ret))
         dir.create(ret, recursive=TRUE)
     normalizePath2(ret)
@@ -103,24 +103,6 @@ setMethod("staging", "GRANRepository", function(repo) {
     normalizePath2(ret)
 })
 
-##' repoManifest
-##' Return the location of the manifest file associated with the repository
-##'
-##' @rdname repoManifest-methods
-##' @param repo a GRANRepository object
-##' @return The path to the manifest file
-setGeneric("repoManifest", function(repo) standardGeneric("repoManifest"))
-##' @rdname repoManifest-methods
-##' @aliases repoManifest,GRANRepository-method
-##' @export
-setMethod("repoManifest", "GRANRepository", function(repo)
-          file.path(repo@baseDir, "manifest.dat"))
-
-
-setGeneric("manLockFile", function(repo) standardGeneric("manLockFile"))
-setMethod("manLockFile", "GRANRepository",
-          function(repo) gsub(".dat", ".out", fixed = TRUE, repoManifest(repo)))
-
 ##' LibLoc
 ##' Return the temporary library location associated with the repository
 ##'
@@ -131,7 +113,7 @@ setGeneric("LibLoc", function(repo) standardGeneric("LibLoc"))
 ##' @rdname LibLoc-methods
 ##' @aliases LibLoc,GRANRepository-method
 setMethod("LibLoc", "GRANRepository",
-          function(repo) normalizePath2(repo@tempLibLoc))
+          function(repo) normalizePath2(param(repo)@tempLibLoc))
 
 ##' notrack
 ##' Return the directory which stores retreived versions of non-GRAN packages
@@ -160,8 +142,8 @@ setGeneric("destination", function(repo) standardGeneric("destination"))
 ##' @aliases destination,GRANRepository-method
 ##' @export
 setMethod("destination","GRANRepository",
-          function(repo) file.path(normalizePath2(repo@dest_base),
-                                   repo@subrepoName,  "src", "contrib"))
+          function(repo) file.path(normalizePath2(param(repo)@dest_base),
+                                   param(repo)@subrepoName,  "src", "contrib"))
 
 
 ##' dest_base
@@ -177,7 +159,7 @@ setGeneric("dest_base", function(repo) standardGeneric("dest_base"))
 ##' @aliases dest_base,GRANRepository-method
 ##' @export
 setMethod("dest_base","GRANRepository",
-          function(repo) file.path(normalizePath2(repo@dest_base)))
+          function(repo) file.path(normalizePath2(param(repo)@dest_base)))
 
 
 ##' check_result_dir
@@ -194,8 +176,8 @@ setGeneric("check_result_dir", function(repo) standardGeneric("check_result_dir"
 ##' @aliases check_result_dir,GRANRepository-method
 ##' @export
 setMethod("check_result_dir","GRANRepository",
-          function(repo) file.path(normalizePath2(repo@dest_base),
-                                   repo@subrepoName, "CheckResults" ))
+          function(repo) file.path(normalizePath2(param(repo)@dest_base),
+                                   param(repo)@subrepoName, "CheckResults" ))
 
 
 
@@ -214,8 +196,8 @@ setGeneric("repo_url", function(repo) standardGeneric("repo_url"))
 ##' @aliases repo_url,GRANRepository-method
 ##' @export
 setMethod("repo_url","GRANRepository",
-          function(repo) paste(repo@dest_url,
-                               repo@subrepoName,
+          function(repo) paste(param(repo)@dest_url,
+                               param(repo)@subrepoName,
                                sep="/"))
 
 setMethod("repo_url","NULL", function(repo) NULL)
@@ -235,7 +217,7 @@ setGeneric("checkout_dir", function(repo) standardGeneric("checkout_dir"))
 ##' @aliases checkout_dir,GRANRepository-method
 ##' @export
 setMethod("checkout_dir","GRANRepository",
-          function(repo) repo@tempCheckout)
+          function(repo) param(repo)@tempCheckout)
 
 setMethod("checkout_dir","NULL", function(repo) NULL)
 
@@ -260,3 +242,124 @@ setMethod("depRepos", "PkgManifest", function(x) x@dependency_repos)
 ##' @export
 setGeneric("manifest", function(x) standardGeneric("manifest"))
 setMethod("manifest", "PkgManifest", function(x) x@manifest)
+
+setGeneric("manifest<-", function(x, value) standardGeneric("manifest<-"))
+setMethod("manifest<-", "PkgManifest", function(x, value) {
+    x@manifest = value
+    x
+    })
+
+setGeneric("pkg_manifest", function(x) standardGeneric("pkg_manifest"))
+
+setMethod("pkg_manifest", "SessionManifest",
+          function(x) x@manifest)
+
+
+
+setGeneric("pkg_manifest<-", function(x, value) standardGeneric("pkg_manifest<-"))
+
+setMethod("pkg_manifest<-", "SessionManifest",
+          function(x, value ) {
+              x@manifest = value
+              x
+          })
+
+
+setGeneric("versions", function(x) standardGeneric("versions"))
+setMethod("versions", "SessionManifest",
+          function(x) x@pkg_versions)
+
+setGeneric("versions<-", function(x) standardGeneric("versions<-"))
+setMethod("versions<-", "SessionManifest",
+          function(x) x@pkg_versions)
+
+
+setMethod("manifest", "GRANRepository", function(x) x@manifest)
+
+setMethod("manifest_df", "GRANRepository", function(x) manifest(x)@manifest)
+
+setMethod("manifest_df<-", "GRANRepository", function(x, value) {
+    tmp = manifest(x)
+    manifest(tmp) <- value
+    x@manifest = tmp
+    x
+    })
+
+
+
+
+##' @export
+setGeneric("branch", function(x) standardGeneric("branch"))
+setMethod("branch", "PkgSource", function(x) x@branch)
+
+setGeneric("branch<-", function(x, value) standardGeneric("branch<-"))
+setMethod("branch<-", "PkgSource", function(x, value) {
+    x@branch = value
+    x
+    })
+
+
+##' @export
+setGeneric("subdir", function(x) standardGeneric("subdir"))
+setMethod("subdir", "PkgSource", function(x) x@subdir)
+
+
+setGeneric("subdir<-", function(x, value) standardGeneric("subdir<-"))
+setMethod("subdir<-", "PkgSource", function(x, value) {
+    x@subdir = value
+    x
+    })
+
+
+##' @export
+setGeneric("repo_results", function(x) standardGeneric("repo_results"))
+setMethod("repo_results", "GRANRepository", function(x) x@results)
+
+setGeneric("repo_results<-", function(x, value) standardGeneric("repo_results<-"))
+setMethod("repo_results<-", "GRANRepository", function(x, value) {
+    x@results = value
+    x
+    })
+
+
+setGeneric("param", function(x) standardGeneric(x))
+setMethod("param", "GRANRepository",
+          function(x) x@param)
+
+setGeneric("checkWarnOk", function(x) standardGeneric("checkWarnOk"))
+setMethod("checkWarnOk", "GRANRepository",
+          function(x)  param(x)@checkWarnOk)
+
+
+setGeneric("checkNoteOk", function(x) standardGeneric("checkNoteOk"))
+setMethod("checkNoteOk", "GRANRepository",
+          function(x)  param(x)@checkNoteOk)
+
+setGeneric("suspended_pkgs", function(x) standardGeneric("suspended_pkgs"))
+setMethod("suspended_pkgs", "GRANRepository",
+          function(x) param(x)@suspended)
+
+
+setGeneric("suspended_pkgs<-", function(x, value) standardGeneric("suspended_pkgs<-"))
+setMethod("suspended_pkgs<-", "GRANRepository",
+          function(x, value) {
+              param(x)@suspended = value
+              x
+              })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

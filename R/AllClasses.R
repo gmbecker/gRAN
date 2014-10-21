@@ -1,4 +1,6 @@
-setClass("PkgSource", representation(location="character", user = "character",
+setClass("PkgSource", representation(name = "character",location="character",
+                                     branch = "character",
+                                     subdir = "character", user = "character",
                                      password="character"))
 setClass("SVNSource", contains = "PkgSource")
 setClass("GitSource", contains = "PkgSource")
@@ -8,27 +10,81 @@ setClass("CVSSource", contains = "PkgSource")
 setClass("LocalSource", contains = "PkgSource")
 
 
-setClass("GRANRepository", representation(tempRepo = "character",
+
+
+##'@export
+##'
+setClass("PkgManifest", representation( manifest = "data.frame",
+                                          dependency_repos = "character"))
+
+##'@export
+##' @import RCurl
+PkgManifest = function(manifest, dep_repos = c(biocinstallRepos(), defaultGRAN()), ...) {
+    if(is.character(manifest)) {
+        if(is.url(manifest)) {
+            fil = tempfile()
+            download.file(manifest, method = "curl", fil)
+            manifest  = fil
+        }
+
+        if(file.exists(manifest))
+            manifest = read.table(manifest, header= TRUE, sep= ",", stringsAsFactors = FALSE, ...)
+        else
+            stop("invalid manifest")
+    }
+
+    new("PkgManifest", manifest = manifest, dependency_repos = dep_repos)
+}
+
+setClass("GithubPkgManifest", contains = "PkgManifest")
+
+
+
+#manifest is a data.frame with the following columns:
+##name, url, type, subdir, branch, extra
+manifestBaseCols = c("name", "url", "type", "subdir", "branch", "extra")
+
+
+
+
+
+
+
+##'@export
+setClass("SessionManifest", representation(pkg_versions = "data.frame",
+                                           pkg_manifest = "PkgManifest"))
+
+
+
+
+
+##'@export
+setClass("RepoBuildParam", representation(tempRepo = "character",
                                           baseDir = "character",
                                           tempCheckout = "character",
                                           errlog = "character",
                                           logfile = "character",
                                           rversion = "character",
-                                          subrepoName="character",
+                                          repoName="character",
                                           tempLibLoc = "character",
-                                          manifest = "data.frame",
                                           checkWarnOk = "logical",
                                           checkNoteOk = "logical",
                                           extraFun = "function",
                                           auth = "character",
                                           dest_base = "character",
                                           dest_url = "character",
-                                          shell_init = "character"
-                                          ))
+                                          shell_init = "character"))
 
-#manifest is a data.frame with the following columns:
-##name, url, type, subdir, branch, extra
-manifestBaseCols = c("name", "url", "type", "subdir", "branch", "extra")
+
+##' @export
+setClass("GRANRepository", representation(
+    results = "data.frame",
+    manifest = "PkgManifest",
+    param = "RepoBuildParam"
+))
+
+
+
 
 ##' GRANRepository
 ##'
@@ -151,30 +207,3 @@ setClass("parsedSessionInfo", representation(version = "character",
                                              attached = "data.frame",
                                              loaded = "data.frame"))
 
-
-##'@export
-##'
-setClass("PkgManifest", representation( manifest = "data.frame",
-                                          dependency_repos = "character"))
-
-##'@export
-##' @import RCurl
-PkgManifest = function(manifest, dep_repos = c(biocinstallRepos(), defaultGRAN()), ...) {
-    if(is.character(manifest)) {
-        if(is.url(manifest)) {
-            fil = tempfile()
-            download.file(manifest, method = "curl", fil)
-            manifest  = fil
-        }
-
-        if(file.exists(manifest))
-            manifest = read.table(manifest, header= TRUE, sep= ",", stringsAsFactors = FALSE, ...)
-        else
-            stop("invalid manifest")
-    }
-
-    new("PkgManifest", manifest = manifest, dependency_repos = dep_repos)
-}
-
-setClass("GithubPkgManifest", contains = "PkgManifest")
-                                          
