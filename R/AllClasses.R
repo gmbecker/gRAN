@@ -91,6 +91,24 @@ setClass("GRANRepository", representation(
 ##' A constructor for the \code{GRANRepository} class of S4 objects representing
 ##' individual repositories
 ##'
+##' @param manifest A PkgManifest object
+##' @param results A data.frame containing previous build results
+##' @param param A RepoBuildParam object controlling the location and behavior of
+##' the repository being built
+##' @param ... Passed through to the default value of \code{param}
+##' @export
+GRANRepository = function(manifest,
+    results,
+    param = RepoBuildParam(...),
+    ...) {
+
+    new("GRANRepository", manifest = manifest, results = results, param = param)
+}
+
+
+
+##' RepoBuildParam
+##' 
 ##' @param basedir The base directory. By default the temporary repository,
 ##' temporary install library, and package staging area will be located in
 ##' <basedir>/<subrepoName>/, while the  temporary source checkout will be in t
@@ -125,7 +143,11 @@ setClass("GRANRepository", representation(
 ##' @param shell_init An optional shell script to source before invoking system
 ##' commands, e.g. a bashrc file. Ignored if "" or not specified.
 ##' @export
-GRANRepository = function(basedir,
+
+
+
+RepoBuildParam = function(
+    basedir,
     subrepoName = "stable",
     rversion = "R",
     tempRepo = file.path(basedir, subrepoName, "tmprepo"),
@@ -140,7 +162,6 @@ GRANRepository = function(basedir,
     extraFun = function(...) NULL,
     destination = basedir,
     auth = "",
-    manifest = emptyManifest,
     dest_url = paste0("file://", normalizePath2(destination)),
     shell_init = "")
 {
@@ -154,7 +175,7 @@ GRANRepository = function(basedir,
                      destination)
 
     
-    repo = new("GRANRepository", baseDir = basedir,
+    repo = new("RepoBuildParam", baseDir = basedir,
         subrepoName = subrepoName,
         rversion = rversion,
         tempRepo = normalizePath2(tempRepo),
@@ -167,12 +188,8 @@ GRANRepository = function(basedir,
         extraFun = extraFun,
         dest_base= normalizePath2(destination),
         auth = auth,
-        manifest = manifest,
         dest_url = dest_url,
         shell_init = shell_init)
-
-    if(!nrow(manifest))
-        repo@manifest = readManifest(repo = repo)
     repo
 }
 

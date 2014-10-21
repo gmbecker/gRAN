@@ -6,29 +6,29 @@ addRevDeps = function(repo)
     ##reset and recalculate reverse dependencies every time. Expensive
     ##but protects us against packages being added or removed from
     ##manfiest
-    repo@manifest$revDepOf = ""
-    repo@manifest$revdepends = ""
+    manifest_df(repo)$revDepOf = ""
+    manifest_df(repo)$revdepends = ""
 
-    if(is.null(repo@manifest$buildReason))
-        repo@manifest$buildReason = ifelse(repo@manifest$building, "vbump", "")
+    if(is.null(manifest_df(repo)$buildReason))
+        manifest_df(repo)$buildReason = ifelse(manifest_df(repo)$building, "vbump", "")
     else {
-        repo@manifest$buildReason[is.na(repo@manifest$buildReason)] = ""
-        repo@manifest$buildReason[repo@manifest$building] = "vbump"
+        manifest_df(repo)$buildReason[is.na(manifest_df(repo)$buildReason)] = ""
+        manifest_df(repo)$buildReason[manifest_df(repo)$building] = "vbump"
     }
     
     writeGRANLog("NA", paste("Checking for reverse dependencies to packages",
                              "with version bumps."), repo = repo)
-    manifest = repo@manifest
+    manifest = manifest_df(repo)
     ##if this is the first time we are building the repository all the packages
     ##will be being built, so no need to check rev deps
-    if(!file.exists(repo@tempLibLoc) || all(getBuilding(repo)))    {
+    if(!file.exists(temp_lib(repo)) || all(getBuilding(repo)))    {
         writeGRANLog("NA", paste("All packages are being built, skipping",
                                  "reverse dependency check."), repo = repo)
         return(repo)
     }
-    pkgs = repo@manifest$name[getBuilding(repo)]
+    pkgs = manifest_df(repo)$name[getBuilding(repo)]
     revdeps = sapply(pkgs, dependsOnPkgs, dependencies = "all",
-        lib.loc = repo@tempLibLoc, simplify=FALSE)
+        lib.loc = temp_lib(repo), simplify=FALSE)
     if(!length(unlist(revdeps))) {
         writeGRANLog("NA", "No reverse dependencies detected", repo = repo)
         return(repo)
@@ -72,15 +72,15 @@ addRevDeps = function(repo)
                      "Building reverse dependencies in temporary repository.",
                      repo = repo)
         tmprepo = repo
-        tmprepo@manifest = manifest[rdepBuildPkgs,]
-        tmprepo@manifest$building = TRUE
-        tmprepo@manifest$status="ok"
+        manifest_df(tmprepo) = manifest[rdepBuildPkgs,]
+        manifest_df(tmprepo)$building = TRUE
+        manifest_df(tmprepo)$status="ok"
         tmprepo = buildBranchesInRepo(repo = tmprepo, temp = TRUE,
            # incremental = FALSE)
             incremental = TRUE)
-        manifest[rdepBuildPkgs, ] = tmprepo@manifest
+        manifest[rdepBuildPkgs, ] = manifest_df(tmprepo)
     }
-    repo@manifest = manifest
+    manifest_df(repo) = manifest
     repo
 }
 
