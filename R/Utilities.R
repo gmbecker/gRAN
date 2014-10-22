@@ -278,13 +278,13 @@ normalizePath2 = function(path, follow.symlinks=FALSE)
     }
 
 ##source an initialization script (e.g. .bashrc) if specified
-## in repo@shell_init
+## in sh_init_script(repo)
 system_w_init = function(cmd, ..., repo = defaultGRAN())
 {
     if(length(cmd) > 1)
         stop("cmd should be of length 1")
-    if(!is.null(repo) && length(repo@shell_init) && nchar(repo@shell_init))
-        cmd = paste(paste("source", repo@shell_init), cmd, sep = " ; ")
+    if(!is.null(repo) && length(sh_init_script(repo)) && nchar(sh_init_script(repo)))
+        cmd = paste(paste("source", sh_init_script(repo)), cmd, sep = " ; ")
     system(cmd, ...)
 }
 

@@ -317,18 +317,19 @@ setMethod("subdir<-", "PkgSource", function(x, value) {
 setGeneric("repo_results", function(x) standardGeneric("repo_results"))
 setMethod("repo_results", "GRANRepository", function(x) x@results)
 
+##' ##'@export
 setGeneric("repo_results<-", function(x, value) standardGeneric("repo_results<-"))
 setMethod("repo_results<-", "GRANRepository", function(x, value) {
     x@results = value
     x
     })
 
-
+##'@export
 setGeneric("param", function(x) standardGeneric("param"))
 setMethod("param", "GRANRepository",
           function(x) x@param)
 
-
+##'@export
 setGeneric("param<-", function(x, value) standardGeneric("param<-"))
 setMethod("param<-", "GRANRepository",
           function(x, value){
@@ -336,26 +337,28 @@ setMethod("param<-", "GRANRepository",
               x
           })
 
+##' @export
 setGeneric("repo_name", function(x) standardGeneric("repo_name"))
 setMethod("repo_name", "GRANRepository",
           function(x) param(x)@repo_name)
 
 
-
+##'@export
 setGeneric("checkWarnOk", function(x) standardGeneric("checkWarnOk"))
 setMethod("checkWarnOk", "GRANRepository",
           function(x)  param(x)@checkWarnOk)
 
-
+##'@export
 setGeneric("checkNoteOk", function(x) standardGeneric("checkNoteOk"))
 setMethod("checkNoteOk", "GRANRepository",
           function(x)  param(x)@checkNoteOk)
 
+##' @export
 setGeneric("suspended_pkgs", function(x) standardGeneric("suspended_pkgs"))
 setMethod("suspended_pkgs", "GRANRepository",
           function(x) param(x)@suspended)
 
-
+##'@export
 setGeneric("suspended_pkgs<-", function(x, value) standardGeneric("suspended_pkgs<-"))
 setMethod("suspended_pkgs<-", "GRANRepository",
           function(x, value) {
@@ -366,6 +369,19 @@ setMethod("suspended_pkgs<-", "GRANRepository",
 
 
 
+
+##'@export
+setGeneric("sh_init_script", function(x) standardGeneric("sh_init_script"))
+setMethod("sh_init_script", "GRANRepository",
+          function(x) param(x)@shell_init)
+
+##'@export
+setGeneric("sh_init_script<-", function(x, value) standardGeneric("sh_init_script<-"))
+setMethod("sh_init_script<-", "GRANRepository",
+          function(x, value) {
+              param(x)@shell_init= value
+              x
+              })
 
 
 
