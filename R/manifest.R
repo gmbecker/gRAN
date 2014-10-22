@@ -95,7 +95,7 @@ readManifest =function(file = repoManifest(repo), repo, returnFull = FALSE)
         man = emptyManifest
 
     if(nrow(man) && !returnFull)
-        man = man[man$subrepo == repo@subrepoName,]
+        man = man[man$subrepo == repo_name(repo),]
     man
 }
 
@@ -140,7 +140,7 @@ addToManifest = function(repo, row)
     if(locked)
     {
         man = read.table(mfile, header=TRUE, stringsAsFactors = FALSE, sep=",")
-        ind = which(man$name == row$name & man$subrepo == repo@subrepoName)
+        ind = which(man$name == row$name & man$subrepo == repo_name(repo))
         if(length(ind))
         {
             warning("Package was already in the specified GRAN repository")

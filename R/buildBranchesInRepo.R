@@ -24,8 +24,8 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE
         repoLoc = repo@tempRepo
         if(!grepl("src/contrib", repoLoc, fixed=TRUE))
         {
-            if(!grepl(repo@subrepoName, repoLoc, fixed=TRUE))
-                repoLoc = file.path(repoLoc, repo@subrepoName, "src", "conbrib")
+            if(!grepl(repo_name(repo), repoLoc, fixed=TRUE))
+                repoLoc = file.path(repoLoc, repo_name(repo), "src", "conbrib")
             else
                 repoLoc = file.path(repoLoc, "src", "contrib")
         }

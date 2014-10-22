@@ -20,12 +20,12 @@ GRANonGRAN = function(repo)
         sprintf("install.packages('GRAN', ..., repos = c('%s', getOption('repos')))", repo_url(repo)),
         "};", "getGRAN(type='source')", collapse = "\n")
     cat(code, file = file.path(babyGRAN, "inst", "scripts", "getGRAN.R"))
-    cat(code, file = file.path(dest_base(repo), paste0("getGRAN-", repo@subrepoName, ".R")))
+    cat(code, file = file.path(dest_base(repo), paste0("getGRAN-", repo_name(repo), ".R")))
     DESC = readLines(file.path(babyGRAN, "DESCRIPTION"))
     DESC[1] = "Package: GRAN"
     writeLines(DESC, con = file.path(babyGRAN, "DESCRIPTION"))
     manrow = ManifestRow(name="GRAN", url = babyGRAN, type="local",
-        subdir=".", subrepo = repo@subrepoName, building=TRUE, extra = "",
+        subdir=".", subrepo = repo_name(repo), building=TRUE, extra = "",
         status="ok", branch = "trunk", lastbuiltversion = "0.0-0",
         version = "0.0-0", lastAttemptStatus="never built",
         buildReason = "vbump")

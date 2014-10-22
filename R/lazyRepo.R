@@ -201,6 +201,14 @@ setMethod("lazyRepo", c(pkgs = "character", manifest = "PkgManifest"),
                       pkgsNeeded <<- setdiff(pkgsNeeded, pkgname)
                       return()
                   }
+
+                  if(!is.na(version)) {
+                      pkgfile = locatePkgVersion( src@name, version, manifest = manifest,
+                                       dir = dir)
+                      if(is.null(pkgfile))
+                          stop("Unable to locate the specified version  of package",
+                               src@name)
+                  }
                   
                   if(verbose)
                       message(sprintf("Retrieving package %s from %s (branch %s)",
@@ -262,7 +270,8 @@ setMethod("lazyRepo", c(pkgs = "character", manifest = "PkgManifest"),
               cnt =1 
               while(length(pkgsNeeded) && cnt < 1000){
                   pkg = pkgsNeeded[1]
-                                        #     if(!pkg %in% avail[,"Package"])  {
+                  vers = versions[pkgs == pkg]
+                      
                   if(pkg %in% mandf$name) {
                       manrow = mandf[mandf$name == pkg, ]
                       ##https://github.com/gmbecker/ProteinVis/archive/IndelsOverlay.zip
@@ -272,7 +281,7 @@ setMethod("lazyRepo", c(pkgs = "character", manifest = "PkgManifest"),
                           url = manrow$url, branch = manrow$branch,
                           subdir = manrow$subdir,
                           scm_auth = scm_auths)
-                      innerFun(src, pkg, version = NA) #without versions for now
+                      innerFun(src, pkg, version = vers) #without versions for now
                   } else
                       stop(sprintf("Unable to locate package %s", pkg))
                                         #    }

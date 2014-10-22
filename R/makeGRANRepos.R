@@ -255,7 +255,7 @@ makeSingleGRANRepo = function(
             destination = dest_base,
             ...)
     } else if (!missing(subRepoName)) {
-        if(repo@subrepoName != subRepoName)
+        if(repo_name(repo) != subRepoName)
             stop("repository name on GRANRepository object and repository name passed to makeSingleGRANRepo do not match. Wrong repo object?")
 
     }
@@ -263,7 +263,7 @@ makeSingleGRANRepo = function(
     ##Don't want to accidentally build things we shouldn't
     if(length(unique(manifest_df(repo)$subrepo))>1) {
         warning("multi-repo manifest passed to makeSingleRepo. Removing extraneous entries")
-        manifest_df(repo) = manifest_df(repo)[manifest_df(repo)$subrepo == repo@subrepoName,]
+        manifest_df(repo) = manifest_df(repo)[manifest_df(repo)$subrepo == repo_name(repo),]
     }
 
     if(any(manifest_df(repo)$suspended)) {

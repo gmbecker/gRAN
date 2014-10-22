@@ -1,5 +1,5 @@
 ##'@importFrom brew brew
-invokePkgTests_old= function( repo, dir = file.path(tempdir(), repo@subrepoName), cores = 3L)
+invokePkgTests_old= function( repo, dir = file.path(tempdir(), repo_name(repo)), cores = 3L)
 {
     if(!file.exists(dir))
         dir.create(dir, recursive=TRUE)
@@ -32,7 +32,7 @@ invokePkgTests_old= function( repo, dir = file.path(tempdir(), repo@subrepoName)
     repo
 }
 
-invokePkgTests = function( repo, dir = file.path(tempdir(), repo@subrepoName), cores = 3L) {
+invokePkgTests = function( repo, dir = file.path(tempdir(), repo_name(repo)), cores = 3L) {
     doPkgTests(repo = repo, cores = cores)
 }
 
@@ -67,7 +67,7 @@ installTest = function(repo, cores = 3L)
     oldops = options()
     options(warn = 1)
     on.exit(options(oldops))
-    #  loc = file.path(tempdir(), paste("GRANtmplib", repo@subrepoName, sep="_"))
+    #  loc = file.path(tempdir(), paste("GRANtmplib", repo_name(repo), sep="_"))
     loc = repo@tempLibLoc
     if(!file.exists(loc))
         dir.create(loc, recursive=TRUE)
