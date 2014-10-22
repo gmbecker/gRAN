@@ -64,7 +64,6 @@ setClass("RepoBuildParam", representation(tempRepo = "character",
                                           tempCheckout = "character",
                                           errlog = "character",
                                           logfile = "character",
-                                          rversion = "character",
                                           repoName="character",
                                           tempLibLoc = "character",
                                           checkWarnOk = "logical",
@@ -115,8 +114,6 @@ GRANRepository = function(manifest,
 ##' he basedir itself.
 ##' 
 ##' @param subrepoName The name of the repository, e.g. stable or devel
-##' @param rversion The R executable to use when invoking R CMDs and package
-##'   testing code
 ##' @param tempRepo Location to create the temporary repository
 ##' @param tempCheckout Location to create temporary checkouts/copies of package
 ##'   source code
@@ -149,7 +146,6 @@ GRANRepository = function(manifest,
 RepoBuildParam = function(
     basedir,
     repo_name = "stable",
-    rversion = "R",
     tempRepo = file.path(basedir, subrepoName, "tmprepo"),
     tempCheckout = file.path(basedir, "tmpcheckout"),
     errlog = file.path(basedir, subrepoName, paste0("GRAN-errors-", subrepoName,
@@ -177,7 +173,6 @@ RepoBuildParam = function(
     
     repo = new("RepoBuildParam", baseDir = basedir,
         subrepoName = subrepoName,
-        rversion = rversion,
         tempRepo = normalizePath2(tempRepo),
         tempCheckout = normalizePath2(tempCheckout),
         errlog = errlog,

@@ -103,16 +103,16 @@ setMethod("staging", "GRANRepository", function(repo) {
     normalizePath2(ret)
 })
 
-##' LibLoc
+##' temp_lib
 ##' Return the temporary library location associated with the repository
 ##'
-##' @rdname LibLoc-methods
+##' @rdname temp_lib-methods
 ##' @param repo a GRANRepository object
 ##' @return The path to the repository specific library location
-setGeneric("LibLoc", function(repo) standardGeneric("LibLoc"))
-##' @rdname LibLoc-methods
-##' @aliases LibLoc,GRANRepository-method
-setMethod("LibLoc", "GRANRepository",
+setGeneric("temp_lib", function(repo) standardGeneric("temp_lib"))
+##' @rdname temp_lib-methods
+##' @aliases temp_lib,GRANRepository-method
+setMethod("temp_lib", "GRANRepository",
           function(repo) normalizePath2(param(repo)@tempLibLoc))
 
 ##' notrack

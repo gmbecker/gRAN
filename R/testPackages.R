@@ -13,7 +13,7 @@ invokePkgTests_old= function( repo, dir = file.path(tempdir(), repo_name(repo)),
     sentry = search()[grep("package:(GRAN.*)", search()) [1] ]
     pkg = gsub("package:(GRAN.*)", "\\1", sentry)
     brew(system.file("templates", "testPkgs.brew", package=pkg), output = testscript)
-    cmd = paste0( repo@rversion,"script --no-restore --no-save ", testscript)
+    cmd = paste0( R.home(),"script --no-restore --no-save ", testscript)
     writeGRANLog("NA", paste("Attempting to invoke package testing via command",
                              cmd), type = "full", repo = repo)
     res = tryCatch(system_w_init(cmd, intern=TRUE, repo=repo), error=function(x) x)
@@ -68,7 +68,7 @@ installTest = function(repo, cores = 3L)
     options(warn = 1)
     on.exit(options(oldops))
     #  loc = file.path(tempdir(), paste("GRANtmplib", repo_name(repo), sep="_"))
-    loc = repo@tempLibLoc
+    loc = temp_lib(repo)
     if(!file.exists(loc))
         dir.create(loc, recursive=TRUE)
     binds  = getBuilding(repo = repo)
@@ -131,7 +131,7 @@ checkTest = function(repo, cores = 3L)
     oldwd = getwd()
     setwd(staging(repo))
     on.exit(setwd(oldwd))
-    writeGRANLog("NA", paste0("Running R CMD check on remaining packages (", sum(getBuilding(repo = repo)), ") using R at ", repo@rversion, "."), type = "full", repo = repo)
+    writeGRANLog("NA", paste0("Running R CMD check on remaining packages (", sum(getBuilding(repo = repo)), ") using R at ", R.home(), "."), type = "full", repo = repo)
     manifest = manifest_df(repo)
     binds  = getBuilding(repo = repo)
     bman = getBuildingManifest(repo = repo)
@@ -156,7 +156,7 @@ checkTest = function(repo, cores = 3L)
         writeGRANLog(nm, paste("Running R CMD check on ", tar), repo = repo)
         ## We built the vignettes during this round of building, so if the pkg is going to
         ##fail on building vignettes it will have already happened by this point
-        cmd = paste0("R_LIBS='", LibLoc(repo), "'  ", repo@rversion, " CMD check ", tar, " --no-build-vignettes")
+        cmd = paste0("R_LIBS='", LibLoc(repo), "'  ", R.home(), " CMD check ", tar, " --no-build-vignettes")
         out = tryCatch(system_w_init(cmd, intern=TRUE, repo = repo),
             error=function(x) x)
         out
