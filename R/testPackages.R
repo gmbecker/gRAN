@@ -90,7 +90,7 @@ cleanupInstOut = function(out)
 checkTest = function(repo, cores = 3L)
 {
     if(!check_test_on(repo)) {
-        manifest_df(repo)$status[manifest_df(repo)$status == "ok"] = "ok - not tested"
+        repo_results(repo)$status[repo_results(repo)$status == "ok"] = "ok - not tested"
         return(repo)
     }
     repo = buildBranchesInRepo(repo, temp=FALSE,
@@ -113,7 +113,7 @@ checkTest = function(repo, cores = 3L)
         missing = sapply(bman$name, function(x) !any(grepl(x, tars, fixed=TRUE)))
         writeGRANLog("NA", c("Tarballs not found for these packages during check test:", paste(bman$name[missing], collapse = " , ")), type = "both", repo = repo)
         #tars = tars[order(bman$name[!missing])]
-        manifest_df(repo)$status[manifest_df(repo)$name %in% bman$name[missing]] = "Unable to check - missing tarball"
+        repo_results(repo)$status[manifest_df(repo)$name %in% bman$name[missing]] = "Unable to check - missing tarball"
         bman  = bman[!missing,]
         binds[binds] = binds[binds] & !missing
     }
@@ -173,7 +173,7 @@ checkTest = function(repo, cores = 3L)
     success = unlist(success)
 
     writeGRANLog("NA", paste0(sum(isOkStatus(status = success, repo = repo)), " of ", length(success), " packages passed R CMD check"), repo=repo)
-    manifest_df(repo)$status[binds] = success
+    repo_results(repo)$status[binds] = success
   ##  manifest_df(repo)$building[binds] = (success == "ok")
     repo
 }

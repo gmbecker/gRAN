@@ -86,7 +86,7 @@ setMethod("makeRepo", "GRANRepository",
                   print(paste("Building", sum(getBuilding(repo)), "packages"))
                   repo = doPkgTests(repo, cores = cores)
               } else {
-                  manifest_df(repo)$status[manifest_df(repo)$status == "ok"] = "ok - not tested"
+                  repo_results(repo)$status[repo_results(repo)$status == "ok"] = "ok - not tested"
               }
               ##copy successfully built tarballs to final repository
               print(paste("starting migrateToFinalRepo", Sys.time()))
