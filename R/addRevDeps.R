@@ -9,11 +9,11 @@ addRevDeps = function(repo)
     manifest_df(repo)$revDepOf = ""
     manifest_df(repo)$revdepends = ""
 
-    if(is.null(manifest_df(repo)$buildReason))
-        manifest_df(repo)$buildReason = ifelse(repo_results(repo)$building, "vbump", "")
+    if(is.null(repo_results(repo)$buildReason))
+        repo_results(repo)$buildReason = ifelse(repo_results(repo)$building, "vbump", "")
     else {
-        manifest_df(repo)$buildReason[is.na(manifest_df(repo)$buildReason)] = ""
-        manifest_df(repo)$buildReason[repo_results(repo)$building] = "vbump"
+        repo_results(repo)$buildReason[is.na(repo_results(repo)$buildReason)] = ""
+        repo_results(repo)$buildReason[repo_results(repo)$building] = "vbump"
     }
     
     writeGRANLog("NA", paste("Checking for reverse dependencies to packages",
