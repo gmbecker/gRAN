@@ -8,8 +8,8 @@ doPkgTests = function(repo, cores = 3L)
 
     repo = doExtra(repo)
     
-    if(is.null(manifest_df(repo)$building))
-        manifest_df(repo)$building = TRUE
+    if(is.null(repo_results(repo)$building))
+        repo_results(repo)$building = TRUE
 
     repo = installTest(repo, cores = cores)
     repo = checkTest(repo, cores = cores)
@@ -23,7 +23,7 @@ installTest = function(repo, cores = 3L)
     if(!install_test_on(repo))
         return(repo)
     writeGRANLog("NA", paste0("Attempting to install packages (",
-                              sum(manifest_df(repo)$building),
+                              sum(repo_results(repo)$building),
                               ") from temporary repository into temporary package library."),
                  type = "full", repo = repo) 
 
@@ -174,7 +174,7 @@ checkTest = function(repo, cores = 3L)
 
     writeGRANLog("NA", paste0(sum(isOkStatus(status = success, repo = repo)), " of ", length(success), " packages passed R CMD check"), repo=repo)
     repo_results(repo)$status[binds] = success
-  ##  manifest_df(repo)$building[binds] = (success == "ok")
+  ##  repo_results(repo)$building[binds] = (success == "ok")
     repo
 }
 
