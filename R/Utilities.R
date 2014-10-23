@@ -131,13 +131,14 @@ makePwdFun = function(scm_auth, url)
     }
 
 
-makeSource = function(url, type, user, password, scm_auth,...) {
+makeSource = function(url, type, user, password, scm_auth, prefer_svn = FALSE, ...) {
     if(missing(user))
         user = makeUserFun(scm_auth = scm_auth, url = url)
     if(missing(password))
         password = makePwdFun(scm_auth= scm_auth, url = url)
     if(type == "git" && grepl("github", url))
         type = "github"
+    type = lower(type)
     ret = switch(type,
            svn  = new("SVNSource", location = url, user = user,
                password = password, ...),
@@ -147,12 +148,19 @@ makeSource = function(url, type, user, password, scm_auth,...) {
                password = password,  ...),
            github = new("GithubSource", location = url, user = user,
                password = password, ...),
+        cran = new("CRANSource", location = url, user = "", password = ""),
+        bioc = new("BiocSource", locatoin = url, user = "readonly", password = "readonly"),
            stop("unsupported source type")
            )
     if( (type=="git" || type == "github") && is.na(ret@branch))
         ret@branch = "master"
     else if (type=="svn" && is.na(ret@branch))
         ret@branch = "trunk"
+    if(is(ret, "GitSource") && prefer_svn) {
+        ret2 = tryCatch(as(ret, "SVNSource"), error = function(x) x)
+        if(!is(x, "error"))
+            ret = ret2
+    }
     ret
 }
 
@@ -198,15 +206,13 @@ errorOrNonZero = function(out)
         FALSE
 }
 
-isOkStatus = function(status= results$status,
-    results = repo_results(repo),
-    param = param(repo),
+isOkStatus = function(status= repo_results(repo)$status,
     repo)
 {
     #status can be NA when the package isn't being built at all
-    !is.na(status) & (status == "ok" |
-                      (checkWarnOk(param) & status == "check warning(s)") |
-                      (checkNoteOk(param) & status == "check note(s)"))
+    !is.na(status) & (status == "ok" | status == "ok - not tested" |
+                      (checkWarnOk(repo) & status == "check warning(s)") |
+                      (checkNoteOk(repo) & status == "check note(s)"))
 }
 
 install.packages2 = function(pkgs, repos, ...)
@@ -238,12 +244,13 @@ install.packages2 = function(pkgs, repos, ...)
 
 getBuilding = function(repo, results= repo_results(repo))
 {
-    results$building & isOkStatus(results = results, repo = repo)
+    results$building & isOkStatus( repo = repo)
 }
 
-getBuildingManifest = function(repo, results = repo_results(repo))
+getBuildingManifest = function(repo, results = repo_results(repo),
+    manifest = manifest_df(repo))
 {
-    results[getBuilding(repo, results),]
+    manifest[getBuilding(repo, results),]
 }
 
 normalizePath2 = function(path, follow.symlinks=FALSE)

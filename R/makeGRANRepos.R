@@ -1,28 +1,68 @@
 
 setMethod("makeRepo", "PkgManifest",
-          function(x, cores = 3L, ...,
-                   scm_auth = list("bioconductor.org" = c("readonly", "readonly"))) {
+          function(x, cores = 3L, build_pkgs = NULL,
+                   scm_auth = list("bioconductor.org" =
+                       c("readonly", "readonly")),
+                   ...
+                   ) {
 
-              repo = GRANRepository(manifest = x, ...)
-              makeRepo(repo, cores = cores, scm_auth = scm_auth, ...)
+              vers = data.frame(name= manifest_df(x)$name,
+                  version = NA, stringsAsFactors = FALSE)
+              sessMan = SessionManifest(manifest = x,
+                  versions = vers)
+             
+              makeRepo(sessMan, cores = cores, scm_auth = scm_auth,
+                       build_pkgs = build_pkgs,
+                       ...)
+          })
+
+
+
+setMethod("makeRepo", "SessionManifest",
+          function(x, cores = 3L, build_pkgs = NULL, 
+                   scm_auth = list("bioconductor.org" =
+                       c("readonly", "readonly")),
+                   ...
+                   ) {
+
+              repo = GRANRepository(manifest = x, param = RepoBuildParam(...))
+              makeRepo(repo, cores = cores, scm_auth = scm_auth,
+                       build_pkgs = build_pkgs, ...)
           })
 
 
 
 
+
 setMethod("makeRepo", "GRANRepository",
-          function(x, cores = 3L, ...,
-                   scm_auth = list("bioconductor.org" = c("readonly", "readonly"))) {
+          function(x, cores = 3L, build_pkgs = NULL,  
+                   scm_auth = list("bioconductor.org" =
+                       c("readonly", "readonly")),
+                    ...) {
 
               repo = x
-              repo2 = loadRepo(paste(repo_url(repo), "repo.R", sep="/"))
-              res = repo_results(repo)
-              res2 = repo_results(repo2)
-              if(max(res$lastAttempt, na.rm=TRUE) < max(res2$lastAttempt, na.rm=TRUE)) {
-                  message("Loading latest results from specified repository")
-                  repo = repo2
+              if(file.exists(destination(repo)))
+                  repo2 = tryCatch(loadRepo(paste(destination(repo), "repo.R",
+                      sep="/")), error = function(x) NULL)
+              else
+                  repo2 = tryCatch(loadRepo(paste(repo_url(repo), "repo.R", sep="/")),
+                      error = function(x) NULL)
+              if(!is.null(repo2) ) {
+                  res = repo_results(repo)
+                  res2 = repo_results(repo2)
+                  if(max(res$lastAttempt, na.rm=TRUE) < max(res2$lastAttempt,
+                                              na.rm=TRUE)) {
+                      message("Loading latest results from specified repository")
+                      repo = repo2
+                  }
               }
-              
+              repo = init_results(repo)
+              if(!is.null(build_pkgs)) {
+                  repo_results(repo)$building =
+                      manifest_df(repo)$name %in% build_pkgs
+                  suspended_pkgs(repo) = setdiff(suspended_pkgs(repo),
+                                    build_pkgs)
+              }
 
               print(paste("Building", sum(getBuilding(repo)), "packages"))
               ##package, build thine self!
@@ -41,9 +81,13 @@ setMethod("makeRepo", "GRANRepository",
               ##if we have a single package specified we want to build it with or without a version bump
               repo = buildBranchesInRepo( repo = repo, temp = TRUE, cores = cores, incremental = is.null(onlyBuild))
               ##test packges
-              print(paste("Invoking package tests", Sys.time()))
-              print(paste("Building", sum(getBuilding(repo)), "packages"))
-              repo = invokePkgTests(repo, cores = cores)
+              if(install_test_on(repo)) {
+                  print(paste("Invoking package tests", Sys.time()))
+                  print(paste("Building", sum(getBuilding(repo)), "packages"))
+                  repo = doPkgTests(repo, cores = cores)
+              } else {
+                  manifest_df(repo)$status[manifest_df(repo)$status == "ok"] = "ok - not tested"
+              }
               ##copy successfully built tarballs to final repository
               print(paste("starting migrateToFinalRepo", Sys.time()))
               print(paste("Built", sum(getBuilding(repo)), "packages"))
@@ -59,84 +103,6 @@ setMethod("makeRepo", "GRANRepository",
 
 
 
-
-
-##' makeGRANRepos
-##' Fire build procoess for a GRAN instance (all subrepositories)
-##'
-##' 
-##' @title Build a set of GRAN repositories
-##' @param manifest a data.frame containing the name, url, type of checkout, subdir, subrepo, branch, and extra. This single manifest should contain information for all repositories to be built. Overridden if repos are specified
-##' @param Rlocs named character vector of the copies of the R executable to use for each of the subRepos. e.g. c(stable="R", dev = "/path/to/Rdevel/bin/R")
-##' @param tmpRepoBase the base directory for the temporary intermediate repository
-##' @param baseDir the base directory to use when building each repository.
-##' @param tmpCheckout the directory the package sources will be checkedout into from version control before being built for each repository
-##' @param logfiles character vector indicating the paths that the summary logfile should be written to for each repository
-##' @param errfiles character vector indicating the paths that the error output logfile should be written to for each repository
-##' @param tempLibLocs The temporary library location to use for each repository
-##' @param checkWarnOk logical vector specifying whether packages that pass check with warnings should be included in each resulting respository
-##' @param checkNoteOk logical vector specifying whether packages that pass check with notes should be included in  each resulting repository
-##' @param cores integer indicating how many cores should be used to build the repositories
-##' @param repos A list of existing GRANRepository objects to use when building the repositories.
-##' @param auth character value indicating authentication required to add to manifest
-##' @param scm_auths named list. Names are regular expressions which match scm (SVN, git) repositories. Elements are character vectors providing the username and password to checkout from the repository. Default is to use readonly:readonly for bioconductor.
-##' @param dest_bases Base directory (or directories) to contain each named repository.
-##' @param dest_urls The URLs where the repositories will be hosted. Defaults to file://<dest_bases>.
-##' @param shell_inits The path to a file for the shell to source before running
-##' system commands. E.g. a bashrc file.
-##' @return A list of GRANRepository objects for the created repositoriesxs
-##' @author Gabriel Becker, heavily adapted from a previous version by Cory Barr
-##' @family buildRepos
-##' @export
-makeGRANRepos <- function(
-    manifest = read.table(file.path(baseDir, subRepos, "GRANmanifest.dat"), header = TRUE, sep=",",
-        stringsAsFactors=FALSE),
-    Rlocs = c(stable = "R", dev = "Rdevel"),
-    tmpRepoBase = "./tmpRepos",
-    baseDir= "./GRANRepos",
-    tmpCheckout = "./tmpSourceDirs",
-    logfiles = file.path(baseDir, subRepos, paste0("GRANLog-", Sys.Date(), ".log")),
-    errfiles = file.path(baseDir, subRepos, paste0("GRANErrors-", Sys.Date(), ".log")),
-    tempLibLocs = file.path(baseDir, subRepos, "LibLoc"),
-    checkWarnOk = FALSE,
-    checkNoteOk = TRUE,
-    cores = 3L,
-    repos = list(NULL), #this will replicate out in the mapply
-    auth = "",
-    scm_auths = list(list()),
-    dest_bases = normalizePath2(baseDir),
-    dest_urls = paste0("file://", normalizePath2(dest_bases)),
-    shell_inits = ""
-    
-    )
-{
-    if(!identical(repos, list(NULL))) {
-        manis = lapply(repos, function(x) x@manifest)
-        subRepos = sapply(repos, function(x) x@subrepoName)
-    } else {
-        if(is(manifest, "character"))
-            manifest = read.table(manifest, header = TRUE, stringsAsFactors = FALSE, sep=",")
-        
-        
-        manis = split(manifest, manifest$subrepo)
-        subRepos = names(manis)
-    }
-    
-    #repos = file.path(baseDir, subRepos)
-    tmprepos = file.path(tmpRepoBase, subRepos)
-    tmpcheckouts = file.path(tmpCheckout, subRepos)
-    if(missing(logfiles))
-        logfiles = file.path(baseDir, subRepos, paste0("GRAN-log_", Sys.Date(), ".log"))
-    if(missing(errfiles))
-        errfiles = file.path(baseDir, subRepos, paste0("GRAN-errors_", Sys.Date(), ".log"))
-
-    scm_auths = replicate(scm_auths, n = length(subRepos), simplify=FALSE)
-
-    repoObs = mapply(makeSingleGRANRepo, tempRepo = tmprepos, baseDir = baseDir, tempCheckout = tmpcheckouts, logfile = logfiles, errlog = errfiles, rversion = Rlocs, subRepoName = subRepos, tempLibLoc = tempLibLocs, manifest = manis, checkWarnOk = checkWarnOk, checkNoteOk = checkNoteOk, cores = cores, repo = repos, auth = auth, scm_auth = scm_auths, dest_base = dest_bases, dest_url = dest_urls, shell_init = shell_inits)
-
-       repoObs
-
-}
 
 ##' makeSingleGRANRepo
 ##'

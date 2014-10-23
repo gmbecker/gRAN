@@ -1,40 +1,3 @@
-##'@importFrom brew brew
-invokePkgTests_old= function( repo, dir = file.path(tempdir(), repo_name(repo)), cores = 3L)
-{
-    if(!file.exists(dir))
-        dir.create(dir, recursive=TRUE)
-    testscript = file.path(dir, "GRANtestscript.R")
-    tmpmanfile = file.path(dir, "tempmanifest.dat")
-    write.table(manifest_df(repo), file = tmpmanfile, sep=",")
-    repfile = file.path(dir, "repo.R")
-    saveRepo(repo, filename = repfile)
-    libpath = .libPaths()[1]
-    ##silliness to allow for GRAN/GRANBase dichotomy
-    sentry = search()[grep("package:(GRAN.*)", search()) [1] ]
-    pkg = gsub("package:(GRAN.*)", "\\1", sentry)
-    brew(system.file("templates", "testPkgs.brew", package=pkg), output = testscript)
-    cmd = paste0( R.home(),"script --no-restore --no-save ", testscript)
-    writeGRANLog("NA", paste("Attempting to invoke package testing via command",
-                             cmd), type = "full", repo = repo)
-    res = tryCatch(system_w_init(cmd, intern=TRUE, repo=repo), error=function(x) x)
-
-    
-    if(is(res, "error"))
-    {
-        writeGRANLog("NA", c("CRITICAL GRAN FAILURE! Failed to invoke package testing in external R session:", res), type="both", repo = repo)
-        manifest_df(repo)$status[manifest_df(repo)$building] = "GRAN FAILURE"
-    }  else {
-        repo = loadRepo(repfile)
-        writeGRANLog("NA", "Package testing complete", repo = repo)
-
-    }
- 
-    repo
-}
-
-invokePkgTests = function( repo, dir = file.path(tempdir(), repo_name(repo)), cores = 3L) {
-    doPkgTests(repo = repo, cores = cores)
-}
 
 doPkgTests = function(repo, cores = 3L)
 {
@@ -57,6 +20,8 @@ doPkgTests = function(repo, cores = 3L)
 
 installTest = function(repo, cores = 3L)
 {
+    if(!install_test_on(repo))
+        return(repo)
     writeGRANLog("NA", paste0("Attempting to install packages (",
                               sum(manifest_df(repo)$building),
                               ") from temporary repository into temporary package library."),
@@ -82,14 +47,14 @@ installTest = function(repo, cores = 3L)
     oldlp = .libPaths()
     .libPaths(loc)
     on.exit(.libPaths(oldlp))
-    res = install.packages2(bman$name, lib = loc, repos = c(paste0("file://",repo@tempRepo), BiocInstaller::biocinstallRepos(), "http://R-Forge.R-project.org"), type = "source", dependencies=TRUE)
+    res = install.packages2(bman$name, lib = loc, repos = c(paste0("file://",temp_repo(repo)), BiocInstaller::biocinstallRepos(), "http://R-Forge.R-project.org"), type = "source", dependencies=TRUE)
     success = processInstOut(names(res), res, repo)
     cleanupInstOut(res)
     
     writeGRANLog("NA", paste0("Installation successful for ", sum(success), " of ", length(success), " packages."), type = "full", repo = repo)
 
     #update the packages in the manifest we tried to build with success/failure
-    manifest_df(repo)$status[binds][!success] = "install failed"
+    repo_results(repo)$status[binds][!success] = "install failed"
     repo
     
 }
@@ -124,6 +89,10 @@ cleanupInstOut = function(out)
 
 checkTest = function(repo, cores = 3L)
 {
+    if(!check_test_on(repo)) {
+        manifest_df(repo)$status[manifest_df(repo)$status == "ok"] = "ok - not tested"
+        return(repo)
+    }
     repo = buildBranchesInRepo(repo, temp=FALSE,
         #incremental=FALSE,
         incremental = TRUE, ## want to skip testing if pkg already passed
@@ -214,20 +183,4 @@ doExtra = function(repo)
 {
     ##TODO!!!
     return(repo)
-    fun = repo@extraFun
-    bman = getBuildingManifest(repo)
-    res = mapply(function(nm, extra, fun) 
-    {
-        rets = tryCatch(fun(extra), error=function(x) x)
-        if(is(rets, "error") || (is.logical(rets) && !rets))
-        {
-            writeGRANLog(nm, paste("Unable to perform extra instructions (",extra, "). Extra function returned: ", rets), type="both", repo = repo)
-            "extra instructions failed"
-        } else {
-            "ok"
-        }
-    }, nm = bman$name, extra = bman$extra, fun = list(fun))
-
-    manifest_df(repo)$status[getBuilding(repo)] = res
-    repo
 }

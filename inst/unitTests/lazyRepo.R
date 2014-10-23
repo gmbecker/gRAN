@@ -5,4 +5,4 @@ library(GRANBase)
 
 res = lazyRepo("ggvis", manifest = ghman)
 
-  Install("ggvis", ghman)
+  Install(c("Rcpp", "ggvis"), ghman)

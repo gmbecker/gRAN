@@ -114,6 +114,7 @@ findPkgVersionInManifest = function(name, version, manifest, dir, repo) {
     if(!name %in% manifest_df(manifest)$name)
         return(NULL)
 
+    ## XXX this is a hack that should be happening elsewhere!!!
     manrow = manifest_df(manifest)[manifest_df(manifest)$name == name,]
 
     if(manrow$type =="github" ||
@@ -133,18 +134,29 @@ findPkgVersionInManifest = function(name, version, manifest, dir, repo) {
 
     ## XXX branches aren't handled here!!!!
     findSVNRev(name = name, version = version,
-               svn_repo = makeSVNURL(manrow),   destpath, repo)
+               svn_repo = makeSVNURL(src),   destpath, repo)
 }
 
+setGeneric("makeSVNURL", function(src) standardGeneric("makeSVNURL"))
 
-makeSVNURL = function(manrow) {
-    if(manrow$branch == "trunk")
-        br = "trunk"
-    else
-        br = paste("branches", manrow$branch, sep="/")
-    
-    paste(manrow$url, br, manrow$subdir)
-}
+setMethod("makeSVNURL", "SVNSource",
+          function(src) {
+              if(branch(src) == "trunk")
+                  br = "trunk"
+              else
+                  br = paste("branches", branch(src), sep = "/")
+              paste(location(src), br, subdir(src), sep = "/")
+          })
+                  
+setMethod("makeSVNURL", "GitSource",
+          function(src) {
+              src = as(src, "SVNSource")
+              makeSVNURL(src)
+              
+          })
+
+
+
 
 
     
@@ -346,3 +358,15 @@ binRevSearch = function(version, currev, maxrev, minrev, repo, found = FALSE)
         
         ##svn log -q VERSION | grep ^r | awk '{print $1}' | sed -e 's/^r//' 
         
+setMethod("gotoVersCommit", c(dir = "character", src = "SVNSource"),
+          function(dir, src, version, repo = NULL) {
+              if(!file.exists(dir))
+                  stop("checkout directory does not appear to exist")
+          ##    findSVNRev = function(name, version, svn_repo, destpath, repo) {
+              ret = findSVNRev(src@name, version = version, svn_repo = makeSVNURL(src),
+                  destpath = dir, repo = repo)
+              dir
+          })
+
+
+          

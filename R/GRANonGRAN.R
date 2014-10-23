@@ -24,21 +24,16 @@ GRANonGRAN = function(repo)
     DESC = readLines(file.path(babyGRAN, "DESCRIPTION"))
     DESC[1] = "Package: GRAN"
     writeLines(DESC, con = file.path(babyGRAN, "DESCRIPTION"))
-    manrow = ManifestRow(name="GRAN", url = babyGRAN, type="local",
-        subdir=".", subrepo = repo_name(repo), building=TRUE, extra = "",
-        status="ok", branch = "trunk", lastbuiltversion = "0.0-0",
-        version = "0.0-0", lastAttemptStatus="never built",
-        buildReason = "vbump")
-    granrow = manifest_df(repo)[which(manifest_df(repo)$name == "GRAN"), ]
-    if(nrow(granrow) && granrow$type == "local" && granrow$url == babyGRAN) {
-        manifest_df(repo)$building[manifest_df(repo)$name == "GRAN"] = TRUE
-        manifest_df(repo)$status[manifest_df(repo)$name == "GRAN"] = "ok"
-        ##force there always to be a "version bump"
-        manifest_df(repo)$version = "0.0-0"
-    } else 
-        manifest_df(repo) = merge(manifest_df(repo), manrow,
-            by = intersect(names(manifest_df(repo)), names(manrow)),
-            all.x=TRUE, all.y=TRUE)
+
+    if("gran" %in% manifest_df(repo)) {
+        granInd = which(repo_results(repo)$name == "gran")
+        repo_results(repo)[granInd,] = ResultRow(name = "gran")
+        manifest_df(repo)[granInd,] = ManifestRow(name="GRAN",
+                             url = babyGRAN, type="local", subdir = ".")
+    } else {
+        repo = addPkg(repo, name="GRAN", url = babyGRAN, type="local",
+            subdir = ".")
+    }
     repo
     
         

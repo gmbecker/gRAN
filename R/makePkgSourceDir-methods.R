@@ -118,14 +118,15 @@ setMethod("makePkgDir", c(name = "ANY", source = "GitSource"),
           ret
       })
                                         #stub for everyone else
-setMethod("makePkgDir", c(name = "ANY", source = "ANY"), function(name, source, path, latest_only, repo) {
+setMethod("makePkgDir", c(name = "ANY", source = "ANY"),
+          function(name, source, path, latest_only, repo) {
     warning("Source type not supported yet.")
     FALSE
 })
 
 #setMethod("makePkgSourceDir", c(source="LocalSource"), function(name, source, path, latest_only = FALSE, repo) {
 setMethod("makePkgDir", c(source="LocalSource"),
-          function(name, source, path, latest_only = FALSE, repo, forceRefresh = FALSE) {
+          function(name, source, path,  latest_only, repo, forceRefresh) {
     oldwd = getwd()
     on.exit(setwd(oldwd))
     if(!file.exists(path))

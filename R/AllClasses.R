@@ -5,9 +5,25 @@ setClass("PkgSource", representation(name = "character",location="character",
 setClass("SVNSource", contains = "PkgSource")
 setClass("GitSource", contains = "PkgSource")
 setClass("GithubSource", contains = "GitSource")
-setClass("GitSVNSource", contains = "PkgSource")
 setClass("CVSSource", contains = "PkgSource")
 setClass("LocalSource", contains = "PkgSource")
+setClass("CRANSource", contains = "PkgSource")
+
+
+
+setAs("GitSource", "SVNSource",
+      function(src) {
+              if(!grepl("github", location(src)))
+                  stop("Cannot convert non-github GitSource object to SVNSource")
+              else {
+                  url = gsub( "\\.git", "", location(src))
+                  url = gsub("git://", "http://", url)
+                  br = if(branch(src) == "master") "trunk" else branch(src)
+                  makeSource(name = src@name, url = url, branch = br, subdir = subdir(src), user = "", password = "")
+              }
+          })
+
+
 
 
 
@@ -54,31 +70,40 @@ manifestBaseCols = c("name", "url", "type", "subdir", "branch", "extra")
 setClass("SessionManifest", representation(pkg_versions = "data.frame",
                                            pkg_manifest = "PkgManifest"))
 
+SessionManifest = function(manifest, versions) {
+    new("SessionManifest", pkg_versions = versions, pkg_manifest = manifest)
+}
 
 
 
 
 ##'@export
-setClass("RepoBuildParam", representation(tempRepo = "character",
-                                          baseDir = "character",
-                                          tempCheckout = "character",
-                                          errlog = "character",
-                                          logfile = "character",
-                                          repoName="character",
-                                          tempLibLoc = "character",
-                                          checkWarnOk = "logical",
-                                          checkNoteOk = "logical",
-                                          extraFun = "function",
-                                          auth = "character",
-                                          dest_base = "character",
-                                          dest_url = "character",
-                                          shell_init = "character"))
+setClass("RepoBuildParam", representation(
+    repoName = "character",
+    tempRepo = "character",
+    
+    baseDir = "character",
+    tempCheckout = "character",
+    errlog = "character",
+    logfile = "character",
+    tempLibLoc = "character",
+    checkWarnOk = "logical",
+    checkNoteOk = "logical",
+    extraFun = "function",
+    auth = "character",
+    dest_base = "character",
+    dest_url = "character",
+    shell_init = "character",
+    installTest = "logical",
+    checkTest = "logical",
+    suspended = "character"))
 
 
 ##' @export
 setClass("GRANRepository", representation(
     results = "data.frame",
-    manifest = "PkgManifest",
+#    manifest = "PkgManifest",
+    manifest = "SessionManifest",
     param = "RepoBuildParam"
 ))
 
@@ -101,6 +126,8 @@ GRANRepository = function(manifest,
     param = RepoBuildParam(...),
     ...) {
 
+    if(missing(results))
+        results = ResultsRow(name = manifest_df(manifest)$name)
     new("GRANRepository", manifest = manifest, results = results, param = param)
 }
 
@@ -139,27 +166,33 @@ GRANRepository = function(manifest,
 ##' installing from the repository.
 ##' @param shell_init An optional shell script to source before invoking system
 ##' commands, e.g. a bashrc file. Ignored if "" or not specified.
+##' @param installTest logical. Should the install test be performed? Required
+##' to build packages with vignettes, and for the check test
+##' @param checkTest logical. Should R CMD check be run on the packages as a
+##' cohort. Requires install test.
 ##' @export
 
 
 
 RepoBuildParam = function(
     basedir,
-    repo_name = "stable",
-    tempRepo = file.path(basedir, subrepoName, "tmprepo"),
+    repo_name = "current",
+    tempRepo = file.path(basedir, repo_name, "tmprepo"),
     tempCheckout = file.path(basedir, "tmpcheckout"),
-    errlog = file.path(basedir, subrepoName, paste0("GRAN-errors-", subrepoName,
+    errlog = file.path(basedir, repo_name, paste0("GRAN-errors-", repo_name,
         "-", Sys.Date(), ".log")),
-    logfile = file.path(basedir, subrepoName, paste0("GRAN-log-", subrepoName,
+    logfile = file.path(basedir, repo_name, paste0("GRAN-log-", repo_name,
         "-", Sys.Date(), ".log")),
     checkNoteOk = TRUE,
     checkWarnOk = TRUE,
-    tempLibLoc = file.path(basedir, subrepoName, "LibLoc"),
+    tempLibLoc = file.path(basedir, repo_name, "LibLoc"),
     extraFun = function(...) NULL,
     destination = basedir,
     auth = "",
     dest_url = paste0("file://", normalizePath2(destination)),
-    shell_init = "")
+    shell_init = "",
+    installTest = TRUE,
+    checkTest = TRUE)
 {
     
     if(!file.exists(basedir))
@@ -167,12 +200,15 @@ RepoBuildParam = function(
     
     basedir = normalizePath2(basedir)
 
-    prepDirStructure(basedir, subrepoName, tempRepo, tempCheckout, tempLibLoc,
+    prepDirStructure(basedir, repo_name, tempRepo, tempCheckout, tempLibLoc,
                      destination)
 
+
+    if(checkTest && !installTest)
+        stop("Cannot run check test without install test")
     
     repo = new("RepoBuildParam", baseDir = basedir,
-        subrepoName = subrepoName,
+        repoName = repo_name,
         tempRepo = normalizePath2(tempRepo),
         tempCheckout = normalizePath2(tempCheckout),
         errlog = errlog,
@@ -184,7 +220,9 @@ RepoBuildParam = function(
         dest_base= normalizePath2(destination),
         auth = auth,
         dest_url = dest_url,
-        shell_init = shell_init)
+        shell_init = shell_init,
+        installTest = installTest,
+        checkTest = checkTest)
     repo
 }
 

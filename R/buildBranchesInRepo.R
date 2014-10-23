@@ -21,7 +21,7 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE
     manifest = getBuildingManifest(repo, manifest) #manifest[binds,]
     svnCheckoutsLoc = getCheckoutLocs(checkout_dir(repo), manifest, manifest$branch)
     if(temp) {
-        repoLoc = repo@tempRepo
+        repoLoc = temp_repo(repo)
         if(!grepl("src/contrib", repoLoc, fixed=TRUE))
         {
             if(!grepl(repo_name(repo), repoLoc, fixed=TRUE))
@@ -62,13 +62,31 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE
     } else {
         oldvers = as.character(manifest$lastbuiltversion)
     }
-        
+
+    vers_restrict = versions_df(repo)
+    
+    
     res <- mcmapply2(#svnCheckoutsLoc,
                     ##res <- mapply(
                     function (checkout, repo, opts, oldver, incremental) {
-                        #incremental build logic. If incremental == TRUE, we only rebuild if the package version number has bumped.
+                        ## incremental build logic. If incremental == TRUE,
+                        ## we only rebuild if the package version number has bumped.
                         vnum = read.dcf(file.path(checkout, "DESCRIPTION"))[1,"Version"]
                         pkg = getPkgNames(checkout)
+
+                        if(!is.na(vers_restr) && vnum != vers_restr) {
+                            writeGRANLog(pkg, paste("Wrong version number for pkg",
+                                                    pkg, "Needed", vers_restr,
+                                                    "have", vnum, "error earlier",
+                                                    "in build process?"),
+                                         type = both, repo = repo)
+                            ret = "wrong version"
+                            names(ret) = vnum
+                            return(ret)
+                        }
+
+
+                        ## we don't support changing the version restriction backward, should we?
                         if(is.na(oldver) || compareVersion(vnum, oldver) == 1 )
                         {
                             writeGRANLog(pkg, paste0("Had version ", oldver, ". Building new version ", vnum), repo = repo)
@@ -99,12 +117,13 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE
                         names(ret) = vnum
                         ret
                     },
-                    checkout = svnCheckoutsLoc,
-                    repo = list(repo), opts = opts,
-                    mc.cores=cores,
-         #XXX shouldn't need the as.character...
-                    oldver = oldvers,
-                    incremental = incremental,
+                     checkout = svnCheckoutsLoc,
+                     repo = list(repo), opts = opts,
+                     mc.cores=cores,
+                                        #XXX shouldn't need the as.character...
+                     oldver = oldvers,
+                     incremental = incremental,
+                     vers_restr = vers_restrict,
                     USE.NAMES=FALSE
 
                     )

@@ -170,12 +170,10 @@ setMethod("lazyRepo", c(pkgs = "character", manifest = "SessionManifest"),
 
 
 
-##' @export
-##'
 setMethod("lazyRepo", c(pkgs = "character", manifest = "PkgManifest"),
           function(pkgs,
                    manifest,
-                   versions,
+                   versions = rep(NA, times = length(pkgs)),
                    dir = tempdir(),
                    rep_path = file.path(dir, "repo"),
                    get_suggests = FALSE,
@@ -271,6 +269,8 @@ setMethod("lazyRepo", c(pkgs = "character", manifest = "PkgManifest"),
               while(length(pkgsNeeded) && cnt < 1000){
                   pkg = pkgsNeeded[1]
                   vers = versions[pkgs == pkg]
+                  if(!length(vers))
+                      vers = NA
                       
                   if(pkg %in% mandf$name) {
                       manrow = mandf[mandf$name == pkg, ]
@@ -282,7 +282,9 @@ setMethod("lazyRepo", c(pkgs = "character", manifest = "PkgManifest"),
                           subdir = manrow$subdir,
                           scm_auth = scm_auths)
                       innerFun(src, pkg, version = vers) #without versions for now
-                  } else
+                  } else if(pkg %in% avail[,"Package"])
+                      pkgsNeeded <<- setdiff(pkgsNeeded, pkg)
+                  else
                       stop(sprintf("Unable to locate package %s", pkg))
                                         #    }
                   cnt = cnt + 1

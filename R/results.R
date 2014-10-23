@@ -18,10 +18,15 @@ ResultsRow = function(name = NA,
                lastbuiltversion = lastbuiltversion,
                lastbuiltstatus = lastbuiltstatus,
                maintainer = maintainer,
-               suspended = suspended)
+               suspended = suspended, building = building)
 }
 
 
+init_results = function(repo) {
+    if(is.null(repo_results(repo)) || !nrow(repo_results(repo)))
+        repo_results(repo) = ResultsRow(name = manifest_df(repo)$name)
+    repo
+}
 
 
 

@@ -78,7 +78,7 @@ setGeneric("repobase", function(repo) standardGeneric("repobase"))
 ##' @aliases repobase,GRANRepository-method
 ##' @export
 setMethod("repobase", "GRANRepository", function(repo) {
-    ret = file.path(param(repo)@baseDir, param(repo)@subrepoName)
+    ret = file.path(param(repo)@baseDir, param(repo)@repoName)
     if(!file.exists(ret))
         dir.create(ret, recursive=TRUE)
     normalizePath2(ret)
@@ -103,15 +103,8 @@ setMethod("staging", "GRANRepository", function(repo) {
     normalizePath2(ret)
 })
 
-##' temp_lib
-##' Return the temporary library location associated with the repository
-##'
-##' @rdname temp_lib-methods
-##' @param repo a GRANRepository object
-##' @return The path to the repository specific library location
+##' @export
 setGeneric("temp_lib", function(repo) standardGeneric("temp_lib"))
-##' @rdname temp_lib-methods
-##' @aliases temp_lib,GRANRepository-method
 setMethod("temp_lib", "GRANRepository",
           function(repo) normalizePath2(param(repo)@tempLibLoc))
 
@@ -143,7 +136,7 @@ setGeneric("destination", function(repo) standardGeneric("destination"))
 ##' @export
 setMethod("destination","GRANRepository",
           function(repo) file.path(normalizePath2(param(repo)@dest_base),
-                                   param(repo)@subrepoName,  "src", "contrib"))
+                                   param(repo)@repoName,  "src", "contrib"))
 
 
 ##' dest_base
@@ -177,7 +170,7 @@ setGeneric("check_result_dir", function(repo) standardGeneric("check_result_dir"
 ##' @export
 setMethod("check_result_dir","GRANRepository",
           function(repo) file.path(normalizePath2(param(repo)@dest_base),
-                                   param(repo)@subrepoName, "CheckResults" ))
+                                   param(repo)@repoName, "CheckResults" ))
 
 
 
@@ -197,7 +190,7 @@ setGeneric("repo_url", function(repo) standardGeneric("repo_url"))
 ##' @export
 setMethod("repo_url","GRANRepository",
           function(repo) paste(param(repo)@dest_url,
-                               param(repo)@subrepoName,
+                               param(repo)@repoName,
                                sep="/"))
 
 setMethod("repo_url","NULL", function(repo) NULL)
@@ -249,43 +242,114 @@ setMethod("manifest<-", "PkgManifest", function(x, value) {
     x
     })
 
-setGeneric("pkg_manifest", function(x) standardGeneric("pkg_manifest"))
 
-setMethod("pkg_manifest", "SessionManifest",
-          function(x) x@manifest)
-
+setMethod("manifest", "SessionManifest",
+          function(x) x@pkg_manifest)
 
 
-setGeneric("pkg_manifest<-", function(x, value) standardGeneric("pkg_manifest<-"))
 
-setMethod("pkg_manifest<-", "SessionManifest",
+
+setMethod("manifest<-", "SessionManifest",
+          function(x, value ) {
+              x@pkg_manifest = value
+              x
+          })
+
+
+setMethod("manifest<-", "GRANRepository",
           function(x, value ) {
               x@manifest = value
               x
           })
 
 
+
+
 setGeneric("versions", function(x) standardGeneric("versions"))
 setMethod("versions", "SessionManifest",
           function(x) x@pkg_versions)
 
-setGeneric("versions<-", function(x) standardGeneric("versions<-"))
+setGeneric("versions<-", function(x, value) standardGeneric("versions<-"))
 setMethod("versions<-", "SessionManifest",
-          function(x) x@pkg_versions)
+          function(x, value){
+              x@pkg_versions = value
+              x
+              })
 
 
 setMethod("manifest", "GRANRepository", function(x) x@manifest)
+setMethod("manifest", "SessionManifest", function(x) x@pkg_manifest)
 
-setGeneric("manifest_df", function(x) standardGeneric("manifest_df"))
-setMethod("manifest_df", "GRANRepository", function(x) manifest(x)@manifest)
+
+setGeneric("manifest_df", function(x, ...) standardGeneric("manifest_df"))
+
+## only get manifest rows for pkgs in the 'session' by default
+## override with session_only=FALSE if desired
+setMethod("manifest_df", "GRANRepository", function(x, ...) manifest_df(manifest(x), ...))
+
+## only get manifest rows for pkgs in the 'session' by default
+## override with session_only=FALSE if desired
+setMethod("manifest_df", "SessionManifest",
+          function(x, session_only = TRUE, ...) {
+              ## all pkgs in the manifest
+              mdf = manifest_df(manifest(x))
+              ## restrict to pkgs in the 'session' if desired
+              if(session_only)
+                  mdf = mdf[mdf$name %in% versions_df(x)$name,]
+              mdf
+          })
+          
+
+
+
+setMethod("manifest_df", "PkgManifest", function(x) x@manifest)
+
+
 
 setGeneric("manifest_df<-", function(x, value) standardGeneric("manifest_df<-"))
 setMethod("manifest_df<-", "GRANRepository", function(x, value) {
-    tmp = manifest(x)
-    manifest(tmp) <- value
-    x@manifest = tmp
+    manifest_df(manifest(x)) = value
     x
     })
+
+setMethod("manifest_df<-", "SessionManifest", function(x, value) {
+    manifest_df(manifest(x)) = value
+    x
+    })
+
+
+setMethod("manifest_df<-", "PkgManifest", function(x, value) {
+    x@manifest = value
+    x
+    })
+
+
+
+setGeneric("versions_df", function(x) standardGeneric("versions_df"))
+setMethod("versions_df", "GRANRepository", function(x) versions_df(manifest(x)))
+
+setMethod("versions_df", "SessionManifest",
+          function(x) x@pkg_versions)
+
+
+
+
+setGeneric("versions_df<-", function(x, value) standardGeneric("versions_df<-"))
+setMethod("versions_df<-", "GRANRepository", function(x, value) {
+    versions_df(manifest(x)) = value
+    x
+    })
+
+setMethod("versions_df<-", "SessionManifest", function(x, value) {
+    x@pkg_versions = value
+    x
+    })
+
+
+
+
+
+
 
 
 
@@ -340,7 +404,14 @@ setMethod("param<-", "GRANRepository",
 ##' @export
 setGeneric("repo_name", function(x) standardGeneric("repo_name"))
 setMethod("repo_name", "GRANRepository",
-          function(x) param(x)@repo_name)
+          function(x) param(x)@repoName)
+
+
+##' @export
+setGeneric("temp_repo", function(x) standardGeneric("temp_repo"))
+setMethod("temp_repo", "GRANRepository",
+          function(x) param(x)@tempRepo)
+
 
 
 ##'@export
@@ -385,6 +456,20 @@ setMethod("sh_init_script<-", "GRANRepository",
 
 
 
+
+##'@export
+setGeneric("extra_fun", function(x) standardGeneric("extra_fun"))
+setMethod("extra_fun", "GRANRepository",
+          function(x)  param(x)@extraFun)
+
+setGeneric("check_test_on", function(x) standardGeneric("check_test_on"))
+setMethod("check_test_on", "RepoBuildParam", function(x) x@checkTest)
+setMethod("check_test_on", "GRANRepository", function(x) check_test_on(param(x)))
+
+
+setGeneric("install_test_on", function(x) standardGeneric("install_test_on"))
+setMethod("install_test_on", "RepoBuildParam", function(x) x@installTest)
+setMethod("install_test_on", "GRANRepository", function(x) install_test_on(param(x)))
 
 
 

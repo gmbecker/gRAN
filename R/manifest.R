@@ -1,28 +1,55 @@
+setMethod("addPkg", "PkgManifest",
+          function(x, name, version = NA,...) {
+              if(!name %in% manifest_df(x)$name) {
+                  manifest_df(x) = rbind(manifest_df(x),
+                                 ManifestRow(...))
+              } else {
+                  warning("package already in manifest")
+              }
+              x
+          })
+
+setMethod("addPkg", "GRANRepository",
+          function(x, name, version = NA, ...) {
+              if(!name %in% manifest_df(x)$name) {
+                  manifest(x) = addPkg(manifest(x), name, version, ...)
+                  repo_results(x) = rbind(repo_results(x),
+                                  ResultsRow(name = name))
+           
+              } else {
+                  warning("package already in manifest")
+              }
+              x
+          })
+
+setMethod("addPkg", "SessionManifest",
+          function(x, name, version = NA, ...) {
+              if(!name %in% manifest_df(x)$name) {
+                  manifest(x) = addPkg(manifest(x), name,
+                              version = version, ... )
+                  versions(x) = rbind(versions(x),
+                                  cbind(name = name, version=version))
+              } else {
+                  warning("package already in manifest")
+              }
+              x
+              })
+
+                  
+
+
 emptyManifest = data.frame(name = character(),
     url = character(),
     type = character(),
-    subrepo = character(),
     branch = character(),
     subdir = character(),
 
     extra = character(),
-    status = character(),
-    building = logical(),
-    version = character(),
-    lastAttempt = character(),
-    lastAttemptVersion = character(),
-    lastAttemptStatus = character(),
-    lastbuilt = character(),
-    lastbuiltversion = character(),
-    lastbuiltstatus = character(),
-    buildReason = character(),
-    suspended = logical(),
-    maintainer = character(),
     stringsAsFactors = FALSE
     )
     
 
-##'makeManifestRow
+##'ManifestRow
 ##'
 ##' Create one or more rows of manifest
 ##'
@@ -53,7 +80,6 @@ emptyManifest = data.frame(name = character(),
 ManifestRow = function(name = NA,
     url = NA,
     type = NA,
-    subrepo = "current",
     branch = NA,
     subdir = ".",
     extra = NA
@@ -63,7 +89,7 @@ ManifestRow = function(name = NA,
         type = .inferType(url)
     if(is.na(branch) && !is.na(type))
         branch = .inferDefaultBranch(branch, type)
-    data.frame(name = name, url = url, type = type, subrepo = subrepo,
+    data.frame(name = name, url = url, type = type,
            branch = branch, subdir = subdir, extra = extra,
            stringsAsFactors = FALSE)
 }
@@ -77,60 +103,14 @@ Manifest = function(..., dep_repos = c(biocinstallRepos(), repo_url(defaultGRAN(
 
 
 ##' @export
-GithubManifest = function( ..., pkgrepos = as.character(list(...)), subrepo = "current") {
+GithubManifest = function( ..., pkgrepos = as.character(list(...))) {
 
     names = gsub(".*/(.*)(.git){0,1}$", "\\1", pkgrepos)
     res =Manifest(url = paste0("git://github.com/", pkgrepos, ".git"),
-             type = "git", branch = "master", name = names, subrepo = subrepo)
+             type = "git", branch = "master", name = names)
     as(res, "GithubPkgManifest")
 }
     
-
-readManifest =function(file = repoManifest(repo), repo, returnFull = FALSE)
-{
-    ##during the initial build of the repository the GRAN package needs to be loadable before the manifest exists!
-    if(file.exists(file))
-        man = read.table(file, stringsAsFactors=FALSE, header=TRUE, sep=",")
-    else
-        man = emptyManifest
-
-    if(nrow(man) && !returnFull)
-        man = man[man$subrepo == repo_name(repo),]
-    man
-}
-
-lockManifest = function(repo)
-{
-##    lfile = file.path(repobase(repo), "manifest.LOCK")
-    lfile = manLockFile(repo)
-    ret = FALSE
-    if(!file.exists(lfile)) {
-        cat(as.character(Sys.time()), file = lfile)
-        ret = TRUE
-    } else {
-        tm = strftime(readLines(lfile))
-        now =  Sys.time()
-        if (difftime(now, tm, units="mins") > 5)
-        {
-            cat(now, file=lfile, append=FALSE)
-            ret = TRUE
-        }
-    }
-
-    if(!ret)
-    {
-        writeGRANLog("NA", "GRAN FAILURE: unable to lock manifest file", type="both", repo = repo)
-    }
-    ret
-}
-
-unlockManifest = function(repo)
-{
-    ##lfile = file.path(reepobase(repo), "manifest.LOCK")
-    lfile = manLockFile(repo)
-    if(file.exists(lfile))
-        file.remove(lfile)
-}
 
 
 addToManifest = function(repo, row)
