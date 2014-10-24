@@ -37,8 +37,8 @@ installTest = function(repo, cores = 3L)
     if(!file.exists(loc))
         dir.create(loc, recursive=TRUE)
     binds  = getBuilding(repo = repo)
-    bman = getBuildingManifest(repo = repo)
-    if(!nrow(bman)) {
+    bres = getBuildingResults(repo = repo)
+    if(!nrow(bres)) {
         writeGRANLog("NA", "No packages to install during installTest",
                      type ="full", repo = repo)
         return(repo)
@@ -47,7 +47,7 @@ installTest = function(repo, cores = 3L)
     oldlp = .libPaths()
     .libPaths(loc)
     on.exit(.libPaths(oldlp))
-    res = install.packages2(bman$name, lib = loc, repos = c(paste0("file://",temp_repo(repo)), BiocInstaller::biocinstallRepos(), "http://R-Forge.R-project.org"), type = "source", dependencies=TRUE)
+    res = install.packages2(bres$name, lib = loc, repos = c(paste0("file://",temp_repo(repo)), BiocInstaller::biocinstallRepos(), "http://R-Forge.R-project.org"), type = "source", dependencies=TRUE)
     success = processInstOut(names(res), res, repo)
     cleanupInstOut(res)
     
@@ -103,33 +103,34 @@ checkTest = function(repo, cores = 3L)
     writeGRANLog("NA", paste0("Running R CMD check on remaining packages (", sum(getBuilding(repo = repo)), ") using R at ", R.home(), "."), type = "full", repo = repo)
     manifest = manifest_df(repo)
     binds  = getBuilding(repo = repo)
-    bman = getBuildingManifest(repo = repo)
-    if(!nrow(bman))
+    bres = getBuildingResults(repo = repo)
+    if(!nrow(bres))
         return(repo)
-    #pat = paste0("(", paste(bman$name, collapse="|"), ")_.*\\.tar.gz")
+    #pat = paste0("(", paste(bres$name, collapse="|"), ")_.*\\.tar.gz")
     #tars = list.files(pattern = pat)
-    tars = unlist(mapply(function(nm, vr) list.files(pattern = paste0(nm, "_", vr, ".tar.gz")), nm = bman$name, vr = bman$version))
-    if(length(tars) < nrow(bman)) {
-        missing = sapply(bman$name, function(x) !any(grepl(x, tars, fixed=TRUE)))
-        writeGRANLog("NA", c("Tarballs not found for these packages during check test:", paste(bman$name[missing], collapse = " , ")), type = "both", repo = repo)
-        #tars = tars[order(bman$name[!missing])]
-        repo_results(repo)$status[manifest_df(repo)$name %in% bman$name[missing]] = "Unable to check - missing tarball"
-        bman  = bman[!missing,]
+    tars = unlist(mapply(function(nm, vr) list.files(pattern = paste0(nm, "_", vr, ".tar.gz")), nm = bres$name, vr = bres$version))
+    if(length(tars) < nrow(bres)) {
+        missing = sapply(bres$name, function(x) !any(grepl(x, tars, fixed=TRUE)))
+        writeGRANLog("NA", c("Tarballs not found for these packages during check test:", paste(bres$name[missing], collapse = " , ")), type = "both", repo = repo)
+        #tars = tars[order(bres$name[!missing])]
+        repo_results(repo)$status[manifest_df(repo)$name %in% bres$name[missing]] = "Unable to check - missing tarball"
+        bres  = bres[!missing,]
         binds[binds] = binds[binds] & !missing
     }
-    #tars = tars[order(bman$name)]
-    ord = mapply(function(nm, vr) grep(paste0(nm, "_", vr), tars), nm = bman$name, vr = bman$version)
+    #tars = tars[order(bres$name)]
+    ord = mapply(function(nm, vr) grep(paste0(nm, "_", vr), tars), nm = bres$name, vr = bres$version)
     
     tars = tars[unlist(ord)]
     outs = mcmapply2( function(tar, nm, repo) {
         writeGRANLog(nm, paste("Running R CMD check on ", tar), repo = repo)
         ## We built the vignettes during this round of building, so if the pkg is going to
         ##fail on building vignettes it will have already happened by this point
-        cmd = paste0("R_LIBS='", LibLoc(repo), "'  ", R.home(), " CMD check ", tar, " --no-build-vignettes")
+        cmd = paste0('R_LIBS="', temp_lib(repo),  '" R_HOME="',
+            R.home(),'" R CMD check ', tar, " --no-build-vignettes")
         out = tryCatch(system_w_init(cmd, intern=TRUE, repo = repo),
             error=function(x) x)
         out
-    }, tar = tars, nm = bman$name, repo = list(repo), mc.cores = cores,
+    }, tar = tars, nm = bres$name, repo = list(repo), mc.cores = cores,
         SIMPLIFY=FALSE)
     
     success = mapply(function(nm, out, repo) {

@@ -104,7 +104,7 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
 
                         command <- paste("R CMD build", checkout, opts )
                         if(!temp)
-                            command = paste0("R_LIBS_USER=", LibLoc(repo), " ", command) 
+                            command = paste0("R_LIBS_USER=", temp_lib(repo), " ", command) 
                         out = tryCatch(system_w_init(command, intern = TRUE,
                             repo = repo), error = function(x) x)
                         if(is(out, "error") || ("status" %in% attributes(out) && attr(out, "status") > 0) || !file.exists(paste0(pkg, "_", vnum, ".tar.gz"))) {

@@ -41,7 +41,7 @@ migrateToFinalRepo = function(repo)
     setwd(repoLoc)
     on.exit(setwd(oldwd))
     write_PACKAGES( type="source")
-    repo = updateManifest(repo)
+    repo = updateResults(repo)
 
     repo
 }
@@ -50,7 +50,7 @@ migrateToFinalRepo = function(repo)
 markFailedRevDeps = function(repo) {
     bman = getBuildingManifest(repo)
     rdpkgs = package_dependencies(bman$name, which = c("Depends", "Imports", "LinkingTo"),
-        db = installed.packages(LibLoc(repo), noCache = TRUE), recursive= TRUE)
+        db = installed.packages(temp_lib(repo), noCache = TRUE), recursive= TRUE)
     keep = sapply(rdpkgs, function(x, bman) {
         length(rdpkgs) == 0 || all(rdpkgs %in% bman$name)
     }, bman = bman)
