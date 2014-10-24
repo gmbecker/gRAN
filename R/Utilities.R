@@ -105,8 +105,12 @@ getMaintainers = function(codir, manifest = manifest_df(repo),
     sapply(getCheckoutLocs(codir, manifest = manifest), function(x) {
         if(!file.exists(file.path(x,"DESCRIPTION")))
             NA
-        else
-            read.dcf(file.path(x, "DESCRIPTION"))[,"Maintainer"]
+        else {
+            ## some github packages don't know how to construct
+            ## DESCRIPTION files ... *mumble*
+            tryCatch(read.dcf(file.path(x, "DESCRIPTION"))[,"Maintainer"],
+                     error = function(x) NA)
+        }
     })
 }
 
@@ -132,13 +136,14 @@ makePwdFun = function(scm_auth, url)
 
 
 makeSource = function(url, type, user, password, scm_auth, prefer_svn = FALSE, ...) {
+    type = tolower(type)
     if(missing(user))
         user = makeUserFun(scm_auth = scm_auth, url = url)
     if(missing(password))
         password = makePwdFun(scm_auth= scm_auth, url = url)
     if(type == "git" && grepl("github", url))
         type = "github"
-    type = lower(type)
+
     ret = switch(type,
            svn  = new("SVNSource", location = url, user = user,
                password = password, ...),
@@ -158,7 +163,7 @@ makeSource = function(url, type, user, password, scm_auth, prefer_svn = FALSE, .
         ret@branch = "trunk"
     if(is(ret, "GitSource") && prefer_svn) {
         ret2 = tryCatch(as(ret, "SVNSource"), error = function(x) x)
-        if(!is(x, "error"))
+        if(!is(ret2, "error"))
             ret = ret2
     }
     ret
@@ -167,12 +172,16 @@ makeSource = function(url, type, user, password, scm_auth, prefer_svn = FALSE, .
 getPkgDir = function(basepath,name,  subdir, scm_type, branch)
 {
 
+    
     basepath = normalizePath2(basepath)
-    if(scm_type == "svn")
+    if(!file.exists(file.path(basepath, name)))
+        stop("directory not found")
+    ##svn
+    if(file.exists(file.path(basepath, name, ".svn")))
     {
         if(checkStdSVN(file.path(basepath, name)))
         {
-            if(is.na(branch) || branch == "trunk")
+            if(is.na(branch) || branch == "trunk" || branch == "master")
                 brdir = "trunk"
             else
                 brdir = file.path("branches", branch)
@@ -181,15 +190,8 @@ getPkgDir = function(basepath,name,  subdir, scm_type, branch)
             brdir = "."
 
         }
-    } else if (scm_type == "git") {
+    } else ## git or local, neither have explicit dirs for branching
         brdir = "."
-    } else if (scm_type == "local") {
-        brdir = "."
-    } else {
-        stop(paste("Unrecognized scm_type in getPkgDir:", scm_type))
-    }
-
-
 
     normalizePath2(file.path(basepath,name, brdir, subdir))
 }
@@ -252,6 +254,13 @@ getBuildingManifest = function(repo, results = repo_results(repo),
 {
     manifest[getBuilding(repo, results),]
 }
+
+
+getBuildingResults = function(repo, results = repo_results(repo))
+{
+    results[getBuilding(repo, results),]
+}
+
 
 normalizePath2 = function(path, follow.symlinks=FALSE)
     {

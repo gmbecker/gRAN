@@ -12,14 +12,16 @@ setClass("CRANSource", contains = "PkgSource")
 
 
 setAs("GitSource", "SVNSource",
-      function(src) {
-              if(!grepl("github", location(src)))
+      function(from) {
+              if(!grepl("github", location(from)))
                   stop("Cannot convert non-github GitSource object to SVNSource")
               else {
-                  url = gsub( "\\.git", "", location(src))
+                  url = gsub( "\\.git", "", location(from))
                   url = gsub("git://", "http://", url)
-                  br = if(branch(src) == "master") "trunk" else branch(src)
-                  makeSource(name = src@name, url = url, branch = br, subdir = subdir(src), user = "", password = "")
+                  br = if(branch(from) == "master") "trunk" else branch(from)
+                  makeSource(name = from@name, url = url, branch = br,
+                             subdir = subdir(from), user = "",
+                             password = "", type = "svn")
               }
           })
 

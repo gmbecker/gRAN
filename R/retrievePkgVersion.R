@@ -291,8 +291,9 @@ findBiocSVNRev = function(name, version, destpath, repo, biocVers="trunk")
 
 findSVNRev = function(name, version, svn_repo, destpath, repo) {
 
-        oldwd = getwd()
-    setwd(file.path(destpath,  name))
+    oldwd = getwd()
+    ##setwd(file.path(destpath,  name))
+    setwd(destpath)
     on.exit(setwd(oldwd))
     system_w_init(paste("svn switch --ignore-ancestry", svn_repo), repo = repo)
 
@@ -368,5 +369,7 @@ setMethod("gotoVersCommit", c(dir = "character", src = "SVNSource"),
               dir
           })
 
+
+        
 
           

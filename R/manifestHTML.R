@@ -13,8 +13,8 @@ manifestHTML = function(repo)
         doc = newXMLNode("html")
         body = newXMLNode("body", parent = doc)
         summary = newXMLNode("div", "Build summary:", parent = body)
-        addChildren(summary, htmlParse(hwrite(as.matrix(table(manifest_df(repo)$lastAttemptStatus)))))
-        tmpman = manifest_df(repo)[,c("name", "lastAttemptVersion",
+        addChildren(summary, htmlParse(hwrite(as.matrix(table(repo_results(repo)$lastAttemptStatus)))))
+        tmpman = repo_results(repo)[,c("name", "lastAttemptVersion",
             "lastAttemptStatus", "lastAttempt",  "lastbuiltversion",
             "lastbuiltstatus", "lastbuilt", "maintainer")]
         checkrep = file.path("..", "..", "CheckResults", paste0(tmpman$name,

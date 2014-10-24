@@ -21,6 +21,7 @@ setGeneric("lazyRepo",
 
 ##' @export
 setGeneric("makeRepo", function(x, cores = 3L,
+                                build_pkgs = NULL,
                                 scm_auth = list("bioconductor.org" =
                                     c("readonly", "readonly")),
                                 ...)

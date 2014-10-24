@@ -1,6 +1,7 @@
 #setMethod("makePkgSourceDir", c(name = "ANY", source = "SVNSource"), function(name, source, path, repo) {
 setMethod("makePkgDir", c(name = "ANY", source = "SVNSource"),
-          function(name, source, path, latest_only = FALSE, repo, forceRefresh = FALSE) {
+          function(name, source, path, latest_only = FALSE, repo,
+                   forceRefresh = FALSE) {
     oldwd = getwd()
     on.exit(setwd(oldwd))
     if(!file.exists(path))
@@ -17,16 +18,21 @@ setMethod("makePkgDir", c(name = "ANY", source = "SVNSource"),
         opts = paste(opts, "--password", source@password)
     
     #did we already check it out?
-    if(file.exists(name))
+    if(file.exists(name) && file.exists(name, ".svn") && !forceRefresh)
     {
         writeGRANLog(name, "Existing temporary checkout found at this location. Updating", repo =  repo)
         up = updateSVN(file.path(path, name), source, repo)
         #if(!up)
         #    return(FALSE)
     } else {
-
+        ## clean up the directory if it was created from some other type of source
+        if(file.exists(name))
+            unlink(name, recursive = TRUE)
         cmd = paste("svn co", location(source), name, opts)
-        writeGRANLog(name, paste0("Attempting to create temporary source directory from SVN repo ", location(source), " (branch ", source@branch, "; cmd ", cmd, " )"), repo = repo)        
+        writeGRANLog(name, paste("Attempting to create temporary source",
+                                  "directory from SVN repo", location(source),
+                                 "(branch", source@branch, "; cmd", cmd, ")"),
+                     repo = repo)        
         out = tryCatch(system_w_init(cmd, repo = repo), error = function(x) x)
         if(is(out, "error"))
         {
@@ -72,14 +78,14 @@ setMethod("makePkgDir", c(name = "ANY", source = "GithubSource"),
               unzip(zpfile, exdir = path)
               uzdir
           } else {
-              source = as(source, "GitSource", strict = TRUE)
-              makePkgDir(name, source, latest_only, repo)
+              source = as(source, "SVNSource", strict = TRUE)
+              makePkgDir(name, source, path, latest_only, repo, forceRefresh)
           }
       })
 
 #setMethod("makePkgSourceDir", c(name = "ANY", source = "GitSource"), function(name, source, path,  repo) {
 setMethod("makePkgDir", c(name = "ANY", source = "GitSource"),
-          function(name, source, path, latest_only = FALSE,  repo)
+          function(name, source, path, latest_only = FALSE,  repo, forceRefresh=FALSE)
       {
           oldwd = getwd()
           on.exit(setwd(oldwd))
@@ -119,7 +125,7 @@ setMethod("makePkgDir", c(name = "ANY", source = "GitSource"),
       })
                                         #stub for everyone else
 setMethod("makePkgDir", c(name = "ANY", source = "ANY"),
-          function(name, source, path, latest_only, repo) {
+          function(name, source, path, latest_only, repo, forceRefresh = FALSE) {
     warning("Source type not supported yet.")
     FALSE
 })

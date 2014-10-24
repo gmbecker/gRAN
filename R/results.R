@@ -18,7 +18,8 @@ ResultsRow = function(name = NA,
                lastbuiltversion = lastbuiltversion,
                lastbuiltstatus = lastbuiltstatus,
                maintainer = maintainer,
-               suspended = suspended, building = building)
+               suspended = suspended, building = building,
+               stringsAsFactors = FALSE)
 }
 
 

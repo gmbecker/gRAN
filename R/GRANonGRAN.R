@@ -25,11 +25,12 @@ GRANonGRAN = function(repo)
     DESC[1] = "Package: GRAN"
     writeLines(DESC, con = file.path(babyGRAN, "DESCRIPTION"))
 
-    if("gran" %in% manifest_df(repo)) {
-        granInd = which(repo_results(repo)$name == "gran")
-        repo_results(repo)[granInd,] = ResultRow(name = "gran")
+    if("GRAN" %in% manifest_df(repo)$name) {
+        granInd = which(repo_results(repo)$name == "GRAN")
+        repo_results(repo)[granInd,] = ResultRow(name = "GRAN")
         manifest_df(repo)[granInd,] = ManifestRow(name="GRAN",
-                             url = babyGRAN, type="local", subdir = ".")
+                             url = babyGRAN, type="local", subdir = ".",
+                             branch = "master")
     } else {
         repo = addPkg(repo, name="GRAN", url = babyGRAN, type="local",
             subdir = ".")

@@ -2,7 +2,7 @@ setMethod("addPkg", "PkgManifest",
           function(x, name, version = NA,...) {
               if(!name %in% manifest_df(x)$name) {
                   manifest_df(x) = rbind(manifest_df(x),
-                                 ManifestRow(...))
+                                 ManifestRow(name = name, ...))
               } else {
                   warning("package already in manifest")
               }

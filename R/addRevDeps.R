@@ -6,8 +6,8 @@ addRevDeps = function(repo)
     ##reset and recalculate reverse dependencies every time. Expensive
     ##but protects us against packages being added or removed from
     ##manfiest
-    manifest_df(repo)$revDepOf = ""
-    manifest_df(repo)$revdepends = ""
+    repo_results(repo)$revDepOf = ""
+    repo_results(repo)$revdepends = ""
 
     if(is.null(repo_results(repo)$buildReason))
         repo_results(repo)$buildReason = ifelse(repo_results(repo)$building, "vbump", "")
@@ -18,7 +18,7 @@ addRevDeps = function(repo)
     
     writeGRANLog("NA", paste("Checking for reverse dependencies to packages",
                              "with version bumps."), repo = repo)
-    manifest = manifest_df(repo)
+    manifest = repo_results(repo)
     ##if this is the first time we are building the repository all the packages
     ##will be being built, so no need to check rev deps
     if(!file.exists(temp_lib(repo)) || all(getBuilding(repo)))    {
@@ -26,7 +26,7 @@ addRevDeps = function(repo)
                                  "reverse dependency check."), repo = repo)
         return(repo)
     }
-    pkgs = manifest_df(repo)$name[getBuilding(repo)]
+    pkgs = repo_results(repo)$name[getBuilding(repo)]
     revdeps = sapply(pkgs, dependsOnPkgs, dependencies = "all",
         lib.loc = temp_lib(repo), simplify=FALSE)
     if(!length(unlist(revdeps))) {
@@ -72,15 +72,15 @@ addRevDeps = function(repo)
                      "Building reverse dependencies in temporary repository.",
                      repo = repo)
         tmprepo = repo
-        manifest_df(tmprepo) = manifest[rdepBuildPkgs,]
-        manifest_df(tmprepo)$building = TRUE
-        manifest_df(tmprepo)$status="ok"
+        repo_results(tmprepo) = manifest[rdepBuildPkgs,]
+        repo_results(tmprepo)$building = TRUE
+        repo_results(tmprepo)$status="ok"
         tmprepo = buildBranchesInRepo(repo = tmprepo, temp = TRUE,
            # incremental = FALSE)
             incremental = TRUE)
-        manifest[rdepBuildPkgs, ] = manifest_df(tmprepo)
+        manifest[rdepBuildPkgs, ] = repo_results(tmprepo)
     }
-    manifest_df(repo) = manifest
+    repo_results(repo) = manifest
     repo
 }
 

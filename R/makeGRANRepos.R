@@ -39,7 +39,6 @@ setMethod("makeRepo", "GRANRepository",
                    scm_auth = list("bioconductor.org" =
                        c("readonly", "readonly")),
                     ...) {
-
               repo = x
               if(file.exists(destination(repo)))
                   repo2 = tryCatch(loadRepo(paste(destination(repo), "repo.R",
@@ -79,7 +78,7 @@ setMethod("makeRepo", "GRANRepository",
               print(paste("Starting buildBranchesInRepo", Sys.time()))
               print(paste("Building", sum(getBuilding(repo)), "packages"))
               ##if we have a single package specified we want to build it with or without a version bump
-              repo = buildBranchesInRepo( repo = repo, temp = TRUE, cores = cores, incremental = is.null(onlyBuild))
+              repo = buildBranchesInRepo( repo = repo, temp = TRUE, cores = cores, incremental = is.null(build_pkgs))
               ##test packges
               if(install_test_on(repo)) {
                   print(paste("Invoking package tests", Sys.time()))
@@ -112,7 +111,7 @@ setMethod("makeRepo", "GRANRepository",
 ##' \enumerate{
 ##' \item{Create a new GRANRepository object (if necessary) and set the \code{building} column of the manifest to \code{TRUE} for the packages to be built}
 ##' \item{Add a copy of the GRAN(Base) package to the manifest that uses the specified or newly created repository by default}
-##' \item{Creates or updates checkouts of package source code for packages being built. If \code{onlyBuild} was NULL, any packages whose version number has not changed since the last successfull build are removed from the list of packages being built.}
+##' \item{Creates or updates checkouts of package source code for packages being built. If \code{build_pkgs} was NULL, any packages whose version number has not changed since the last successfull build are removed from the list of packages being built.}
 ##' \item{Searches the manifest for any packages which are reverse dependencies to the packages being built, and sets them to be built as well. (This step is skipped if all packages in the manifest are being built).}
 ##' \item{Builds tarballs of the packages whose source was successfully obtained/updated and uses them to create a temporary repository}
 ##' \item{Uses the temporary repository to install the packages which were successfully built for the temporary repository (and any dependencies) into the temporary library location for the repository. External dependencies are retreived from the Bioconductor CRAN and Bioc* repositories.}
@@ -127,7 +126,7 @@ setMethod("makeRepo", "GRANRepository",
 ##' @param subRepoName name of the repository to build
 ##' @param baseDir base directory for the building process
 ##' @param dest_base base directory for the resulting final repository
-##' @param onlyBuild NULL (default) or a character vector naming packages to build. If non-null, packages not listed in this vector will not be built unless they are reverse dependencies of listed packages. Packages listed here are rebuilt even if the version number hasn't changed.
+##' @param build_pkgs NULL (default) or a character vector naming packages to build. If non-null, packages not listed in this vector will not be built unless they are reverse dependencies of listed packages. Packages listed here are rebuilt even if the version number hasn't changed.
 ##' @param cores integer Number of cores to use during the build and testing processes
 ##' @param repo NULL (default) or a \code{GRANRepository} object. If specified, this repository object will be used rather than creating a new one.
 ##' @param scm_auth named list. Names are regular expressions which match scm (SVN, git) repositories. Elements are character vectors providing the username and password to checkout from the repository. Default is to use readonly:readonly for bioconductor.org.
@@ -142,7 +141,7 @@ makeSingleGRANRepo = function(
     subRepoName,
     baseDir,
     dest_base,
-    onlyBuild = NULL,
+    build_pkgs = NULL,
     cores = 3L,
     repo = NULL,
     scm_auth = list("bioconductor.org" = c("readonly", "readonly")),
@@ -180,8 +179,8 @@ makeSingleGRANRepo = function(
         stop("cores must be a non-negative integer")
     }
 
-    if(!is.null(onlyBuild) && !is(onlyBuild, "character")) {
-        stop("onlyBuild must be NULL or a character vector of package names")
+    if(!is.null(build_pkgs) && !is(build_pkgs, "character")) {
+        stop("build_pkgs must be NULL or a character vector of package names")
     }
         
         
@@ -200,12 +199,12 @@ makeSingleGRANRepo = function(
         manifest$suspended = FALSE
     
     #we start out trying to build everything in the manifest unless there are already instructions
-    if( is.null(onlyBuild)) {
+    if( is.null(build_pkgs)) {
         manifest$building = TRUE
         manifest$building = manifest$building & (is.na(manifest$suspended) | !manifest$suspended)
         manifest$buildReason = ""
     } else {
-        manifest$building = ifelse(manifest$name %in% onlyBuild, TRUE, FALSE)
+        manifest$building = ifelse(manifest$name %in% build_pkgs, TRUE, FALSE)
         manifest$buildReason = ifelse(manifest$building, "forced", "")
         manifest$suspended[manifest$building] = FALSE
     }

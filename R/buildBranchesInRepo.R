@@ -10,16 +10,19 @@
 ##' @return a list with success and fail elements containing the directories which succeeded and failed the build
 ##' @author Cory Barr, Gabriel Becker
 ##' @importFrom tools write_PACKAGES
-buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE, manifest = manifest_df(repo)) {
+buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
+                                incremental = TRUE, manifest = manifest_df(repo)) {
   
-    binds = getBuilding(repo, manifest)       
+    binds = getBuilding(repo = repo)
     if(!sum(binds))
     {
         writeGRANLog("NA", "No packages to build in buildBranchesInRepo.", repo = repo)
         return(repo)
     }
-    manifest = getBuildingManifest(repo, manifest) #manifest[binds,]
-    svnCheckoutsLoc = getCheckoutLocs(checkout_dir(repo), manifest, manifest$branch)
+    manifest = getBuildingManifest(repo = repo)
+    results = getBuildingResults(repo = repo)
+    svnCheckoutsLoc = getCheckoutLocs(checkout_dir(repo), manifest,
+        manifest$branch)
     if(temp) {
         repoLoc = temp_repo(repo)
         if(!grepl("src/contrib", repoLoc, fixed=TRUE))
@@ -40,18 +43,18 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE
     startDir <- getwd()
     on.exit(setwd(startDir))
     setwd(repoLoc)
-    writeGRANLog("NA", paste0("Attempting to build ", sum(manifest$building), " into ", repoLoc), repo = repo)
+    writeGRANLog("NA", paste0("Attempting to build ", sum(results$building), " into ", repoLoc), repo = repo)
 
     if(temp) {
         ## Only build  packages into the temp repo that aren't already there.
         ## Not doing this was causing unreasonably slow times when
         ## not very many packages ended up being actually built
         oldvers = character(length(svnCheckoutsLoc))
-        names(oldvers) = manifest$name
+        names(oldvers) = results$name
         avl = tryCatch(available.packages(paste0("file://", repoLoc), filters= "duplicates"),
             error = function(x) x)
         if(is(avl, "error"))
-            oldvers = rep(NA, times = nrow(manifest))
+            oldvers = rep(NA, times = nrow(results))
         else {
             inds = match(avl[,"Package"], names(oldvers))
             inds = inds[!is.na(inds)]
@@ -60,7 +63,7 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE
             oldvers[!nchar(oldvers)] = NA
         }
     } else {
-        oldvers = as.character(manifest$lastbuiltversion)
+        oldvers = as.character(results$lastbuiltversion)
     }
 
     vers_restrict = versions_df(repo)
@@ -68,7 +71,7 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE
     
     res <- mcmapply2(#svnCheckoutsLoc,
                     ##res <- mapply(
-                    function (checkout, repo, opts, oldver, incremental) {
+                    function (checkout, repo, opts, oldver, vers_restr, incremental) {
                         ## incremental build logic. If incremental == TRUE,
                         ## we only rebuild if the package version number has bumped.
                         vnum = read.dcf(file.path(checkout, "DESCRIPTION"))[1,"Version"]
@@ -123,7 +126,7 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE
                                         #XXX shouldn't need the as.character...
                      oldver = oldvers,
                      incremental = incremental,
-                     vers_restr = vers_restrict,
+                     vers_restr = vers_restrict$version,
                     USE.NAMES=FALSE
 
                     )
@@ -147,12 +150,12 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE
     }
 
     res2 = res[!sameversion]
-    manifest$status[!sameversion] = ifelse(res2=="ok", "ok", "build failed")
-    manifest$status[sameversion] = "up-to-date"
-    manifest$version[built] = versions[built]
-    manifest$maintainer = getMaintainers(checkout_dir(repo),
+    results$status[!sameversion] = ifelse(res2=="ok", "ok", "build failed")
+    results$status[sameversion] = "up-to-date"
+    results$version[built] = versions[built]
+    results$maintainer = getMaintainers(checkout_dir(repo),
                            manifest = manifest)
-    manifest_df(repo)[binds,] = manifest
+    repo_results(repo)[binds,] = results
     repo
 
 }
