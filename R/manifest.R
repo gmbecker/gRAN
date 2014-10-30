@@ -157,3 +157,42 @@ gitregex = "^(git:.*|http{0,1}://(www.){0,1}(github|bitbucket)\\.com.*|.*\\.git)
            NA)
 }
            
+
+##' readManifest 
+##'
+##' Read a package or session manifest from a remote or local directory
+##'
+##' @param uri The location of the manifest directory (path or URL)
+##' @param local Whether the manifest is a local directory or a URL
+##' @param archive Not currently supported
+##' @return A PackageManifest object, or a SessionManifest object if the
+##' manifest directory contains a pkg_versions.dat file.
+##' @importFrom RCurl url.exists
+##' @export
+readManifest = function(uri, local = !url.exists(uri), archive = FALSE) {
+    if(archive)
+        stop("support for archived manifest directories is forthcoming")
+    if(!local) {
+        dir = tempdir()
+        download.file(paste(uri, "pkg_locations.dat", sep ="/"),
+                      file.path(dir, "pkg_locations.dat"))
+        download.file(paste(uri, "dep_repos.txt", sep ="/"),
+                      file.path(dir, "dep_repos.txt"))
+        if(url.exists(paste(uri, "pkg_versions.dat", sep="/"))) {
+            download.file(paste(uri, "dep_repos.dat", sep ="/"),
+                          file.path(dir, "pkg_versions.dat"))
+        }
+    }
+    pkgman = read.table(file.path(dir, "pkg_locations.dat"), header = TRUE,
+        sep = "\t")
+    deprepos = readLines(file.path(dir, "dep_repos.txt"))
+    manifest = PkgManifest(manifest = pkgman, dep_repos = deprepos)
+    if(file.exists(file.path(dir, "pkg_versions.dat"))) {
+        vers = read.table(file.path(dir, "pkg_versions.dat"),
+            header = TRUE, sep="\t")
+        SessionManifest(pkg_versions = vers,
+                        pkg_manifest = manifest)
+    } else {
+        manifest
+    }
+}
