@@ -1,80 +1,4 @@
-setClass("PkgSource", representation(name = "character",location="character",
-                                     branch = "character",
-                                     subdir = "character", user = "character",
-                                     password="character"))
-setClass("SVNSource", contains = "PkgSource")
-setClass("GitSource", contains = "PkgSource")
-setClass("GithubSource", contains = "GitSource")
-setClass("CVSSource", contains = "PkgSource")
-setClass("LocalSource", contains = "PkgSource")
-setClass("CRANSource", contains = "PkgSource")
-
-
-
-setAs("GitSource", "SVNSource",
-      function(from) {
-              if(!grepl("github", location(from)))
-                  stop("Cannot convert non-github GitSource object to SVNSource")
-              else {
-                  url = gsub( "\\.git", "", location(from))
-                  url = gsub("git://", "http://", url)
-                  br = if(branch(from) == "master") "trunk" else branch(from)
-                  makeSource(name = from@name, url = url, branch = br,
-                             subdir = subdir(from), user = "",
-                             password = "", type = "svn")
-              }
-          })
-
-
-
-
-
-
-##'@export
-##'
-setClass("PkgManifest", representation( manifest = "data.frame",
-                                          dependency_repos = "character"))
-
-##'@export
-##' @import RCurl
-PkgManifest = function(manifest, dep_repos = c(biocinstallRepos(), defaultGRAN()), ...) {
-    if(is.character(manifest)) {
-        if(is.url(manifest)) {
-            fil = tempfile()
-            download.file(manifest, method = "curl", fil)
-            manifest  = fil
-        }
-
-        if(file.exists(manifest))
-            manifest = read.table(manifest, header= TRUE, sep= ",", stringsAsFactors = FALSE, ...)
-        else
-            stop("invalid manifest")
-    }
-
-    new("PkgManifest", manifest = manifest, dependency_repos = dep_repos)
-}
-
-setClass("GithubPkgManifest", contains = "PkgManifest")
-
-
-
-#manifest is a data.frame with the following columns:
-##name, url, type, subdir, branch, extra
-manifestBaseCols = c("name", "url", "type", "subdir", "branch", "extra")
-
-
-
-
-
-
-
-##'@export
-setClass("SessionManifest", representation(pkg_versions = "data.frame",
-                                           pkg_manifest = "PkgManifest"))
-
-SessionManifest = function(manifest, versions) {
-    new("SessionManifest", pkg_versions = versions, pkg_manifest = manifest)
-}
+##' @import switchr
 
 
 
@@ -95,10 +19,10 @@ setClass("RepoBuildParam", representation(
     auth = "character",
     dest_base = "character",
     dest_url = "character",
-    shell_init = "character",
     installTest = "logical",
     checkTest = "logical",
-    suspended = "character"))
+    suspended = "character"),
+         contains = "SwitchrParam")
 
 
 ##' @export
@@ -192,7 +116,8 @@ RepoBuildParam = function(
     destination = basedir,
     auth = "",
     dest_url = paste0("file://", normalizePath2(destination)),
-    shell_init = "",
+    shell_init = character(),
+    logfun = function(...) writeGRANLog(..., logfile = logfile, errfile = errlog),
     installTest = TRUE,
     checkTest = TRUE)
 {
@@ -223,6 +148,7 @@ RepoBuildParam = function(
         auth = auth,
         dest_url = dest_url,
         shell_init = shell_init,
+        logfun = logfun,
         installTest = installTest,
         checkTest = checkTest)
     repo
@@ -252,10 +178,4 @@ prepDirStructure = function(basedir, subrepo, temprepo, tempcheckout,
     
 }
 
-
-##'@export
-setClass("parsedSessionInfo", representation(version = "character",
-                                             platform="character",
-                                             attached = "data.frame",
-                                             loaded = "data.frame"))
 

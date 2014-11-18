@@ -16,7 +16,7 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
     binds = getBuilding(repo = repo)
     if(!sum(binds))
     {
-        writeGRANLog("NA", "No packages to build in buildBranchesInRepo.", repo = repo)
+        logfun(repo)("NA", "No packages to build in buildBranchesInRepo.")
         return(repo)
     }
     manifest = getBuildingManifest(repo = repo)
@@ -43,7 +43,7 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
     startDir <- getwd()
     on.exit(setwd(startDir))
     setwd(repoLoc)
-    writeGRANLog("NA", paste0("Attempting to build ", sum(results$building), " into ", repoLoc), repo = repo)
+    logfun(repo)("NA", paste0("Attempting to build ", sum(results$building), " into ", repoLoc))
 
     if(temp) {
         ## Only build  packages into the temp repo that aren't already there.
@@ -78,11 +78,11 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
                         pkg = getPkgNames(checkout)
 
                         if(!is.na(vers_restr) && vnum != vers_restr) {
-                            writeGRANLog(pkg, paste("Wrong version number for pkg",
+                            logfun(repo)(pkg, paste("Wrong version number for pkg",
                                                     pkg, "Needed", vers_restr,
                                                     "have", vnum, "error earlier",
                                                     "in build process?"),
-                                         type = both, repo = repo)
+                                         type = both)
                             ret = "wrong version"
                             names(ret) = vnum
                             return(ret)
@@ -92,29 +92,29 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
                         ## we don't support changing the version restriction backward, should we?
                         if(is.na(oldver) || compareVersion(vnum, oldver) == 1 )
                         {
-                            writeGRANLog(pkg, paste0("Had version ", oldver, ". Building new version ", vnum), repo = repo)
+                            logfun(repo)(pkg, paste0("Had version ", oldver, ". Building new version ", vnum))
                         } else if (incremental) {
-                            writeGRANLog(pkg, paste0("Package up to date at version ", vnum, ". Not rebuilding."), repo = repo)
+                            logfun(repo)(pkg, paste0("Package up to date at version ", vnum, ". Not rebuilding."))
                             ret = "up-to-date"
                             names(ret) = vnum
                             return(ret)
                         } else {
-                            writeGRANLog(pkg, paste0("Forcing rebuild of version ", vnum, "."), repo = repo)
+                            logfun(repo)(pkg, paste0("Forcing rebuild of version ", vnum, "."))
                         }
 
                         command <- paste("R CMD build", checkout, opts )
                         if(!temp)
                             command = paste0("R_LIBS_USER=", temp_lib(repo), " ", command) 
                         out = tryCatch(system_w_init(command, intern = TRUE,
-                            repo = repo), error = function(x) x)
+                            param = param(repo)), error = function(x) x)
                         if(is(out, "error") || ("status" %in% attributes(out) && attr(out, "status") > 0) || !file.exists(paste0(pkg, "_", vnum, ".tar.gz"))) {
                             type = if(temp) "Temporary" else "Final"
-                            writeGRANLog(pkg, paste(type,"package build failed. R CMD build returned non-zero status"), type ="both", repo=repo)
-                            writeGRANLog(pkg, c("R CMD build output for failed package build:", out), type="error", repo = repo)
+                            logfun(repo)(pkg, paste(type,"package build failed. R CMD build returned non-zero status"), type ="both")
+                            logfun(repo)(pkg, c("R CMD build output for failed package build:", out), type="error")
                             ret = "failed"
                         } else {
                             #XXX we want to include the full output when the build succeeds?
-                            writeGRANLog(pkg, "Sucessfully built package.", type="full", repo= repo)
+                            logfun(repo)(pkg, "Sucessfully built package.", type="full")
                             ret = "ok"
                         }
                         names(ret) = vnum

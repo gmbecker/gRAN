@@ -1,44 +1,3 @@
-#setGeneric("makePkgSourceDir",
-#           function(name, source, path = tempdir(), branch = "master",
-#                    subdir = "./", repo)
-#           standardGeneric("makePkgSourceDir"))
-##' @export
-setGeneric("makePkgDir",
-           function(name, source, path = tempdir(), latest_only = FALSE, repo = NULL, forceRefresh = FALSE) standardGeneric("makePkgDir"))
-
-##' lazyRepo
-##'
-##' Create a lazy repository for installing directly from a package
-##' manifest. Most users will want to call \code{Install} directly,
-##' which will call this as needed behind the scenes.
-##'
-##' @param pkgs The packages to install
-##' @param manifest The manifest to use
-##' @param version Specific versions of the packages to install. Should be a
-##' vector of the same length as \code{pkgs}. Defaults to NA (any version)
-##' for all packages.
-##' @param dir The directory packages should be downloaded/checkedout/built into
-##' @param rep_path The path of the final repository
-##' @param get_suggests Whether suggested packages should be included
-##' in the lazy repository. Defaults to FALSE
-##' @param verbose Should extra information be printed to the user during
-##' the construction process
-##' @param scm_auths Named list of username/password credentials for checking
-##' out package sources from one or more sources listed in \code{manifest}
-##'
-##' @return A path to the populated lazy repository, suitable for 'coercing' to
-##' a url and installing from.
-##' @export
-##'
-setGeneric("lazyRepo",
-           function(pkgs,
-                    manifest,
-                    versions = rep(NA, times = length(pkgs)),
-                    dir = tempdir(),
-                    rep_path = file.path(dir, "repo"),
-                    get_suggests = FALSE,
-                    verbose = FALSE,
-                    scm_auths = list(bioconductor = c("readonly", "readonly"))) standardGeneric("lazyRepo"))
 
 
 ##'makeRepo
@@ -68,7 +27,5 @@ setGeneric("makeRepo", function(x, cores = 3L,
                                     c("readonly", "readonly")),
                                 ...)
            standardGeneric("makeRepo"))
-##' @export
-setGeneric("addPkg", function(x, name, version = NA,...) standardGeneric("addPkg"))
 ##' @export
 setGeneric("gotoVersCommit", function(dir, src, version, repo = NULL) standardGeneric("gotoVersCommit"))

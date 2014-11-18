@@ -4,23 +4,21 @@ checkIsPkgDir = function (dir)
     any(grepl("^DESCRIPTION$", fils))
 }
 
-writeGRANLog = function(pkg, msg, repo, type = "full")
+writeGRANLog = function(pkg, msg, type = "full", logfile, errfile)
 {
-    if(is.null(repo))
-        return()
     
     dt = date()
     targs = 
     
     if(type == "error")
     {
-        targ = errlogfile(repo)
+        targ = errfile
         err = " ERROR "
     } else if (type == "both") {
-        targ = c(logfile(repo), errlogfile(repo))
+        targ = c(logfile, errfile)
         err = " ERROR "
     } else {
-        targ = logfile(repo)
+        targ = logfile
         err = character()
     }
 
@@ -50,9 +48,9 @@ findPkgDir = function(rootdir, branch, subdir, repo)
         warning(paste0("The svn repository at ", location(source),
                        " does not appear to have branches. ",
                        "Unable to process this source."))
-        writeGRANLog(name, paste("The SVN repository does not appear to have",
+        logfun(repo)(name, paste("The SVN repository does not appear to have",
                                  "branches and a non-trunk/non-master branch",
-                                 "was selected"), repo = repo, type="both")
+                                 "was selected"), type="both")
         return(NULL)
     }
 
@@ -61,8 +59,8 @@ findPkgDir = function(rootdir, branch, subdir, repo)
     ##This is a problem with GRAN logic, not with packages/user activity
     if(!file.exists(ret))
     {
-        writeGRANLog(name, paste("Unable to find subdirectory", subdir,
-                                 "in branch", branch), repo, type="both")
+        logfun(repo)(name, paste("Unable to find subdirectory", subdir,
+                                 "in branch", branch), type="both")
         warning(paste0("Constructed temporary package directory",ret,
                        " doesn't appear to  exist after svn checkout. ",
                        "Missing branch?"))
@@ -73,9 +71,9 @@ findPkgDir = function(rootdir, branch, subdir, repo)
     ##we could be more general and allow people to specify subdirectories...
     if(!checkIsPkgDir(ret))
     {
-        writeGRANLog(name, paste("Specified branch/subdirectory combination",
+        logfun(repo)(name, paste("Specified branch/subdirectory combination",
                                  "does not appear to contain an R package"),
-                                 repo, type="both")
+                                  type="both")
         ret = NULL
     }
     ret
@@ -292,59 +290,3 @@ normalizePath2 = function(path, follow.symlinks=FALSE)
             
         }
     }
-
-##source an initialization script (e.g. .bashrc) if specified
-## in sh_init_script(repo)
-system_w_init = function(cmd, ..., repo = defaultGRAN())
-{
-    if(length(cmd) > 1)
-        stop("cmd should be of length 1")
-    if(!is.null(repo) && length(sh_init_script(repo)) && nchar(sh_init_script(repo)))
-        cmd = paste(paste("source", sh_init_script(repo)), cmd, sep = " ; ")
-    system(cmd, ...)
-}
-
-highestVs = c(9, 14, 0)
-develVers = 3.0
-
-decrBiocVersion = function(biocVers) {
-    vals = strsplit(biocVers, ".", fixed=TRUE)[[1]]
-    vals  = as.numeric(vals)
-    if(identical(vals, c(1,0))) {
-        NULL
-    } else if (vals[2] == 0) {
-        vals[1] = vals[1] - 1 #decrement major version
-        vals[2] = highestVs[ vals[1] ] #set to highest minor version for that major
-    } else {
-        vals[2] = vals[2] - 1
-    }
-    paste(vals, collapse=".")
-}
-
-decrBiocRepo = function(repos, vers = biocVersFromRepo(repos)) {
-    if(!is.character(vers))
-        vers = as.character(vers)
-
-    pieces = strsplit(repos, vers, fixed=TRUE)
-    newvers = decrBiocVersion(vers)
-    if(is.null(newvers)) {
-        warning("Cannot decrement bioc repo version below 1.0")
-        return(NULL)
-    }
-    sapply(pieces, function(x) paste0(x, collapse = newvers))
-}
-
-biocVersFromRepo = function(repos) gsub(".*/([0-9][^/]*)/.*", "\\1", repos[1])
-
-highestBiocVers = function(repos = biocinstallRepos()[-length(biocinstallRepos())] ) {
-    majvers = length(highestVs)
-##    if(highestVs[majvers] > 0)
-##        vers = paste(majvers, highestVs[majvers] - 1, sep=".")
-##    else
-##        vers = paste(majvers -1, highestVs[majvers-1], sep=".")
-    vers = paste(majvers, highestVs[majvers], sep=".")
-    bef= gsub("(.*/)[0-9][^/]*/.*", "\\1", repos)
-    af = gsub(".*/[0-9][^/]*(/.*)", "\\1", repos)
-    paste0(bef, vers, af)
-}
-    

@@ -1,9 +1,9 @@
 #Package, build thine self
 GRANonGRAN = function(repo)
 {
-    writeGRANLog("GRAN", paste("Creating repository specific GRAN package and",
+    logfun(repo)("GRAN", paste("Creating repository specific GRAN package and",
                                 "installing it into the GRAN repository at",
-                                destination(repo)), repo = repo)
+                                destination(repo)))
 #    babyGRAN = file.path(repobase(repo), "GRANpkg")
     babyGRAN = file.path(repobase(repo), "GRAN")
     if(!file.exists(file.path(babyGRAN, "inst", "scripts")))

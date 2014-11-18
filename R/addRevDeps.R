@@ -16,21 +16,21 @@ addRevDeps = function(repo)
         repo_results(repo)$buildReason[repo_results(repo)$building] = "vbump"
     }
     
-    writeGRANLog("NA", paste("Checking for reverse dependencies to packages",
-                             "with version bumps."), repo = repo)
+    logfun(repo)("NA", paste("Checking for reverse dependencies to packages",
+                             "with version bumps."))
     manifest = repo_results(repo)
     ##if this is the first time we are building the repository all the packages
     ##will be being built, so no need to check rev deps
     if(!file.exists(temp_lib(repo)) || all(getBuilding(repo)))    {
-        writeGRANLog("NA", paste("All packages are being built, skipping",
-                                 "reverse dependency check."), repo = repo)
+        logfun(repo)("NA", paste("All packages are being built, skipping",
+                                 "reverse dependency check."))
         return(repo)
     }
     pkgs = repo_results(repo)$name[getBuilding(repo)]
     revdeps = sapply(pkgs, dependsOnPkgs, dependencies = "all",
         lib.loc = temp_lib(repo), simplify=FALSE)
     if(!length(unlist(revdeps))) {
-        writeGRANLog("NA", "No reverse dependencies detected", repo = repo)
+        logfun(repo)("NA", "No reverse dependencies detected")
         return(repo)
     }
     if(length(revdeps) > 0)
@@ -61,16 +61,15 @@ addRevDeps = function(repo)
     manifest[rdepBuildPkgs, "buildReason"] = "is rdep"
     manifest[rdepBuildPkgs, "building"] = TRUE 
     
-    writeGRANLog("NA", paste0("Detected ", sum(rdepBuildPkgs),
+    logfun(repo)("NA", paste0("Detected ", sum(rdepBuildPkgs),
                               " packages that are reverse dependencies of",
                               "packages with version bumps:\n\t",
                               paste(manifest$name[rdepBuildPkgs],
-                                    collapse=" , ")), repo = repo)
+                                    collapse=" , ")))
 
     if(sum(rdepBuildPkgs) >0) {
-        writeGRANLog("NA",
-                     "Building reverse dependencies in temporary repository.",
-                     repo = repo)
+        logfun(repo)("NA",
+                     "Building reverse dependencies in temporary repository.")
         tmprepo = repo
         repo_results(tmprepo) = manifest[rdepBuildPkgs,]
         repo_results(tmprepo)$building = TRUE

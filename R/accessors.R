@@ -39,16 +39,6 @@ setMethod("errlogfile", "GRANRepository", function(repo) {
         dir.create(dirname(ret), recursive = TRUE)
     ret})
 
-##' location generic
-##' Retreive the directory associated with an object
-##' @rdname location-methods
-##' @return a character containing the associated path
-##' @author Gabriel Becker
-##' @param repo a GRANRepository object
-##' @docType methods
-##' @export
-setGeneric("location", function(repo) standardGeneric("location"))
-
 ##' Retrieve the path to a GRAN (sub) repository
 ##' @rdname location-methods
 ##' @aliases location,GRANREpository-method
@@ -60,11 +50,6 @@ setMethod("location", "GRANRepository", function(repo) {
     normalizePath2(ret)
 })
 
-##' Retreive the local directory associated with a PkgSource object for a package in a GRAN manifest
-##' @rdname location-methods
-##' @aliases location,PkgSource-method
-##' @export
-setMethod("location", "PkgSource", function(repo) repo@location)
 
 ##'repobase
 ##' Generic accessor function to retreive the repo specific subdirectory within the base directory
@@ -215,46 +200,6 @@ setMethod("checkout_dir","GRANRepository",
 setMethod("checkout_dir","NULL", function(repo) NULL)
 
 
-##' depRepos
-##'
-##' Get repositories to be used to fullfill dependencies beyond packages within the manifest
-##' @return Character vector with existing repository urls
-##' 
-##' @rdname depRepos
-##' @export
-setGeneric("depRepos", function(x) standardGeneric("depRepos"))
-
-
-setMethod("depRepos", "PkgManifest", function(x) x@dependency_repos)
-
-
-
-##' manifest
-##' Extract manifest data.frame associated with the manifest
-##' @aliases manifest,PkgManifest-method
-##' @export
-setGeneric("manifest", function(x) standardGeneric("manifest"))
-setMethod("manifest", "PkgManifest", function(x) x@manifest)
-
-setGeneric("manifest<-", function(x, value) standardGeneric("manifest<-"))
-setMethod("manifest<-", "PkgManifest", function(x, value) {
-    x@manifest = value
-    x
-    })
-
-
-setMethod("manifest", "SessionManifest",
-          function(x) x@pkg_manifest)
-
-
-
-
-setMethod("manifest<-", "SessionManifest",
-          function(x, value ) {
-              x@pkg_manifest = value
-              x
-          })
-
 
 setMethod("manifest<-", "GRANRepository",
           function(x, value ) {
@@ -263,119 +208,21 @@ setMethod("manifest<-", "GRANRepository",
           })
 
 
-
-
-setGeneric("versions", function(x) standardGeneric("versions"))
-setMethod("versions", "SessionManifest",
-          function(x) x@pkg_versions)
-
-setGeneric("versions<-", function(x, value) standardGeneric("versions<-"))
-setMethod("versions<-", "SessionManifest",
-          function(x, value){
-              x@pkg_versions = value
-              x
-              })
-
-
 setMethod("manifest", "GRANRepository", function(x) x@manifest)
-setMethod("manifest", "SessionManifest", function(x) x@pkg_manifest)
-
-
-setGeneric("manifest_df", function(x, ...) standardGeneric("manifest_df"))
 
 ## only get manifest rows for pkgs in the 'session' by default
 ## override with session_only=FALSE if desired
 setMethod("manifest_df", "GRANRepository", function(x, ...) manifest_df(manifest(x), ...))
 
-## only get manifest rows for pkgs in the 'session' by default
-## override with session_only=FALSE if desired
-setMethod("manifest_df", "SessionManifest",
-          function(x, session_only = TRUE, ...) {
-              ## all pkgs in the manifest
-              mdf = manifest_df(manifest(x))
-              ## restrict to pkgs in the 'session' if desired
-              if(session_only)
-                  mdf = mdf[mdf$name %in% versions_df(x)$name,]
-              mdf
-          })
-          
-
-
-
-setMethod("manifest_df", "PkgManifest", function(x) x@manifest)
-
-
-
-setGeneric("manifest_df<-", function(x, value) standardGeneric("manifest_df<-"))
 setMethod("manifest_df<-", "GRANRepository", function(x, value) {
     manifest_df(manifest(x)) = value
     x
     })
-
-setMethod("manifest_df<-", "SessionManifest", function(x, value) {
-    manifest_df(manifest(x)) = value
-    x
-    })
-
-
-setMethod("manifest_df<-", "PkgManifest", function(x, value) {
-    x@manifest = value
-    x
-    })
-
-
-
-setGeneric("versions_df", function(x) standardGeneric("versions_df"))
 setMethod("versions_df", "GRANRepository", function(x) versions_df(manifest(x)))
-
-setMethod("versions_df", "SessionManifest",
-          function(x) x@pkg_versions)
-
-
-
-
-setGeneric("versions_df<-", function(x, value) standardGeneric("versions_df<-"))
 setMethod("versions_df<-", "GRANRepository", function(x, value) {
     versions_df(manifest(x)) = value
     x
     })
-
-setMethod("versions_df<-", "SessionManifest", function(x, value) {
-    x@pkg_versions = value
-    x
-    })
-
-
-
-
-
-
-
-
-
-
-##' @export
-setGeneric("branch", function(x) standardGeneric("branch"))
-setMethod("branch", "PkgSource", function(x) x@branch)
-
-setGeneric("branch<-", function(x, value) standardGeneric("branch<-"))
-setMethod("branch<-", "PkgSource", function(x, value) {
-    x@branch = value
-    x
-    })
-
-
-##' @export
-setGeneric("subdir", function(x) standardGeneric("subdir"))
-setMethod("subdir", "PkgSource", function(x) x@subdir)
-
-
-setGeneric("subdir<-", function(x, value) standardGeneric("subdir<-"))
-setMethod("subdir<-", "PkgSource", function(x, value) {
-    x@subdir = value
-    x
-    })
-
 
 ##' @export
 setGeneric("repo_results", function(x) standardGeneric("repo_results"))
@@ -442,12 +289,11 @@ setMethod("suspended_pkgs<-", "GRANRepository",
 
 
 ##'@export
-setGeneric("sh_init_script", function(x) standardGeneric("sh_init_script"))
 setMethod("sh_init_script", "GRANRepository",
           function(x) param(x)@shell_init)
 
 ##'@export
-setGeneric("sh_init_script<-", function(x, value) standardGeneric("sh_init_script<-"))
+
 setMethod("sh_init_script<-", "GRANRepository",
           function(x, value) {
               param(x)@shell_init= value
@@ -472,11 +318,17 @@ setMethod("install_test_on", "RepoBuildParam", function(x) x@installTest)
 setMethod("install_test_on", "GRANRepository", function(x) install_test_on(param(x)))
 
 
+##' @export
+setMethod("logfun", "GRANRepository",
+          function(x) logfun(param(x)))
 
 
 
 
-
-
+setMethod("addPkg", "GRANRepository",
+          function(x, ..., rows, versions) {
+              manifest(x) = addPkg(manifest(x), ..., rows = rows, versions = versions)
+              x
+          })
 
 
