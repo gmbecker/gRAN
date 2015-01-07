@@ -98,12 +98,10 @@ getPkgVersions = function(pkgs, dir, GRepo = NULL, stoponfail = FALSE,pkgcol = "
     fils
 }
 
-##'makeVirtualRepo
+
+##' Create a virtual repository containing only the specified package versions versions 
 ##'
 ##' Create a virtual repository which contains only the exact packages specified
-##' 
-##' @title Create a virtual repository containing only the specified package versions versions 
-##'
 ##'
 ##' Packages are located via the \code{getPkgVersions} function, which will look in the following places:
 ##' \enumerate{
