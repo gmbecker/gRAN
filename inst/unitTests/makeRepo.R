@@ -5,4 +5,4 @@ library(GRANBase)
       "hadley/dplyr", "rstudio/ggvis")
 
 
-repo = makeRepo(ghman, cores = 3, basedir = tempdir())
+repo = makeRepo(ghman, cores = 3, basedir = "~/testrepo")
