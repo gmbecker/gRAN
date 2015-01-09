@@ -74,7 +74,11 @@ RepoFromList = function(rlist) {
 ##' @param filename The file to load
 ##' @export
 loadRepo = function(filename) {
-    dget(filename)
+    res = dget(filename)
+    ##refresh closure for log function
+    logfun(res) = function(pkg, msg, type = "full") writeGRANLog(pkg, msg, type,
+              logfile = logfile(res), errfile = errlogfile(res))
+    res
 }
             
         

@@ -4,6 +4,17 @@ checkIsPkgDir = function (dir)
     any(grepl("^DESCRIPTION$", fils))
 }
 
+##' writeGRANLog
+##'
+##' Utility function which writes gran logs
+##' @param pkg The name of the package the log is about
+##' @param msg The log message, collapsed if length>1
+##' @param type "full", "error", or "both" indicating which log(s) the message
+##' should be written to
+##' @param logfile The location of the full log file to write/append to
+##' @param errfile the location of the error log file to write/append to
+##' @note This function is not intended for direct use by the end user.
+##' @export
 writeGRANLog = function(pkg, msg, type = "full", logfile, errfile)
 {
     

@@ -49,7 +49,7 @@ setMethod("makeRepo", "GRANRepository",
               if(!is.null(repo2) ) {
                   res = repo_results(repo)
                   res2 = repo_results(repo2)
-                  if(any(!is.na(res$lastAttemptmax)) && (max(res$lastAttempt, na.rm=TRUE) < max(res2$lastAttempt,
+                  if(any(!is.na(res$lastAttempt)) && (max(res$lastAttempt, na.rm=TRUE) < max(res2$lastAttempt,
                                               na.rm=TRUE))) {
                       message("Loading latest results from specified repository")
                       repo = repo2
@@ -97,6 +97,23 @@ setMethod("makeRepo", "GRANRepository",
           })
 
 
+setMethod("makeRepo", "character",
+          function(x, cores = 3L, build_pkgs = NULL,  
+                   scm_auth = list("bioconductor.org" =
+                       c("readonly", "readonly")),
+                   ...) {
 
-
+              if(!grepl("^(http|git|.*repo\\.R)", x))
+                  x2 = list.files(x, pattern = "repo\\.R", full.names = TRUE,
+                      recursive=TRUE)[1]
+              else
+                  x2 = x
+              repo = loadRepo(x2)
+              if(is.null(repo))
+                  stop("There doesn't seem to be a repo.R file at associated",
+                       "with the location",
+                       x)
+              makeRepo(repo, cores = cores, build_pkgs = build_pkgs,
+                       scm_auth = scm_auth, ...)
+          })
 

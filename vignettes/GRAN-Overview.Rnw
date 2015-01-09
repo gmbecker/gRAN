@@ -62,9 +62,9 @@ repo = makeRepo(man, repo_name= "stable", basedir = repdir,
     destination = repdir, dest_url = paste0("file://", normalizePath(repdir)))
 @ 
 <<eval=TRUE>>=
-available.packages(contrib.url(repo_url(repo), type="source"), type="source")
+available.packages(repo, type="source")
 @ 
-We refer readers to the documetnation for that function regarding the customization options.
+We refer readers to the documentation for that function regarding the customization options.
 
 \gran represents (sub)repositories as \Rclass{GRANRepository} objects. These objects contain all the information required to build and deploy the repository.
 
@@ -72,7 +72,7 @@ Once a \gran repository is created, its \Rclass{GRANRepository} object
 is saved within the created directory structure as the repo.R file. This allows future builds to be invoked by the simpler syntax of passing a \Rclass{GRANRepository} object or path to a created repository to \Rfunction{makeRepo} directly:
 
 <<eval=TRUE>>=
-repo = makeRepo(repo=file.path(repdir, "stable"))
+repo = makeRepo(file.path(repdir, "stable"))
 @ 
 
 The \Rfunction{makeRepo} function also accepts a {\tt buildOnly} argument, which will cause only the specified packages (and their reverse dependencies) to be rebuilt, regardless of changes in version number.
@@ -94,7 +94,7 @@ The \Rfunction{makeRepo} function also accepts a {\tt buildOnly} argument, which
   \item{The \Rclass{GRANRepsitory} object is returned}
 \end{enumerate}
 
-\\section{Tools for managing repository stability}
+\section{Tools for managing repository stability}
 
 \gran also provides tools to navigate the tension between stability and using the most up-to-date version of packages to have the latest bug fixes available.
 
@@ -113,7 +113,4 @@ Risk here has a dual meaning. On the one hand updating a package which an import
     \caption{An update risk report}
     \label{fig:risk_report}
 \end{figure}
- 
-
-
 \end{document}

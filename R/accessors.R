@@ -323,6 +323,15 @@ setMethod("logfun", "GRANRepository",
           function(x) logfun(param(x)))
 
 
+##' @export
+setMethod("logfun<-", "GRANRepository",
+          function(x, value) {
+              p = param(x)
+              logfun(p) = value
+              param(x) = p
+              x
+              })
+
 
 
 setMethod("addPkg", "GRANRepository",
