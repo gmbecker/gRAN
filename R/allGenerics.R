@@ -27,5 +27,3 @@ setGeneric("makeRepo", function(x, cores = 3L,
                                     c("readonly", "readonly")),
                                 ...)
            standardGeneric("makeRepo"))
-##' @export
-setGeneric("gotoVersCommit", function(dir, src, version, repo = NULL) standardGeneric("gotoVersCommit"))

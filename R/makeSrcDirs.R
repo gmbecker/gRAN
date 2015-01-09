@@ -18,9 +18,10 @@ makeSrcDirs = function(repo, cores = 3L, scm_auth)
                 src = as(src, "SVNSource")
                 
             ret = makePkgDir(name = nm, source = src, path =path,
-                latest_only = FALSE, repo=repo, forceRefresh=FALSE)
+                latest_only = FALSE, param = param(repo), forceRefresh=FALSE)
             if(ret && !is.na(version)  && file.exists(file.path(path, nm))) {
-                gotoVersCommit(file.path(path, nm), src = src, repo = repo)
+                gotoVersCommit(file.path(path, nm), src = src,
+                               param = param(repo))
             }
             ret
         },

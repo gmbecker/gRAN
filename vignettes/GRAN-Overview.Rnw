@@ -24,8 +24,10 @@ BiocStyle::latex()
 
 \section{Introduction}
 
-\gran is an open source set of tools for distributing and testing \R{} packages for 
-both general deployment and result reproduction. It is centered around the R repository
+\gran is an open source set of tools for testing and deploying \R{} packages 
+as package repositories for both general deployment and result
+reproduction. It is based on the \tt switchr framework, and allows
+users to deploy package manifests as validated repositories.It is centered around the R repository
 mechanism for pacakge distribution. \gran provides three major areas of functionality:
 \begin{enumerate}
   \item{The ability to create one or more \R{} repositories by pulling and testing packages 
@@ -39,31 +41,25 @@ mechanism for pacakge distribution. \gran provides three major areas of function
 
 \section{Creating GRAN repositories}
 
-\gran repositories are based on \textit{package manifests} which are tabular data files contain the information
-necessary for \gran to locate, test, build, and deploy a repository. The manifest file contains a combination of information necessary to retrieve the most recent source for the package (including url, scm type, branch, etc) and information about the most recent attempted and successful builds of that package within the \gran system.
+\gran repositories are based on \textit{package manifests}
+(\textbf{PkgManifest} or \textbf{SeedingManifest} objects from the \tt
+switchr framework) 
 
-The full manifest file should have the following columns:
+
+Given a manifest, initial construction and rebuilding of individual \gran repositories (referred to as \textit{subrepositories} because \gran supports a form of branched deployment) is performed via the \Rfunction{makeRepo} function. For example:
 
 <<eval=TRUE,echo=FALSE>>=
-library(GRANBase)
-
-names(GRANBase:::emptyManifest)
+suppressPackageStartupMessages(library(GRANBase))
 @ 
-
-The \Rfunction{ManifestRow} convenience function is provided to assist in the programmatic construction of a GRAN manifest.
-
-Given a \gran manifest, initial construction and rebuilding of individual \gran repositories (referred to as \textit{subrepositories} because \gran supports a form of branched deployment) is performed via the \Rfunction{makeSingleGRANRepo} function. For example:
 
 <<eval=TRUE>>=
 
 testpkgs = list.files(system.file("testpkgs", package = currentPackage()), full.names = TRUE)
-man = ManifestRow(name = basename(testpkgs), url = testpkgs, 
-    type = "local", subrepo = "stable", subdir=".")
-man = PkgManifest(manifest = man)
+man = PkgManifest(name = basename(testpkgs), url = testpkgs, type = "local")
 repdir = file.path(tempdir(), "repos")
 dir.create(repdir)
-repo = makeSingleGRANRepo(man, subRepoName = "stable", baseDir = repdir,
-    dest_base = repdir, dest_url = paste0("file://", normalizePath(repdir)))
+repo = makeRepo(man, repo_name= "stable", basedir = repdir,
+    destination = repdir, dest_url = paste0("file://", normalizePath(repdir)))
 @ 
 <<eval=TRUE>>=
 available.packages(contrib.url(repo_url(repo), type="source"), type="source")
@@ -72,13 +68,14 @@ We refer readers to the documetnation for that function regarding the customizat
 
 \gran represents (sub)repositories as \Rclass{GRANRepository} objects. These objects contain all the information required to build and deploy the repository.
 
-Once a \gran repository is created, its \Rclass{GRANRepository} object and manifest are saved within the created directory structure as the files {\tt repo.rda} and {\tt manifest.dat}, respectively. This allows future builds to be invoked by the simpler syntax of passing a \Rclass{GRANRepository} object or path to a created repository to \Rfunction{makeSingleGRANRepo} directly:
+Once a \gran repository is created, its \Rclass{GRANRepository} object 
+is saved within the created directory structure as the repo.R file. This allows future builds to be invoked by the simpler syntax of passing a \Rclass{GRANRepository} object or path to a created repository to \Rfunction{makeRepo} directly:
 
 <<eval=TRUE>>=
-repo = makeSingleGRANRepo(repo=file.path(repdir, "stable"))
+repo = makeRepo(repo=file.path(repdir, "stable"))
 @ 
 
-The \Rfunction{makeSingleGRANRepo} function also accepts a {\tt buildOnly} argument, which will cause only the specified packages (and their reverse dependencies) to be rebuilt, regardless of changes in version number.
+The \Rfunction{makeRepo} function also accepts a {\tt buildOnly} argument, which will cause only the specified packages (and their reverse dependencies) to be rebuilt, regardless of changes in version number.
 \newpage
 \section{The repository build process}
 
@@ -97,85 +94,7 @@ The \Rfunction{makeSingleGRANRepo} function also accepts a {\tt buildOnly} argum
   \item{The \Rclass{GRANRepsitory} object is returned}
 \end{enumerate}
 
-\section{Tools for reproducibility}
-
-\gran provides user and repository level tools to facilitate both the recreation of historical results and the future-proofing of current results. These facilities are based on \R{}'s \Rfunction{sessionInfo} mechanism.
-
-\gran{}'s reproducibility tools are centered around the construction and use of \textit{virtual repositories} which offer specific versions of certain packages, without requiring major new deployments beyond a standard \gran repository.
-
-The primary use-case of this is to offer repositories which serve the  exact versions of the packages dictated by a \Rclass{sessionInfo} (or the text generated when printing one), \textit{even if the specified versions are not currently offered via the CRAN or \Bioconductor repositories}.
-
-Given an installation of the correct version of \R{}, then, we can easily generate an environment appropriate for reproducing past results, even those from years ago.
-
-The \Rfunction{sessionRepo} function creates a virtual repository which allows visitors to install the exact packages necessary to recreate a given session info. It gives the option to immediately install the set of packages, and does not require an existing \gran repository (so long as it is able to find all the requested packages in CRAN and \Bioconductor). The {\tt install} parameter indicates whether the repository should be used to immediately install the packages locally.
-
-We use a toy sessionInfo example, because while function, some aspects of the package search process are too expensive to be run in a vignette, particularly for old Bioconductor packages.
-
-<<echo=FALSE,eval=TRUE>>=
-if(getOption("repos") == "@CRAN@") {
-    options(repos = c("CRAN" = "http://cran.rstudio.com"))
-    need_reset = TRUE
-}
-@ 
-<<eval=TRUE>>=
-load(system.file("session.rda", package= currentPackage()))
-session
-@ 
-To get a library with just the desired packages in it, then, we would do:
-
-<<eval=TRUE>>=
-loc = file.path(".", "mySessionLibloc")
-dir.create(loc)
-sessionRepo(session, repo_dir = tempdir(), name = "mySessionRepo", install=TRUE,
-            GRepo = repo, libloc = loc,
-            stoponfail=FALSE, replace = TRUE)
-@ 
-
-
-We can confirm that our packages were collected and installed correct:
-
-<<eval=TRUE>>=
-installed.packages(lib.loc = loc)[,c("Package", "LibPath", "Version")]
-@ 
-Package versions are located and downloaded via the \Rfunction{getSessionPackages} function, which performs the following steps to attempt to locate and retrieve the correct package versions.
-
-\begin{enumerate}
-  \item{If given a \Rclass{GRANRepository} object:
-    \begin{enumerate}
-      \item{Look in all appropriate directories associated with that repository for a built copy of that version of the package}
-      \item{Look in the SCM checkouts associated with the \gran repository. If a checkout for the package is found, identify the last commit for that version and build the package from that revision}
-    \end{enumerate}
-  }
-  \item{Look in the current CRAN repository}
-  \item{Look in the CRAN source package archives}
-  \item{Look in the current \Bioconductor repository}
-  \item{Look in the \Bioconductor SVN repository, if present:
-    \begin{enumerate}
-      \item{Use git svn to checkout full SVN repository for the package *this is expensive but only happens once*}
-      \item{Parse the full diff log for the DESCRIPTION file to identify the last commit for the desired exact version}
-      \item{Build the package from source within that commit}
-    \end{enumerate}
-  }
-\end{enumerate}
-
-
-We note that while scanning SCM repositories for the exact version is effective, it can be quite expensive in terms of bandwidth, disk space, and computation time, particularly for SVN repositories including \Bioconductor.
-
-When built on top of a \gran repository, multiple virtual repositories are able to share built packages. \gran repositories do not delete previous versions when a new version of the package is deployed. Furthermore, when specific package versions are found when constructing virtual repositories, they are stored in a communal \textit{notrack} directory and served via symlinks. This allows us to ``host'' a unique repository for each sessionInfo we wish our users to be able to reproduce, without having a combinatorial explosion of disk-space requirements.
-
-We also export the \Rfunction{locatePkgVersion} function which does the work of actually doing the searching and downloading. This can be called directly if desired:
-
-
-<<eval=TRUE>>=
-locatePkgVersion("devtools", "1.4.1", repo = NULL, dir = tempdir())
-@ 
-
-<<echo=FALSE,eval=TRUE>>=
-if(need_reset)
-    options(repos=c(CRAN="@CRAN@"))
-@ 
-
-\section{Tools for managing repository stability}
+\\section{Tools for managing repository stability}
 
 \gran also provides tools to navigate the tension between stability and using the most up-to-date version of packages to have the latest bug fixes available.
 

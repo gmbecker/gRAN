@@ -5,22 +5,22 @@
 
 ##'@export
 setClass("RepoBuildParam", representation(
-    repoName = "character",
-    tempRepo = "character",
+    repo_name = "character",
+    temp_repo = "character",
     
-    baseDir = "character",
-    tempCheckout = "character",
+    base_dir = "character",
+    temp_checkout = "character",
     errlog = "character",
     logfile = "character",
     tempLibLoc = "character",
-    checkWarnOk = "logical",
-    checkNoteOk = "logical",
-    extraFun = "function",
+    check_warn_ok = "logical",
+    check_note_ok = "logical",
+    extra_fun = "function",
     auth = "character",
     dest_base = "character",
     dest_url = "character",
-    installTest = "logical",
-    checkTest = "logical",
+    install_test = "logical",
+    check_test = "logical",
     suspended = "character"),
          contains = "SwitchrParam")
 
@@ -66,21 +66,21 @@ GRANRepository = function(manifest,
 ##' <basedir>/<subrepoName>/, while the  temporary source checkout will be in t
 ##' he basedir itself.
 ##' 
-##' @param subrepoName The name of the repository, e.g. stable or devel
-##' @param tempRepo Location to create the temporary repository
-##' @param tempCheckout Location to create temporary checkouts/copies of package
+##' @param repo_name The name of the repository, e.g. stable or devel
+##' @param temp_repo Location to create the temporary repository
+##' @param temp_checkout Location to create temporary checkouts/copies of package
 ##'   source code
 ##' @param errlog The file to append error output to during the building and
 ##'   testing processes
 ##' @param logfile The file to append summary log information to during building
 ##'   and testing
-##' @param checkNoteOk logical. Whether packages that raise notes during
+##' @param check_note_ok logical. Whether packages that raise notes during
 ##'   R CMD check should be considered to have passed
-##' @param checkWarnOk logical. Whether packages that raise warnings during
+##' @param check_warn_ok logical. Whether packages that raise warnings during
 ##'   R CMD check should be considered to have passed
 ##' @param tempLibLoc Location to create the temporary installed package library
 ##'   for use during the testing process
-##' @param extraFun currently ignored
+##' @param extra_fun currently ignored
 ##' @param destination Base location (not including repository name) of the
 ##'   final repository to be built
 ##' @param auth character. Authentication information required to add packages
@@ -92,9 +92,9 @@ GRANRepository = function(manifest,
 ##' installing from the repository.
 ##' @param shell_init An optional shell script to source before invoking system
 ##' commands, e.g. a bashrc file. Ignored if "" or not specified.
-##' @param installTest logical. Should the install test be performed? Required
+##' @param install_test logical. Should the install test be performed? Required
 ##' to build packages with vignettes, and for the check test
-##' @param checkTest logical. Should R CMD check be run on the packages as a
+##' @param check_test logical. Should R CMD check be run on the packages as a
 ##' cohort. Requires install test.
 ##' @export
 
@@ -103,23 +103,23 @@ GRANRepository = function(manifest,
 RepoBuildParam = function(
     basedir,
     repo_name = "current",
-    tempRepo = file.path(basedir, repo_name, "tmprepo"),
-    tempCheckout = file.path(basedir, "tmpcheckout"),
+    temp_repo = file.path(basedir, repo_name, "tmprepo"),
+    temp_checkout = file.path(basedir, "tmpcheckout"),
     errlog = file.path(basedir, repo_name, paste0("GRAN-errors-", repo_name,
         "-", Sys.Date(), ".log")),
     logfile = file.path(basedir, repo_name, paste0("GRAN-log-", repo_name,
         "-", Sys.Date(), ".log")),
-    checkNoteOk = TRUE,
-    checkWarnOk = TRUE,
+    check_note_ok = TRUE,
+    check_warn_ok = TRUE,
     tempLibLoc = file.path(basedir, repo_name, "LibLoc"),
-    extraFun = function(...) NULL,
+    extra_fun = function(...) NULL,
     destination = basedir,
     auth = "",
     dest_url = paste0("file://", normalizePath2(destination)),
     shell_init = character(),
     logfun = function(...) writeGRANLog(..., logfile = logfile, errfile = errlog),
-    installTest = TRUE,
-    checkTest = TRUE)
+    install_test = TRUE,
+    check_test = TRUE)
 {
     
     if(!file.exists(basedir))
@@ -127,30 +127,30 @@ RepoBuildParam = function(
     
     basedir = normalizePath2(basedir)
 
-    prepDirStructure(basedir, repo_name, tempRepo, tempCheckout, tempLibLoc,
+    prepDirStructure(basedir, repo_name, temp_repo, temp_checkout, tempLibLoc,
                      destination)
 
 
-    if(checkTest && !installTest)
+    if(check_test && !install_test)
         stop("Cannot run check test without install test")
     
-    repo = new("RepoBuildParam", baseDir = basedir,
-        repoName = repo_name,
-        tempRepo = normalizePath2(tempRepo),
-        tempCheckout = normalizePath2(tempCheckout),
+    repo = new("RepoBuildParam", base_dir = basedir,
+        repo_name = repo_name,
+        temp_repo = normalizePath2(temp_repo),
+        temp_checkout = normalizePath2(temp_checkout),
         errlog = errlog,
         logfile = logfile,
-        checkNoteOk = checkNoteOk,
-        checkWarnOk = checkWarnOk,
+        check_note_ok = check_note_ok,
+        check_warn_ok = check_warn_ok,
         tempLibLoc = normalizePath2(tempLibLoc),
-        extraFun = extraFun,
+        extra_fun = extra_fun,
         dest_base= normalizePath2(destination),
         auth = auth,
         dest_url = dest_url,
         shell_init = shell_init,
         logfun = logfun,
-        installTest = installTest,
-        checkTest = checkTest)
+        install_test = install_test,
+        check_test = check_test)
     repo
 }
 

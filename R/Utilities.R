@@ -211,8 +211,8 @@ isOkStatus = function(status= repo_results(repo)$status,
 {
     #status can be NA when the package isn't being built at all
     !is.na(status) & (status == "ok" | status == "ok - not tested" |
-                      (checkWarnOk(repo) & status == "check warning(s)") |
-                      (checkNoteOk(repo) & status == "check note(s)"))
+                      (check_warn_ok(repo) & status == "check warning(s)") |
+                      (check_note_ok(repo) & status == "check note(s)"))
 }
 
 install.packages2 = function(pkgs, repos, ...)

@@ -63,7 +63,7 @@ setGeneric("repobase", function(repo) standardGeneric("repobase"))
 ##' @aliases repobase,GRANRepository-method
 ##' @export
 setMethod("repobase", "GRANRepository", function(repo) {
-    ret = file.path(param(repo)@baseDir, param(repo)@repoName)
+    ret = file.path(param(repo)@base_dir, param(repo)@repo_name)
     if(!file.exists(ret))
         dir.create(ret, recursive=TRUE)
     normalizePath2(ret)
@@ -121,7 +121,7 @@ setGeneric("destination", function(repo) standardGeneric("destination"))
 ##' @export
 setMethod("destination","GRANRepository",
           function(repo) file.path(normalizePath2(param(repo)@dest_base),
-                                   param(repo)@repoName,  "src", "contrib"))
+                                   param(repo)@repo_name,  "src", "contrib"))
 
 
 ##' dest_base
@@ -155,7 +155,7 @@ setGeneric("check_result_dir", function(repo) standardGeneric("check_result_dir"
 ##' @export
 setMethod("check_result_dir","GRANRepository",
           function(repo) file.path(normalizePath2(param(repo)@dest_base),
-                                   param(repo)@repoName, "CheckResults" ))
+                                   param(repo)@repo_name, "CheckResults" ))
 
 
 
@@ -175,7 +175,7 @@ setGeneric("repo_url", function(repo) standardGeneric("repo_url"))
 ##' @export
 setMethod("repo_url","GRANRepository",
           function(repo) paste(param(repo)@dest_url,
-                               param(repo)@repoName,
+                               param(repo)@repo_name,
                                sep="/"))
 
 setMethod("repo_url","NULL", function(repo) NULL)
@@ -195,7 +195,7 @@ setGeneric("checkout_dir", function(repo) standardGeneric("checkout_dir"))
 ##' @aliases checkout_dir,GRANRepository-method
 ##' @export
 setMethod("checkout_dir","GRANRepository",
-          function(repo) param(repo)@tempCheckout)
+          function(repo) param(repo)@temp_checkout)
 
 setMethod("checkout_dir","NULL", function(repo) NULL)
 
@@ -251,25 +251,25 @@ setMethod("param<-", "GRANRepository",
 ##' @export
 setGeneric("repo_name", function(x) standardGeneric("repo_name"))
 setMethod("repo_name", "GRANRepository",
-          function(x) param(x)@repoName)
+          function(x) param(x)@repo_name)
 
 
 ##' @export
 setGeneric("temp_repo", function(x) standardGeneric("temp_repo"))
 setMethod("temp_repo", "GRANRepository",
-          function(x) param(x)@tempRepo)
+          function(x) param(x)@temp_repo)
 
 
 
 ##'@export
-setGeneric("checkWarnOk", function(x) standardGeneric("checkWarnOk"))
-setMethod("checkWarnOk", "GRANRepository",
-          function(x)  param(x)@checkWarnOk)
+setGeneric("check_warn_ok", function(x) standardGeneric("check_warn_ok"))
+setMethod("check_warn_ok", "GRANRepository",
+          function(x)  param(x)@check_warn_ok)
 
 ##'@export
-setGeneric("checkNoteOk", function(x) standardGeneric("checkNoteOk"))
-setMethod("checkNoteOk", "GRANRepository",
-          function(x)  param(x)@checkNoteOk)
+setGeneric("check_note_ok", function(x) standardGeneric("check_note_ok"))
+setMethod("check_note_ok", "GRANRepository",
+          function(x)  param(x)@check_note_ok)
 
 ##' @export
 setGeneric("suspended_pkgs", function(x) standardGeneric("suspended_pkgs"))
@@ -306,15 +306,15 @@ setMethod("sh_init_script<-", "GRANRepository",
 ##'@export
 setGeneric("extra_fun", function(x) standardGeneric("extra_fun"))
 setMethod("extra_fun", "GRANRepository",
-          function(x)  param(x)@extraFun)
+          function(x)  param(x)@extra_fun)
 
 setGeneric("check_test_on", function(x) standardGeneric("check_test_on"))
-setMethod("check_test_on", "RepoBuildParam", function(x) x@checkTest)
+setMethod("check_test_on", "RepoBuildParam", function(x) x@check_test)
 setMethod("check_test_on", "GRANRepository", function(x) check_test_on(param(x)))
 
 
 setGeneric("install_test_on", function(x) standardGeneric("install_test_on"))
-setMethod("install_test_on", "RepoBuildParam", function(x) x@installTest)
+setMethod("install_test_on", "RepoBuildParam", function(x) x@install_test)
 setMethod("install_test_on", "GRANRepository", function(x) install_test_on(param(x)))
 
 

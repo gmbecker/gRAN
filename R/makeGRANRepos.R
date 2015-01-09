@@ -43,14 +43,14 @@ setMethod("makeRepo", "GRANRepository",
               if(file.exists(destination(repo)))
                   repo2 = tryCatch(loadRepo(paste(destination(repo), "repo.R",
                       sep="/")), error = function(x) NULL)
-              else
-                  repo2 = tryCatch(loadRepo(paste(repo_url(repo), "repo.R", sep="/")),
-                      error = function(x) NULL)
+              else 
+                  repo2 = suppressWarnings(tryCatch(loadRepo(paste(repo_url(repo), "repo.R", sep="/")),
+                      error = function(x) NULL))
               if(!is.null(repo2) ) {
                   res = repo_results(repo)
                   res2 = repo_results(repo2)
-                  if(max(res$lastAttempt, na.rm=TRUE) < max(res2$lastAttempt,
-                                              na.rm=TRUE)) {
+                  if(any(!is.na(res$lastAttemptmax)) && (max(res$lastAttempt, na.rm=TRUE) < max(res2$lastAttempt,
+                                              na.rm=TRUE))) {
                       message("Loading latest results from specified repository")
                       repo = repo2
                   }

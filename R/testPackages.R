@@ -127,7 +127,7 @@ checkTest = function(repo, cores = 3L)
         ##fail on building vignettes it will have already happened by this point
         cmd = paste0('R_LIBS="', temp_lib(repo),  '" R_HOME="',
             R.home(),'" R CMD check ', tar, " --no-build-vignettes")
-        out = tryCatch(system_w_init(cmd, intern=TRUE, repo = repo),
+        out = tryCatch(system_w_init(cmd, intern=TRUE, param = param(repo)),
             error=function(x) x)
         out
     }, tar = tars, nm = bres$name, repo = list(repo), mc.cores = cores,
