@@ -92,7 +92,8 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
                         ## we don't support changing the version restriction backward, should we?
                         if(is.na(oldver) || compareVersion(vnum, oldver) == 1 )
                         {
-                            logfun(repo)(pkg, paste0("Had version ", oldver, ". Building new version ", vnum))
+                            logfun(repo)(pkg, paste0("Had version ", oldver,
+                                                     ". Building new version ", vnum))
                         } else if (incremental) {
                             logfun(repo)(pkg, paste0("Package up to date at version ", vnum, ". Not rebuilding."))
                             ret = "up-to-date"
