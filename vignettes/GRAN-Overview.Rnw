@@ -26,14 +26,14 @@ BiocStyle::latex()
 
 \gran is an open source set of tools for distributing and testing \R{} packages for 
 both general deployment and result reproduction. It is centered around the R repository
-mechanism for pacakge distribution. \gran provides three major areas of functionality:
+mechanism for package distribution. \gran provides three major areas of functionality:
 \begin{enumerate}
   \item{The ability to create one or more \R{} repositories by pulling and testing packages 
     from diverse locations (scm, local directory), in a manner conducive to continuous integration}
-  \item{Tools for recreating specific evironments based on sessionInfos, and for creating lightweight 
+  \item{Tools for recreating specific environments based on sessionInfos, and for creating lightweight 
     virtual repositories which serve the exact package versions specified in the sessoinInfo}
-  \item{Tools for assessing the potential impact of upgrading a package, to assist adminstrators in
-    keeping systems up-to-date while protecting reproducibilty and comparability of results in
+  \item{Tools for assessing the potential impact of upgrading a package, to assist administrators in
+    keeping systems up-to-date while protecting reproducibility and comparability of results in
     long-running core applications.}
 \end{enumerate}
 
@@ -67,7 +67,7 @@ repo = makeSingleGRANRepo(man, subRepoName = "stable", baseDir = repdir,
 <<eval=TRUE>>=
 available.packages(contrib.url(repo_url(repo), type="source"), type="source")
 @ 
-We refer readers to the documetnation for that function regarding the customization options.
+We refer readers to the documentation for that function regarding the customization options.
 
 \gran represents (sub)repositories as \Rclass{GRANRepository} objects. These objects contain all the information required to build and deploy the repository.
 
@@ -85,7 +85,7 @@ The \Rfunction{makeSingleGRANRepo} function also accepts a {\tt buildOnly} argum
 
 \begin{enumerate}
   \item{Up-to-date copies of package sources are obtained for each package being built, including updating previously checked out versions}
-  \item{Packages whose versions have changed since their last successful build, or who are reverse dendencies of such a package I are built without vignettes into a temporary repository via {\tt R CMD build}. }
+  \item{Packages whose versions have changed since their last successful build, or who are reverse dependencies of such a package, are built without vignettes into a temporary repository via {\tt R CMD build}. }
   \item{Packages which successfully built, along with their \gran, {\tt CRAN}, and \Bioconductor{}-based dependencies, are installed into a temporary library location. }
   \item{Packages which successfully installed are built again, with vignettes, into a staging directory.}
   \item{Remaining packages are tested via {\tt R CMD CHECK}, and their statuses are updated accordingly}
@@ -108,7 +108,7 @@ Given an installation of the correct version of \R{}, then, we can easily genera
 
 The \Rfunction{sessionRepo} function creates a virtual repository which allows visitors to install the exact packages necessary to recreate a given session info. It gives the option to immediately install the set of packages, and does not require an existing \gran repository (so long as it is able to find all the requested packages in CRAN and \Bioconductor). The {\tt install} parameter indicates whether the repository should be used to immediately install the packages locally.
 
-We use a toy sessionInfo example, because while function, some aspects of the package search process are too expensive to be run in a vignette, particularly for old Bioconductor packages.
+We use a toy sessionInfo example, because while functional, some aspects of the package search process are too expensive to be run in a vignette, particularly for old Bioconductor packages.
 
 <<echo=FALSE,eval=TRUE>>=
 if(getOption("repos") == "@CRAN@") {
