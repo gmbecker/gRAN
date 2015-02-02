@@ -1,11 +1,19 @@
 migrateToFinalRepo = function(repo)
 {
     repoLoc = destination(repo)
-    stagingLoc = staging(repo)
+
+
+
 
     man = manifest_df(repo)
     bman = getBuildingManifest(repo = repo)
 
+    ## if they aren't being tested at all, we don't build them twice.
+    if(all(getBuildingResults(repo)$status == "ok - not tested"))
+        stagingLoc = file.path(temp_repo(repo), "src/contrib")
+    else
+        stagingLoc = staging(repo)
+    
     repo = markFailedRevDeps(repo)
     logfun(repo)("NA", paste("Migrating", sum(getBuilding(repo)), "successfully built and tested packages to final repository at", repoLoc))
 

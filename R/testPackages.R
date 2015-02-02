@@ -11,8 +11,18 @@ doPkgTests = function(repo, cores = 3L)
     if(is.null(repo_results(repo)$building))
         repo_results(repo)$building = TRUE
 
-    repo = installTest(repo, cores = cores)
-    repo = checkTest(repo, cores = cores)
+
+
+    if(install_test_on(repo)) {
+        repo = installTest(repo, cores = cores)        
+        repo = buildBranchesInRepo(repo, temp=FALSE,
+            incremental = TRUE, ## want to skip testing if pkg already passed
+            cores = cores)
+    }
+    if(check_test_on(repo))
+        repo = checkTest(repo, cores = cores)
+    else
+        repo_results(repo)$status[repo_results(repo)$status == "ok"] = "ok - not tested"
     repo
 
 }
@@ -20,8 +30,8 @@ doPkgTests = function(repo, cores = 3L)
 
 installTest = function(repo, cores = 3L)
 {
-    if(!install_test_on(repo))
-        return(repo)
+##    if(!install_test_on(repo))
+##        return(repo)
     logfun(repo)("NA", paste0("Attempting to install packages (",
                               sum(repo_results(repo)$building),
                               ") from temporary repository into temporary package library."),
@@ -89,14 +99,10 @@ cleanupInstOut = function(out)
 
 checkTest = function(repo, cores = 3L)
 {
-    if(!check_test_on(repo)) {
-        repo_results(repo)$status[repo_results(repo)$status == "ok"] = "ok - not tested"
-        return(repo)
-    }
-    repo = buildBranchesInRepo(repo, temp=FALSE,
-        #incremental=FALSE,
-        incremental = TRUE, ## want to skip testing if pkg already passed
-        cores = cores)
+##    if(!check_test_on(repo)) {
+##        repo_results(repo)$status[repo_results(repo)$status == "ok"] = "ok - not tested"
+##        return(repo)
+##    }
     oldwd = getwd()
     setwd(staging(repo))
     on.exit(setwd(oldwd))

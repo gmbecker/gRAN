@@ -80,13 +80,9 @@ setMethod("makeRepo", "GRANRepository",
               ##if we have a single package specified we want to build it with or without a version bump
               repo = buildBranchesInRepo( repo = repo, temp = TRUE, cores = cores, incremental = is.null(build_pkgs))
               ##test packges
-              if(install_test_on(repo)) {
-                  print(paste("Invoking package tests", Sys.time()))
-                  print(paste("Building", sum(getBuilding(repo)), "packages"))
-                  repo = doPkgTests(repo, cores = cores)
-              } else {
-                  repo_results(repo)$status[repo_results(repo)$status == "ok"] = "ok - not tested"
-              }
+              print(paste("Invoking package tests", Sys.time()))
+              print(paste("Building", sum(getBuilding(repo)), "packages"))
+              repo = doPkgTests(repo, cores = cores)
               ##copy successfully built tarballs to final repository
               print(paste("starting migrateToFinalRepo", Sys.time()))
               print(paste("Built", sum(getBuilding(repo)), "packages"))
