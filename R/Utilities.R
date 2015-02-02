@@ -163,7 +163,7 @@ makeSource = function(url, type, user, password, scm_auth, prefer_svn = FALSE, .
            github = new("GithubSource", location = url, user = user,
                password = password, ...),
         cran = new("CRANSource", location = url, user = "", password = ""),
-        bioc = new("BiocSource", locatoin = url, user = "readonly", password = "readonly"),
+        bioc = new("BiocSource", location = url, user = "readonly", password = "readonly"),
            stop("unsupported source type")
            )
     if( (type=="git" || type == "github") && is.na(ret@branch))
