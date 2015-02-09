@@ -31,6 +31,7 @@ init_results = function(repo) {
     else {
         df = repo_results(repo)
         df$status = ifelse(df$suspended, NA_character_, "ok")
+        df = df[,names(ResultsRow())]
         repo_results(repo) = df
     }
         
