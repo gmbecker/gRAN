@@ -28,6 +28,12 @@ ResultsRow = function(name = NA,
 init_results = function(repo) {
     if(is.null(repo_results(repo)) || !nrow(repo_results(repo)))
         repo_results(repo) = ResultsRow(name = manifest_df(repo)$name)
+    else {
+        df = repo_results(repo)
+        df$status = ifelse(df$suspended, NA_character_, "ok")
+        repo_results(repo) = df
+    }
+        
     repo
 }
 
