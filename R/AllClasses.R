@@ -1,14 +1,40 @@
-setClass("PkgSource", representation(location="character", user = "character",
-                                     password="character"))
-setClass("SVNSource", contains = "PkgSource")
-setClass("GitSource", contains = "PkgSource")
-setClass("GithubSource", contains = "GitSource")
-setClass("GitSVNSource", contains = "PkgSource")
-setClass("CVSSource", contains = "PkgSource")
-setClass("LocalSource", contains = "PkgSource")
+##' @import switchr
 
 
-setClass("GRANRepository", representation(tempRepo = "character",
+
+
+##'@export
+setClass("RepoBuildParam", representation(
+    repo_name = "character",
+    temp_repo = "character",
+    
+    base_dir = "character",
+    temp_checkout = "character",
+    errlog = "character",
+    logfile = "character",
+    tempLibLoc = "character",
+    check_warn_ok = "logical",
+    check_note_ok = "logical",
+    extra_fun = "function",
+    auth = "character",
+    dest_base = "character",
+    dest_url = "character",
+    install_test = "logical",
+    check_test = "logical",
+    suspended = "character"),
+         contains = "SwitchrParam")
+
+
+##' @export
+setClass("GRANRepository", representation(
+    results = "data.frame",
+#    manifest = "PkgManifest",
+    manifest = "SessionManifest",
+    param = "RepoBuildParam"
+))
+
+
+setClass("GRANRepositoryv0.9", representation(tempRepo = "character",
                                           baseDir = "character",
                                           tempCheckout = "character",
                                           errlog = "character",
@@ -26,37 +52,87 @@ setClass("GRANRepository", representation(tempRepo = "character",
                                           shell_init = "character"
                                           ))
 
-#manifest is a data.frame with the following columns:
-##name, url, type, subdir, branch, extra
-manifestBaseCols = c("name", "url", "type", "subdir", "branch", "extra")
+
+
+updateGRANRepoObject = function(object, ...) {
+              param = RepoBuildParam(basedir = object@baseDir,
+                  temp_repo = object@tempRepo,
+                  repo_name = object@subrepoName,
+                  errlog = object@errlog,
+                  logfile = object@logfile,
+                  temp_checkout = object@tempCheckout,
+                  check_note_ok = object@checkNoteOk,
+                  check_warn_ok = object@checkWarnOk,
+                  tempLibLoc = object@tempLibLoc,
+                  extra_fun = object@extraFun,
+                  destination = object@dest_base,
+                  dest_url = object@dest_url,
+                  shell_init = object@shell_init,
+                  auth = object@auth,
+                  ...)
+              
+              man = PkgManifest(manifest = object@manifest[,names(ManifestRow())])
+              results = data.frame(name = manifest_df(man)$name,
+                  object@manifest[,!names(object@manifest) %in% names(ManifestRow())],
+                  stringsAsFactors = FALSE)
+              vers = data.frame(name = manifest_df(man)$name, version = NA_character_,
+                  stringsAsFactors = FALSE)
+              GRANRepository(manifest = SessionManifest(manifest =man, versions = vers), results = results, param = param)
+          }
+
+
 
 ##' GRANRepository
 ##'
 ##' A constructor for the \code{GRANRepository} class of S4 objects representing
 ##' individual repositories
 ##'
+##' @param manifest A PkgManifest object
+##' @param results A data.frame containing previous build results
+##' @param param A RepoBuildParam object controlling the location and behavior of
+##' the repository being built
+##' @param ... Passed through to the default value of \code{param}
+##' @export
+GRANRepository = function(manifest,
+    results,
+    param = RepoBuildParam(...),
+    ...) {
+
+    if(missing(results))
+        results = ResultsRow(name = manifest_df(manifest)$name)
+    if(is(manifest, "PkgManifest"))
+        manifest = SessionManifest(manifest - manifest,
+            versions = data.frame(name = manifest_df(manifest)$name,
+                version = NA_character_,
+                stringsAsFactors = FALSE))
+    
+    new("GRANRepository", manifest = manifest, results = results, param = param)
+}
+
+
+
+##' RepoBuildParam
+##' 
 ##' @param basedir The base directory. By default the temporary repository,
 ##' temporary install library, and package staging area will be located in
 ##' <basedir>/<subrepoName>/, while the  temporary source checkout will be in t
 ##' he basedir itself.
 ##' 
-##' @param subrepoName The name of the repository, e.g. stable or devel
-##' @param rversion The R executable to use when invoking R CMDs and package
-##'   testing code
-##' @param tempRepo Location to create the temporary repository
-##' @param tempCheckout Location to create temporary checkouts/copies of package
+##' @param repo_name The name of the repository, e.g. stable or devel
+##' @param temp_repo Location to create the temporary repository
+##' @param temp_checkout Location to create temporary checkouts/copies of package
 ##'   source code
 ##' @param errlog The file to append error output to during the building and
 ##'   testing processes
 ##' @param logfile The file to append summary log information to during building
 ##'   and testing
-##' @param checkNoteOk logical. Whether packages that raise notes during
+##' @param check_note_ok logical. Whether packages that raise notes during
 ##'   R CMD check should be considered to have passed
-##' @param checkWarnOk logical. Whether packages that raise warnings during
+##' @param check_warn_ok logical. Whether packages that raise warnings during
 ##'   R CMD check should be considered to have passed
 ##' @param tempLibLoc Location to create the temporary installed package library
 ##'   for use during the testing process
-##' @param extraFun currently ignored
+##' @param extra_fun currently ignored
 ##' @param destination Base location (not including repository name) of the
 ##'   final repository to be built
 ##' @param auth character. Authentication information required to add packages
@@ -68,25 +144,34 @@ manifestBaseCols = c("name", "url", "type", "subdir", "branch", "extra")
 ##' installing from the repository.
 ##' @param shell_init An optional shell script to source before invoking system
 ##' commands, e.g. a bashrc file. Ignored if "" or not specified.
+##' @param install_test logical. Should the install test be performed? Required
+##' to build packages with vignettes, and for the check test
+##' @param check_test logical. Should R CMD check be run on the packages as a
+##' cohort. Requires install test.
 ##' @export
-GRANRepository = function(basedir,
-    subrepoName = "stable",
-    rversion = "R",
-    tempRepo = file.path(basedir, subrepoName, "tmprepo"),
-    tempCheckout = file.path(basedir, "tmpcheckout"),
-    errlog = file.path(basedir, subrepoName, paste0("GRAN-errors-", subrepoName,
+
+
+
+RepoBuildParam = function(
+    basedir,
+    repo_name = "current",
+    temp_repo = file.path(basedir, repo_name, "tmprepo"),
+    temp_checkout = file.path(basedir, "tmpcheckout"),
+    errlog = file.path(basedir, repo_name, paste0("GRAN-errors-", repo_name,
         "-", Sys.Date(), ".log")),
-    logfile = file.path(basedir, subrepoName, paste0("GRAN-log-", subrepoName,
+    logfile = file.path(basedir, repo_name, paste0("GRAN-log-", repo_name,
         "-", Sys.Date(), ".log")),
-    checkNoteOk = TRUE,
-    checkWarnOk = TRUE,
-    tempLibLoc = file.path(basedir, subrepoName, "LibLoc"),
-    extraFun = function(...) NULL,
+    check_note_ok = TRUE,
+    check_warn_ok = TRUE,
+    tempLibLoc = file.path(basedir, repo_name, "LibLoc"),
+    extra_fun = function(...) NULL,
     destination = basedir,
     auth = "",
-    manifest = emptyManifest,
     dest_url = paste0("file://", normalizePath2(destination)),
-    shell_init = "")
+    shell_init = character(),
+    logfun = function(...) writeGRANLog(..., logfile = logfile, errfile = errlog),
+    install_test = TRUE,
+    check_test = TRUE)
 {
     
     if(!file.exists(basedir))
@@ -94,29 +179,30 @@ GRANRepository = function(basedir,
     
     basedir = normalizePath2(basedir)
 
-    prepDirStructure(basedir, subrepoName, tempRepo, tempCheckout, tempLibLoc,
+    prepDirStructure(basedir, repo_name, temp_repo, temp_checkout, tempLibLoc,
                      destination)
 
+
+    if(check_test && !install_test)
+        stop("Cannot run check test without install test")
     
-    repo = new("GRANRepository", baseDir = basedir,
-        subrepoName = subrepoName,
-        rversion = rversion,
-        tempRepo = normalizePath2(tempRepo),
-        tempCheckout = normalizePath2(tempCheckout),
+    repo = new("RepoBuildParam", base_dir = basedir,
+        repo_name = repo_name,
+        temp_repo = normalizePath2(temp_repo),
+        temp_checkout = normalizePath2(temp_checkout),
         errlog = errlog,
         logfile = logfile,
-        checkNoteOk = checkNoteOk,
-        checkWarnOk = checkWarnOk,
+        check_note_ok = check_note_ok,
+        check_warn_ok = check_warn_ok,
         tempLibLoc = normalizePath2(tempLibLoc),
-        extraFun = extraFun,
+        extra_fun = extra_fun,
         dest_base= normalizePath2(destination),
         auth = auth,
-        manifest = manifest,
         dest_url = dest_url,
-        shell_init = shell_init)
-
-    if(!nrow(manifest))
-        repo@manifest = readManifest(repo = repo)
+        shell_init = shell_init,
+        logfun = logfun,
+        install_test = install_test,
+        check_test = check_test)
     repo
 }
 
@@ -145,36 +231,3 @@ prepDirStructure = function(basedir, subrepo, temprepo, tempcheckout,
 }
 
 
-##'@export
-setClass("parsedSessionInfo", representation(version = "character",
-                                             platform="character",
-                                             attached = "data.frame",
-                                             loaded = "data.frame"))
-
-
-##'@export
-##'
-setClass("PkgManifest", representation( manifest = "data.frame",
-                                          dependency_repos = "character"))
-
-##'@export
-##' @import RCurl
-PkgManifest = function(manifest, dep_repos = c(biocinstallRepos(), defaultGRAN()), ...) {
-    if(is.character(manifest)) {
-        if(is.url(manifest)) {
-            fil = tempfile()
-            download.file(manifest, method = "curl", fil)
-            manifest  = fil
-        }
-
-        if(file.exists(manifest))
-            manifest = read.table(manifest, header= TRUE, sep= ",", stringsAsFactors = FALSE, ...)
-        else
-            stop("invalid manifest")
-    }
-
-    new("PkgManifest", manifest = manifest, dependency_repos = dep_repos)
-}
-
-setClass("GithubPkgManifest", contains = "PkgManifest")
-                                          

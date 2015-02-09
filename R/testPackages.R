@@ -1,55 +1,28 @@
-##'@importFrom brew brew
-invokePkgTests_old= function( repo, dir = file.path(tempdir(), repo@subrepoName), cores = 3L)
-{
-    if(!file.exists(dir))
-        dir.create(dir, recursive=TRUE)
-    testscript = file.path(dir, "GRANtestscript.R")
-    tmpmanfile = file.path(dir, "tempmanifest.dat")
-    write.table(repo@manifest, file = tmpmanfile, sep=",")
-    repfile = file.path(dir, "repo.R")
-    saveRepo(repo, filename = repfile)
-    libpath = .libPaths()[1]
-    ##silliness to allow for GRAN/GRANBase dichotomy
-    sentry = search()[grep("package:(GRAN.*)", search()) [1] ]
-    pkg = gsub("package:(GRAN.*)", "\\1", sentry)
-    brew(system.file("templates", "testPkgs.brew", package=pkg), output = testscript)
-    cmd = paste0( repo@rversion,"script --no-restore --no-save ", testscript)
-    writeGRANLog("NA", paste("Attempting to invoke package testing via command",
-                             cmd), type = "full", repo = repo)
-    res = tryCatch(system_w_init(cmd, intern=TRUE, repo=repo), error=function(x) x)
-
-    
-    if(is(res, "error"))
-    {
-        writeGRANLog("NA", c("CRITICAL GRAN FAILURE! Failed to invoke package testing in external R session:", res), type="both", repo = repo)
-        repo@manifest$status[repo@manifest$building] = "GRAN FAILURE"
-    }  else {
-        repo = loadRepo(repfile)
-        writeGRANLog("NA", "Package testing complete", repo = repo)
-
-    }
- 
-    repo
-}
-
-invokePkgTests = function( repo, dir = file.path(tempdir(), repo@subrepoName), cores = 3L) {
-    doPkgTests(repo = repo, cores = cores)
-}
 
 doPkgTests = function(repo, cores = 3L)
 {
 
-    writeGRANLog("NA", paste0("Beginning testing of GRAN packages before migration to final repository using ", cores, " cores: ", paste(repo@manifest$name, collapse = " , ")), type = "full", repo = repo)
+    logfun(repo)("NA", paste0("Beginning testing of GRAN packages before migration to final repository using ", cores, " cores: ", paste(manifest_df(repo)$name, collapse = " , ")), type = "full")
 
-     writeGRANLog("NA", paste0("Performing 'extra' commands before installation. ", paste(repo@manifest$name, collapse = " , ")), type = "full", repo = repo)
+     logfun(repo)("NA", paste0("Performing 'extra' commands before installation. ", paste(manifest_df(repo)$name, collapse = " , ")), type = "full")
 
     repo = doExtra(repo)
     
-    if(is.null(repo@manifest$building))
-        repo@manifest$building = TRUE
+    if(is.null(repo_results(repo)$building))
+        repo_results(repo)$building = TRUE
 
-    repo = installTest(repo, cores = cores)
-    repo = checkTest(repo, cores = cores)
+
+
+    if(install_test_on(repo)) {
+        repo = installTest(repo, cores = cores)        
+        repo = buildBranchesInRepo(repo, temp=FALSE,
+            incremental = TRUE, ## want to skip testing if pkg already passed
+            cores = cores)
+    }
+    if(check_test_on(repo))
+        repo = checkTest(repo, cores = cores)
+    else
+        repo_results(repo)$status[repo_results(repo)$status == "ok"] = "ok - not tested"
     repo
 
 }
@@ -57,39 +30,41 @@ doPkgTests = function(repo, cores = 3L)
 
 installTest = function(repo, cores = 3L)
 {
-    writeGRANLog("NA", paste0("Attempting to install packages (",
-                              sum(repo@manifest$building),
+##    if(!install_test_on(repo))
+##        return(repo)
+    logfun(repo)("NA", paste0("Attempting to install packages (",
+                              sum(repo_results(repo)$building),
                               ") from temporary repository into temporary package library."),
-                 type = "full", repo = repo) 
+                 type = "full")
 
-    manifest = repo@manifest
+    manifest = manifest_df(repo)
 
     oldops = options()
     options(warn = 1)
     on.exit(options(oldops))
-    #  loc = file.path(tempdir(), paste("GRANtmplib", repo@subrepoName, sep="_"))
-    loc = repo@tempLibLoc
+    #  loc = file.path(tempdir(), paste("GRANtmplib", repo_name(repo), sep="_"))
+    loc = temp_lib(repo)
     if(!file.exists(loc))
         dir.create(loc, recursive=TRUE)
     binds  = getBuilding(repo = repo)
-    bman = getBuildingManifest(repo = repo)
-    if(!nrow(bman)) {
-        writeGRANLog("NA", "No packages to install during installTest",
-                     type ="full", repo = repo)
+    bres = getBuildingResults(repo = repo)
+    if(!nrow(bres)) {
+        logfun(repo)("NA", "No packages to install during installTest",
+                     type ="full")
         return(repo)
     }
 
     oldlp = .libPaths()
     .libPaths(loc)
     on.exit(.libPaths(oldlp))
-    res = install.packages2(bman$name, lib = loc, repos = c(paste0("file://",repo@tempRepo), BiocInstaller::biocinstallRepos(), "http://R-Forge.R-project.org"), type = "source", dependencies=TRUE)
+    res = install.packages2(bres$name, lib = loc, repos = c(paste0("file://",temp_repo(repo)), BiocInstaller::biocinstallRepos(), "http://R-Forge.R-project.org"), type = "source", dependencies=TRUE)
     success = processInstOut(names(res), res, repo)
     cleanupInstOut(res)
     
-    writeGRANLog("NA", paste0("Installation successful for ", sum(success), " of ", length(success), " packages."), type = "full", repo = repo)
+    logfun(repo)("NA", paste0("Installation successful for ", sum(success), " of ", length(success), " packages."), type = "full")
 
     #update the packages in the manifest we tried to build with success/failure
-    repo@manifest$status[binds][!success] = "install failed"
+    repo_results(repo)$status[binds][!success] = "install failed"
     repo
     
 }
@@ -101,14 +76,14 @@ processInstOut = function(pkg, out, repo)
         return(unlist(mapply( processInstOut, repo = list(repo), pkg = pkg, out = out)))
 
     if(out == "ok") {
-        writeGRANLog(pkg, paste0("Successfully installed package ", pkg, " from temporary repository"), repo = repo)
+        logfun(repo)(pkg, paste0("Successfully installed package ", pkg, " from temporary repository"))
         ret = TRUE
     } else if (out == "unavailable") {
-        writeGRANLog(pkg, paste("Package", pkg, "unavailable in temporary repository. Likely package name mismatch between manifest and DESCRIPTION file"), repo = repo, type = "both")
+        logfun(repo)(pkg, paste("Package", pkg, "unavailable in temporary repository. Likely package name mismatch between manifest and DESCRIPTION file"), type = "both")
         ret = FALSE
     } else {
-        writeGRANLog(pkg, paste0("Installation of ", pkg, " from temporary repository failed"), repo = repo, type="both")
-        writeGRANLog(pkg, c("Installation output:", readLines(out)), type = "error", repo = repo)
+        logfun(repo)(pkg, paste0("Installation of ", pkg, " from temporary repository failed"), type="both")
+        logfun(repo)(pkg, c("Installation output:", readLines(out)), type = "error")
         ret = FALSE
     }
     ret
@@ -124,48 +99,49 @@ cleanupInstOut = function(out)
 
 checkTest = function(repo, cores = 3L)
 {
-    repo = buildBranchesInRepo(repo, temp=FALSE,
-        #incremental=FALSE,
-        incremental = TRUE, ## want to skip testing if pkg already passed
-        cores = cores)
+##    if(!check_test_on(repo)) {
+##        repo_results(repo)$status[repo_results(repo)$status == "ok"] = "ok - not tested"
+##        return(repo)
+##    }
     oldwd = getwd()
     setwd(staging(repo))
     on.exit(setwd(oldwd))
-    writeGRANLog("NA", paste0("Running R CMD check on remaining packages (", sum(getBuilding(repo = repo)), ") using R at ", repo@rversion, "."), type = "full", repo = repo)
-    manifest = repo@manifest
+    logfun(repo)("NA", paste0("Running R CMD check on remaining packages (", sum(getBuilding(repo = repo)), ") using R at ", R.home(), "."), type = "full")
+    manifest = manifest_df(repo)
     binds  = getBuilding(repo = repo)
-    bman = getBuildingManifest(repo = repo)
-    if(!nrow(bman))
+    bres = getBuildingResults(repo = repo)
+    if(!nrow(bres))
         return(repo)
-    #pat = paste0("(", paste(bman$name, collapse="|"), ")_.*\\.tar.gz")
+    #pat = paste0("(", paste(bres$name, collapse="|"), ")_.*\\.tar.gz")
     #tars = list.files(pattern = pat)
-    tars = unlist(mapply(function(nm, vr) list.files(pattern = paste0(nm, "_", vr, ".tar.gz")), nm = bman$name, vr = bman$version))
-    if(length(tars) < nrow(bman)) {
-        missing = sapply(bman$name, function(x) !any(grepl(x, tars, fixed=TRUE)))
-        writeGRANLog("NA", c("Tarballs not found for these packages during check test:", paste(bman$name[missing], collapse = " , ")), type = "both", repo = repo)
-        #tars = tars[order(bman$name[!missing])]
-        repo@manifest$status[repo@manifest$name %in% bman$name[missing]] = "Unable to check - missing tarball"
-        bman  = bman[!missing,]
+    tars = unlist(mapply(function(nm, vr) list.files(pattern = paste0(nm, "_", vr, ".tar.gz")), nm = bres$name, vr = bres$version))
+    if(length(tars) < nrow(bres)) {
+        missing = sapply(bres$name, function(x) !any(grepl(x, tars, fixed=TRUE)))
+        logfun(repo)("NA", c("Tarballs not found for these packages during check test:", paste(bres$name[missing], collapse = " , ")), type = "both")
+        #tars = tars[order(bres$name[!missing])]
+        repo_results(repo)$status[manifest_df(repo)$name %in% bres$name[missing]] = "Unable to check - missing tarball"
+        bres  = bres[!missing,]
         binds[binds] = binds[binds] & !missing
     }
-    #tars = tars[order(bman$name)]
-    ord = mapply(function(nm, vr) grep(paste0(nm, "_", vr), tars), nm = bman$name, vr = bman$version)
+    #tars = tars[order(bres$name)]
+    ord = mapply(function(nm, vr) grep(paste0(nm, "_", vr), tars), nm = bres$name, vr = bres$version)
     
     tars = tars[unlist(ord)]
     outs = mcmapply2( function(tar, nm, repo) {
-        writeGRANLog(nm, paste("Running R CMD check on ", tar), repo = repo)
+        logfun(repo)(nm, paste("Running R CMD check on ", tar))
         ## We built the vignettes during this round of building, so if the pkg is going to
         ##fail on building vignettes it will have already happened by this point
-        cmd = paste0("R_LIBS='", LibLoc(repo), "'  ", repo@rversion, " CMD check ", tar, " --no-build-vignettes")
-        out = tryCatch(system_w_init(cmd, intern=TRUE, repo = repo),
+        cmd = paste0('R_LIBS="', temp_lib(repo),  '" R_HOME="',
+            R.home(),'" R CMD check ', tar, " --no-build-vignettes")
+        out = tryCatch(system_w_init(cmd, intern=TRUE, param = param(repo)),
             error=function(x) x)
         out
-    }, tar = tars, nm = bman$name, repo = list(repo), mc.cores = cores,
+    }, tar = tars, nm = bres$name, repo = list(repo), mc.cores = cores,
         SIMPLIFY=FALSE)
     
     success = mapply(function(nm, out, repo) {
         if(errorOrNonZero(out) || any(grepl("ERROR", out, fixed=TRUE))) {
-            writeGRANLog(nm, "R CMD check failed.", type = "both", repo = repo)
+            logfun(repo)(nm, "R CMD check failed.", type = "both")
             outToErrLog = TRUE
      
             ret = "check fail"
@@ -179,15 +155,15 @@ checkTest = function(repo, cores = 3L)
             ##non-standard license
             if(numwarns - licIsWarning > 0) {
 
-                writeGRANLog(nm, "R CMD check raised warnings.", type = "both", repo = repo)
+                logfun(repo)(nm, "R CMD check raised warnings.", type = "both")
                 outToErrLog = TRUE
                 ret = "check warning(s)"
             } else if (numnotes - !licIsWarning > 0) {
-                writeGRANLog(nm, "R CMD check raised notes.", type = "both", repo = repo)
+                logfun(repo)(nm, "R CMD check raised notes.", type = "both")
                 outToErrLog = TRUE
                 ret = "check note(s)"
             } else {
-                writeGRANLog(nm, "R CMD check passed.", type = "full", repo = repo)
+                logfun(repo)(nm, "R CMD check passed.", type = "full")
                 outToErrLog = FALSE
                 ret = "ok"
             }
@@ -195,7 +171,7 @@ checkTest = function(repo, cores = 3L)
         cat(paste(out, collapse="\n"), file = file.path(check_result_dir(repo),
                                            paste0(nm, "_CHECK.log")))
         if(outToErrLog)
-            writeGRANLog(nm, c("R CMD check output:", out), type="error", repo = repo)
+            logfun(repo)(nm, c("R CMD check output:", out), type="error")
         ret
         
     }, nm = names(outs), out = outs, repo = list(repo))
@@ -203,9 +179,9 @@ checkTest = function(repo, cores = 3L)
     
     success = unlist(success)
 
-    writeGRANLog("NA", paste0(sum(isOkStatus(status = success, repo = repo)), " of ", length(success), " packages passed R CMD check"), repo=repo)
-    repo@manifest$status[binds] = success
-  ##  repo@manifest$building[binds] = (success == "ok")
+    logfun(repo)("NA", paste0(sum(isOkStatus(status = success, repo = repo)), " of ", length(success), " packages passed R CMD check"))
+    repo_results(repo)$status[binds] = success
+  ##  repo_results(repo)$building[binds] = (success == "ok")
     repo
 }
 
@@ -214,20 +190,4 @@ doExtra = function(repo)
 {
     ##TODO!!!
     return(repo)
-    fun = repo@extraFun
-    bman = getBuildingManifest(repo)
-    res = mapply(function(nm, extra, fun) 
-    {
-        rets = tryCatch(fun(extra), error=function(x) x)
-        if(is(rets, "error") || (is.logical(rets) && !rets))
-        {
-            writeGRANLog(nm, paste("Unable to perform extra instructions (",extra, "). Extra function returned: ", rets), type="both", repo = repo)
-            "extra instructions failed"
-        } else {
-            "ok"
-        }
-    }, nm = bman$name, extra = bman$extra, fun = list(fun))
-
-    repo@manifest$status[getBuilding(repo)] = res
-    repo
 }

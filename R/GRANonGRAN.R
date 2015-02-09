@@ -1,9 +1,9 @@
 #Package, build thine self
 GRANonGRAN = function(repo)
 {
-    writeGRANLog("GRAN", paste("Creating repository specific GRAN package and",
+    logfun(repo)("GRAN", paste("Creating repository specific GRAN package and",
                                 "installing it into the GRAN repository at",
-                                destination(repo)), repo = repo)
+                                destination(repo)))
 #    babyGRAN = file.path(repobase(repo), "GRANpkg")
     babyGRAN = file.path(repobase(repo), "GRAN")
     if(!file.exists(file.path(babyGRAN, "inst", "scripts")))
@@ -20,25 +20,21 @@ GRANonGRAN = function(repo)
         sprintf("install.packages('GRAN', ..., repos = c('%s', getOption('repos')))", repo_url(repo)),
         "};", "getGRAN(type='source')", collapse = "\n")
     cat(code, file = file.path(babyGRAN, "inst", "scripts", "getGRAN.R"))
-    cat(code, file = file.path(dest_base(repo), paste0("getGRAN-", repo@subrepoName, ".R")))
+    cat(code, file = file.path(dest_base(repo), paste0("getGRAN-", repo_name(repo), ".R")))
     DESC = readLines(file.path(babyGRAN, "DESCRIPTION"))
     DESC[1] = "Package: GRAN"
     writeLines(DESC, con = file.path(babyGRAN, "DESCRIPTION"))
-    manrow = ManifestRow(name="GRAN", url = babyGRAN, type="local",
-        subdir=".", subrepo = repo@subrepoName, building=TRUE, extra = "",
-        status="ok", branch = "trunk", lastbuiltversion = "0.0-0",
-        version = "0.0-0", lastAttemptStatus="never built",
-        buildReason = "vbump")
-    granrow = repo@manifest[which(repo@manifest$name == "GRAN"), ]
-    if(nrow(granrow) && granrow$type == "local" && granrow$url == babyGRAN) {
-        repo@manifest$building[repo@manifest$name == "GRAN"] = TRUE
-        repo@manifest$status[repo@manifest$name == "GRAN"] = "ok"
-        ##force there always to be a "version bump"
-        repo@manifest$version = "0.0-0"
-    } else 
-        repo@manifest = merge(repo@manifest, manrow,
-            by = intersect(names(repo@manifest), names(manrow)),
-            all.x=TRUE, all.y=TRUE)
+
+    if("GRAN" %in% manifest_df(repo)$name) {
+        granInd = which(repo_results(repo)$name == "GRAN")
+        repo_results(repo)[granInd,] = ResultsRow(name = "GRAN")
+        manifest_df(repo)[granInd,] = ManifestRow(name="GRAN",
+                             url = babyGRAN, type="local", subdir = ".",
+                             branch = "master")
+    } else {
+        repo = addPkg(repo, name="GRAN", url = babyGRAN, type="local",
+            subdir = ".")
+    }
     repo
     
         
@@ -78,7 +74,17 @@ RepoFromList = function(rlist) {
 ##' @param filename The file to load
 ##' @export
 loadRepo = function(filename) {
-    dget(filename)
+    res = tryCatch(dget(filename), error = function(e)e)
+    if(is(res, "error")) {
+        txt = readLines(filename)
+        txt2 = gsub("GRANRepository", "GRANRepositoryv0.9", txt)
+        res = dget(textConnection(txt2))
+        res = updateGRANRepoObject(res)
+    }
+    ##refresh closure for log function
+    logfun(res) = function(pkg, msg, type = "full") writeGRANLog(pkg, msg, type,
+              logfile = logfile(res), errfile = errlogfile(res))
+    res
 }
             
         

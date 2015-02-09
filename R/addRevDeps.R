@@ -6,31 +6,31 @@ addRevDeps = function(repo)
     ##reset and recalculate reverse dependencies every time. Expensive
     ##but protects us against packages being added or removed from
     ##manfiest
-    repo@manifest$revDepOf = ""
-    repo@manifest$revdepends = ""
+    repo_results(repo)$revDepOf = ""
+    repo_results(repo)$revdepends = ""
 
-    if(is.null(repo@manifest$buildReason))
-        repo@manifest$buildReason = ifelse(repo@manifest$building, "vbump", "")
+    if(is.null(repo_results(repo)$buildReason))
+        repo_results(repo)$buildReason = ifelse(repo_results(repo)$building, "vbump", "")
     else {
-        repo@manifest$buildReason[is.na(repo@manifest$buildReason)] = ""
-        repo@manifest$buildReason[repo@manifest$building] = "vbump"
+        repo_results(repo)$buildReason[is.na(repo_results(repo)$buildReason)] = ""
+        repo_results(repo)$buildReason[repo_results(repo)$building] = "vbump"
     }
     
-    writeGRANLog("NA", paste("Checking for reverse dependencies to packages",
-                             "with version bumps."), repo = repo)
-    manifest = repo@manifest
+    logfun(repo)("NA", paste("Checking for reverse dependencies to packages",
+                             "with version bumps."))
+    manifest = repo_results(repo)
     ##if this is the first time we are building the repository all the packages
     ##will be being built, so no need to check rev deps
-    if(!file.exists(repo@tempLibLoc) || all(getBuilding(repo)))    {
-        writeGRANLog("NA", paste("All packages are being built, skipping",
-                                 "reverse dependency check."), repo = repo)
+    if(!file.exists(temp_lib(repo)) || all(getBuilding(repo)))    {
+        logfun(repo)("NA", paste("All packages are being built, skipping",
+                                 "reverse dependency check."))
         return(repo)
     }
-    pkgs = repo@manifest$name[getBuilding(repo)]
+    pkgs = repo_results(repo)$name[getBuilding(repo)]
     revdeps = sapply(pkgs, dependsOnPkgs, dependencies = "all",
-        lib.loc = repo@tempLibLoc, simplify=FALSE)
+        lib.loc = temp_lib(repo), simplify=FALSE)
     if(!length(unlist(revdeps))) {
-        writeGRANLog("NA", "No reverse dependencies detected", repo = repo)
+        logfun(repo)("NA", "No reverse dependencies detected")
         return(repo)
     }
     if(length(revdeps) > 0)
@@ -61,26 +61,25 @@ addRevDeps = function(repo)
     manifest[rdepBuildPkgs, "buildReason"] = "is rdep"
     manifest[rdepBuildPkgs, "building"] = TRUE 
     
-    writeGRANLog("NA", paste0("Detected ", sum(rdepBuildPkgs),
+    logfun(repo)("NA", paste0("Detected ", sum(rdepBuildPkgs),
                               " packages that are reverse dependencies of",
                               "packages with version bumps:\n\t",
                               paste(manifest$name[rdepBuildPkgs],
-                                    collapse=" , ")), repo = repo)
+                                    collapse=" , ")))
 
     if(sum(rdepBuildPkgs) >0) {
-        writeGRANLog("NA",
-                     "Building reverse dependencies in temporary repository.",
-                     repo = repo)
+        logfun(repo)("NA",
+                     "Building reverse dependencies in temporary repository.")
         tmprepo = repo
-        tmprepo@manifest = manifest[rdepBuildPkgs,]
-        tmprepo@manifest$building = TRUE
-        tmprepo@manifest$status="ok"
+        repo_results(tmprepo) = manifest[rdepBuildPkgs,]
+        repo_results(tmprepo)$building = TRUE
+        repo_results(tmprepo)$status="ok"
         tmprepo = buildBranchesInRepo(repo = tmprepo, temp = TRUE,
            # incremental = FALSE)
             incremental = TRUE)
-        manifest[rdepBuildPkgs, ] = tmprepo@manifest
+        manifest[rdepBuildPkgs, ] = repo_results(tmprepo)
     }
-    repo@manifest = manifest
+    repo_results(repo) = manifest
     repo
 }
 

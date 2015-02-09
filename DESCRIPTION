@@ -1,7 +1,7 @@
 Package: GRANBase
 Type: Package
 Title: GRAN
-Version: 0.9.51
+Version: 0.9.66
 Author: Gabriel Becker, Cory Barr
 Maintainer: Gabriel Becker <becker.gabriel@gene.com>
 Description: Repository based tools for department and analysis level
@@ -19,6 +19,7 @@ Imports:
     digest,
     RCurl
 Depends:
+    switchr,
     methods
 Suggests:
     getopt,

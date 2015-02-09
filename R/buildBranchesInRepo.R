@@ -10,22 +10,25 @@
 ##' @return a list with success and fail elements containing the directories which succeeded and failed the build
 ##' @author Cory Barr, Gabriel Becker
 ##' @importFrom tools write_PACKAGES
-buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE, manifest = repo@manifest) {
+buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
+                                incremental = TRUE, manifest = manifest_df(repo)) {
   
-    binds = getBuilding(repo, manifest)       
+    binds = getBuilding(repo = repo)
     if(!sum(binds))
     {
-        writeGRANLog("NA", "No packages to build in buildBranchesInRepo.", repo = repo)
+        logfun(repo)("NA", "No packages to build in buildBranchesInRepo.")
         return(repo)
     }
-    manifest = getBuildingManifest(repo, manifest) #manifest[binds,]
-    svnCheckoutsLoc = getCheckoutLocs(checkout_dir(repo), manifest, manifest$branch)
+    manifest = getBuildingManifest(repo = repo)
+    results = getBuildingResults(repo = repo)
+    svnCheckoutsLoc = getCheckoutLocs(checkout_dir(repo), manifest,
+        manifest$branch)
     if(temp) {
-        repoLoc = repo@tempRepo
+        repoLoc = temp_repo(repo)
         if(!grepl("src/contrib", repoLoc, fixed=TRUE))
         {
-            if(!grepl(repo@subrepoName, repoLoc, fixed=TRUE))
-                repoLoc = file.path(repoLoc, repo@subrepoName, "src", "conbrib")
+            if(!grepl(repo_name(repo), repoLoc, fixed=TRUE))
+                repoLoc = file.path(repoLoc, repo_name(repo), "src", "conbrib")
             else
                 repoLoc = file.path(repoLoc, "src", "contrib")
         }
@@ -40,18 +43,18 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE
     startDir <- getwd()
     on.exit(setwd(startDir))
     setwd(repoLoc)
-    writeGRANLog("NA", paste0("Attempting to build ", sum(manifest$building), " into ", repoLoc), repo = repo)
+    logfun(repo)("NA", paste0("Attempting to build ", sum(results$building), " into ", repoLoc))
 
     if(temp) {
         ## Only build  packages into the temp repo that aren't already there.
         ## Not doing this was causing unreasonably slow times when
         ## not very many packages ended up being actually built
         oldvers = character(length(svnCheckoutsLoc))
-        names(oldvers) = manifest$name
+        names(oldvers) = results$name
         avl = tryCatch(available.packages(paste0("file://", repoLoc), filters= "duplicates"),
             error = function(x) x)
         if(is(avl, "error"))
-            oldvers = rep(NA, times = nrow(manifest))
+            oldvers = rep(NA, times = nrow(results))
         else {
             inds = match(avl[,"Package"], names(oldvers))
             inds = inds[!is.na(inds)]
@@ -60,51 +63,71 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE
             oldvers[!nchar(oldvers)] = NA
         }
     } else {
-        oldvers = as.character(manifest$lastbuiltversion)
+        oldvers = as.character(results$lastbuiltversion)
     }
-        
+
+    vers_restrict = subset(versions_df(repo), versions_df(repo)$name %in% manifest$name)
+    
+    
     res <- mcmapply2(#svnCheckoutsLoc,
                     ##res <- mapply(
-                    function (checkout, repo, opts, oldver, incremental) {
-                        #incremental build logic. If incremental == TRUE, we only rebuild if the package version number has bumped.
+                    function (checkout, repo, opts, oldver, vers_restr, incremental) {
+                        ## incremental build logic. If incremental == TRUE,
+                        ## we only rebuild if the package version number has bumped.
                         vnum = read.dcf(file.path(checkout, "DESCRIPTION"))[1,"Version"]
                         pkg = getPkgNames(checkout)
+
+                        if(!is.na(vers_restr) && vnum != vers_restr) {
+                            logfun(repo)(pkg, paste("Wrong version number for pkg",
+                                                    pkg, "Needed", vers_restr,
+                                                    "have", vnum, "error earlier",
+                                                    "in build process?"),
+                                         type = "both")
+                            ret = "wrong version"
+                            names(ret) = vnum
+                            return(ret)
+                        }
+
+
+                        ## we don't support changing the version restriction backward, should we?
                         if(is.na(oldver) || compareVersion(vnum, oldver) == 1 )
                         {
-                            writeGRANLog(pkg, paste0("Had version ", oldver, ". Building new version ", vnum), repo = repo)
+                            logfun(repo)(pkg, paste0("Had version ", oldver,
+                                                     ". Building new version ", vnum))
                         } else if (incremental) {
-                            writeGRANLog(pkg, paste0("Package up to date at version ", vnum, ". Not rebuilding."), repo = repo)
+                            logfun(repo)(pkg, paste0("Package up to date at version ", vnum, ". Not rebuilding."))
                             ret = "up-to-date"
                             names(ret) = vnum
                             return(ret)
                         } else {
-                            writeGRANLog(pkg, paste0("Forcing rebuild of version ", vnum, "."), repo = repo)
+                            logfun(repo)(pkg, paste0("Forcing rebuild of version ", vnum, "."))
                         }
 
                         command <- paste("R CMD build", checkout, opts )
                         if(!temp)
-                            command = paste0("R_LIBS_USER=", LibLoc(repo), " ", command) 
+                            command = paste0("R_LIBS_USER=", temp_lib(repo), " ", command) 
                         out = tryCatch(system_w_init(command, intern = TRUE,
-                            repo = repo), error = function(x) x)
+                            param = param(repo)), error = function(x) x)
                         if(is(out, "error") || ("status" %in% attributes(out) && attr(out, "status") > 0) || !file.exists(paste0(pkg, "_", vnum, ".tar.gz"))) {
                             type = if(temp) "Temporary" else "Final"
-                            writeGRANLog(pkg, paste(type,"package build failed. R CMD build returned non-zero status"), type ="both", repo=repo)
-                            writeGRANLog(pkg, c("R CMD build output for failed package build:", out), type="error", repo = repo)
+                            logfun(repo)(pkg, paste(type,"package build failed. R CMD build returned non-zero status"), type ="both")
+                            logfun(repo)(pkg, c("R CMD build output for failed package build:", out), type="error")
                             ret = "failed"
                         } else {
                             #XXX we want to include the full output when the build succeeds?
-                            writeGRANLog(pkg, "Sucessfully built package.", type="full", repo= repo)
+                            logfun(repo)(pkg, "Sucessfully built package.", type="full")
                             ret = "ok"
                         }
                         names(ret) = vnum
                         ret
                     },
-                    checkout = svnCheckoutsLoc,
-                    repo = list(repo), opts = opts,
-                    mc.cores=cores,
-         #XXX shouldn't need the as.character...
-                    oldver = oldvers,
-                    incremental = incremental,
+                     checkout = svnCheckoutsLoc,
+                     repo = list(repo), opts = opts,
+                     mc.cores=cores,
+                                        #XXX shouldn't need the as.character...
+                     oldver = oldvers,
+                     incremental = incremental,
+                     vers_restr = vers_restrict$version,
                     USE.NAMES=FALSE
 
                     )
@@ -128,12 +151,12 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE, incremental = TRUE
     }
 
     res2 = res[!sameversion]
-    manifest$status[!sameversion] = ifelse(res2=="ok", "ok", "build failed")
-    manifest$status[sameversion] = "up-to-date"
-    manifest$version[built] = versions[built]
-    manifest$maintainer = getMaintainers(checkout_dir(repo),
+    results$status[!sameversion] = ifelse(res2=="ok", "ok", "build failed")
+    results$status[sameversion] = "up-to-date"
+    results$version[built] = versions[built]
+    results$maintainer = getMaintainers(checkout_dir(repo),
                            manifest = manifest)
-    repo@manifest[binds,] = manifest
+    repo_results(repo)[binds,] = results
     repo
 
 }
