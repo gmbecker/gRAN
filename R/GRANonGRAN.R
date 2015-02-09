@@ -27,7 +27,7 @@ GRANonGRAN = function(repo)
 
     if("GRAN" %in% manifest_df(repo)$name) {
         granInd = which(repo_results(repo)$name == "GRAN")
-        repo_results(repo)[granInd,] = ResultRow(name = "GRAN")
+        repo_results(repo)[granInd,] = ResultsRow(name = "GRAN")
         manifest_df(repo)[granInd,] = ManifestRow(name="GRAN",
                              url = babyGRAN, type="local", subdir = ".",
                              branch = "master")
@@ -74,7 +74,13 @@ RepoFromList = function(rlist) {
 ##' @param filename The file to load
 ##' @export
 loadRepo = function(filename) {
-    res = dget(filename)
+    res = tryCatch(dget(filename), error = function(e)e)
+    if(is(res, "error")) {
+        txt = readLines(filename)
+        txt2 = gsub("GRANRepository", "GRANRepositoryv0.9", txt)
+        res = dget(textConnection(txt2))
+        res = updateGRANRepoObject(res)
+    }
     ##refresh closure for log function
     logfun(res) = function(pkg, msg, type = "full") writeGRANLog(pkg, msg, type,
               logfile = logfile(res), errfile = errlogfile(res))

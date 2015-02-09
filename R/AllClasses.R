@@ -34,6 +34,52 @@ setClass("GRANRepository", representation(
 ))
 
 
+setClass("GRANRepositoryv0.9", representation(tempRepo = "character",
+                                          baseDir = "character",
+                                          tempCheckout = "character",
+                                          errlog = "character",
+                                          logfile = "character",
+                                          rversion = "character",
+                                          subrepoName="character",
+                                          tempLibLoc = "character",
+                                          manifest = "data.frame",
+                                          checkWarnOk = "logical",
+                                          checkNoteOk = "logical",
+                                          extraFun = "function",
+                                          auth = "character",
+                                          dest_base = "character",
+                                          dest_url = "character",
+                                          shell_init = "character"
+                                          ))
+
+
+
+updateGRANRepoObject = function(object, ...) {
+              param = RepoBuildParam(basedir = object@baseDir,
+                  temp_repo = object@tempRepo,
+                  repo_name = object@subrepoName,
+                  errlog = object@errlog,
+                  logfile = object@logfile,
+                  temp_checkout = object@tempCheckout,
+                  check_note_ok = object@checkNoteOk,
+                  check_warn_ok = object@checkWarnOk,
+                  tempLibLoc = object@tempLibLoc,
+                  extra_fun = object@extraFun,
+                  destination = object@dest_base,
+                  dest_url = object@dest_url,
+                  shell_init = object@shell_init,
+                  auth = object@auth,
+                  ...)
+              
+              man = PkgManifest(manifest = object@manifest[,names(ManifestRow())])
+              results = data.frame(name = manifest_df(man)$name,
+                  object@manifest[,!names(object@manifest) %in% names(ManifestRow())],
+                  stringsAsFactors = FALSE)
+              vers = data.frame(name = manifest_df(man)$name, version = NA_character_,
+                  stringsAsFactors = FALSE)
+              GRANRepository(manifest = SessionManifest(manifest =man, versions = vers), results = results, param = param)
+          }
+
 
 
 ##' GRANRepository
@@ -54,6 +100,12 @@ GRANRepository = function(manifest,
 
     if(missing(results))
         results = ResultsRow(name = manifest_df(manifest)$name)
+    if(is(manifest, "PkgManifest"))
+        manifest = SessionManifest(manifest - manifest,
+            versions = data.frame(name = manifest_df(manifest)$name,
+                version = NA_character_,
+                stringsAsFactors = FALSE))
+    
     new("GRANRepository", manifest = manifest, results = results, param = param)
 }
 

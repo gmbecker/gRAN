@@ -66,7 +66,7 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
         oldvers = as.character(results$lastbuiltversion)
     }
 
-    vers_restrict = subset(versions_df(repo), name %in% manifest$name)
+    vers_restrict = subset(versions_df(repo), versions_df(repo)$name %in% manifest$name)
     
     
     res <- mcmapply2(#svnCheckoutsLoc,
@@ -82,7 +82,7 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
                                                     pkg, "Needed", vers_restr,
                                                     "have", vnum, "error earlier",
                                                     "in build process?"),
-                                         type = both)
+                                         type = "both")
                             ret = "wrong version"
                             names(ret) = vnum
                             return(ret)

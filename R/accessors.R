@@ -97,12 +97,11 @@ setMethod("temp_lib", "GRANRepository",
 ##' Return the directory which stores retreived versions of non-GRAN packages
 ##' for use in virtual repositories
 ##'
-##' @rdname notrack-methods
 ##' @param repo a GRANRepository object
 ##' @return The path to the notrack directory
-setGeneric("notrack", function(repo) standardGeneric("notrack"))
 ##' @rdname notrack-methods
 ##' @aliases notrack,GRANRepository-method
+##' @docType methods
 setMethod("notrack", "GRANRepository",
           function(repo) file.path(repobase(repo), "notrack"))
 
@@ -114,6 +113,7 @@ setMethod("notrack", "GRANRepository",
 ##' @param repo a GRANRepository object
 ##' @return For destination, the full path to the contrib directory the packages
 ##' will be deployed to
+##' @docType methods
 ##' @export
 setGeneric("destination", function(repo) standardGeneric("destination"))
 ##' @rdname destination-methods
@@ -131,6 +131,7 @@ setMethod("destination","GRANRepository",
 ##' @rdname dest_base-methods
 ##' @param repo a GRANRepository object
 ##' @return For dest_base, the base directory the repository will reside in
+##' @docType methods
 ##' @export
 setGeneric("dest_base", function(repo) standardGeneric("dest_base"))
 ##' @rdname dest_base-methods
@@ -148,6 +149,7 @@ setMethod("dest_base","GRANRepository",
 ##' @param repo a GRANRepository object
 ##' @return The directory where check results should be deployed for use in the
 ##' build report
+##' @docType methods
 ##' @export
 setGeneric("check_result_dir", function(repo) standardGeneric("check_result_dir"))
 ##' @rdname check_result_dir-methods
@@ -168,6 +170,7 @@ setMethod("check_result_dir","GRANRepository",
 ##' @param repo a GRANRepository object
 ##' @return For destination, the full path to the contrib directory the packages
 ##' will be deployed to
+##' @docType methods
 ##' @export
 setGeneric("repo_url", function(repo) standardGeneric("repo_url"))
 ##' @rdname repo_url-methods
@@ -189,7 +192,8 @@ setMethod("repo_url","NULL", function(repo) NULL)
 ##' @param repo a GRANRepository object
 ##' @return For destination, the full path to the contrib directory the packages
 ##' will be deployed to
-##' @export
+##' @docType methods
+##' ##' @export
 setGeneric("checkout_dir", function(repo) standardGeneric("checkout_dir"))
 ##' @rdname checkout_dir-methods
 ##' @aliases checkout_dir,GRANRepository-method
@@ -197,6 +201,9 @@ setGeneric("checkout_dir", function(repo) standardGeneric("checkout_dir"))
 setMethod("checkout_dir","GRANRepository",
           function(repo) param(repo)@temp_checkout)
 
+##' @rdname checkout_dir-methods
+##' @aliases checkout_dir,NULL
+##' @export
 setMethod("checkout_dir","NULL", function(repo) NULL)
 
 
