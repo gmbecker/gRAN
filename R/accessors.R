@@ -343,7 +343,11 @@ setMethod("logfun<-", "GRANRepository",
 
 setMethod("addPkg", "GRANRepository",
           function(x, ..., rows, versions) {
+              if(any(manifest_df(rows)$name %in% manifest_df(x)$name))
+                  stop("Some of the packages to be added already appear in the repo manifest")
               manifest(x) = addPkg(manifest(x), ..., rows = rows, versions = versions)
+              new = which(!manifest_df(x)$name %in% repo_results(x)$name)
+              repo_results(x) = rbind(repo_results(x), ResultsRow(name = manifest_df(x)$name[new]))
               x
           })
 

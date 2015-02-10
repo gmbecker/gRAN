@@ -35,6 +35,8 @@ GRANonGRAN = function(repo)
         repo = addPkg(repo, name="GRAN", url = babyGRAN, type="local",
             subdir = ".")
     }
+    if(!"switchr" %in% manifest_df(repo, session_only=FALSE)$name)
+        repo = addPkg(repo, name = "switchr", url="http://github.com/gmbecker/switchr", type = "git")
     repo
     
         
