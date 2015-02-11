@@ -137,8 +137,10 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
     ## from the list of potential builds, we just want
     ## to avoid unnecessary building within the temporary
     ## repository
-    if(temp)
+    if(temp) {
         res[res=="up-to-date"] = "ok"
+        res[versions == as.character(results$lastbuiltversion)] = "up-to-date"
+    }
     built = res == "ok"
 
     ##We can only ever get the "up-to-date" return status if incremental=FALSE, so
