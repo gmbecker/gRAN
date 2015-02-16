@@ -92,11 +92,25 @@ buildRiskReport = function(to_update = old.packages(repos = repo_urls),
 
 ##'readPkgsNEWS
 ##'
-##' Attempts to generate a per-package summary of risky-to-ignore changes for updatable packages.
+##' Attempts to generate a per-package summary of risky-to-ignore changes for
+##' updatable packages.
+##' 
 ##' @title Read and summarize the NEWS files for packages at risk (updatable)
-##' @param df A data.frame or matrix of out-of-date packages currently installed, with columns Package, Installed (installed version), and Repository (contriburl of repo with newer version). Other columns are ignored. A
-##' @param tmplib A temporary library directory to install new versions of the packages into so that their NEWS files can be accessed.
-##' @return A data.frame with 3 counts for each updatable package: bugfixes, u_visible_changes (user visible changes) and deprec (deprecation and defunct entries). All counts are NA if the package does not have parsable NEWS.
+##' @param df A data.frame or matrix of out-of-date packages currently
+##' installed, with columns Package, Installed (installed version), and
+##' Repository (contriburl of repo with newer version). Other columns are i
+##' gnored. 
+##' @param oldlib The currently library to compare against latest avaialble
+##' versions
+##' @param tmplib A temporary library directory to install new versions of the
+##' packages into so that their NEWS files can be accessed.
+##' @param repos A character vector of the repositories to search for newer
+##' versions of packages installed in \code{oldlib}
+##' @param newlib An already populated 'new' library to compare against
+##' \code{oldlib} instead of retrieving new package versions from \code{repos}
+##' @return A data.frame with 3 counts for each updatable package: bugfixes,
+##' u_visible_changes (user visible changes) and deprec (deprecation and defunct
+##' entries). All counts are NA if the package does not have parsable NEWS.
 ##' @importFrom utils news
 ##' @export
 readPkgsNEWS = function(df, oldlib = .libPaths(), tmplib = file.path(tempdir(), "libloc"), repos = unique(df$Repository), newlib = NULL) {

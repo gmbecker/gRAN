@@ -5,22 +5,7 @@
 \alias{getSessionPackages}
 \alias{makeVirtualRepo}
 \alias{sessionRepo}
-\title{Create a virtual repository containing only the specified package versions versions
-
-
-Packages are located via the \code{getPkgVersions} function, which will look in the following places:
-\enumerate{
-\item{The \code{repo} repository and associated notrack directory}
-\item{The current CRAN repository}
-\item{The CRAN archives of previous source packages}
-\item{The current Bioconductor repository}
-\item{The Bioconductor SVN history}
-\item{The SCM (SVN/git) history for a GRAN package}
-}
-
-When found, package versions not already in the GRAN repository proper or notrack directory are built into the \code{repo}'s associated notrack directory.
-
-The repository is the constructed as a sibling to \code{repo}'s repository using only symbolic links. This allows many virtual repositories to contain the same versions of packages without physical file duplication.}
+\title{Create a virtual repository containing only the specified package versions versions}
 \usage{
 sessionRepo(sinfo = sessionInfo(), repo_dir, doi = NULL, dir, name = NULL,
   replace = FALSE, stoponfail = TRUE, GRepo = GRANRepo$repo,
@@ -80,10 +65,22 @@ for \code{getPkgVersions} and \code{getSessionPackages}, a character vector with
 for \code{makeVirtualRepo} and \code{sessionRepo}, the path to the created virtual repository
 }
 \description{
-makeVirtualRepo
+Create a virtual repository which contains only the exact packages specified
 }
 \details{
-Create a virtual repository which contains only the exact packages specified
+Packages are located via the \code{getPkgVersions} function, which will look in the following places:
+\enumerate{
+\item{The \code{repo} repository and associated notrack directory}
+\item{The current CRAN repository}
+\item{The CRAN archives of previous source packages}
+\item{The current Bioconductor repository}
+\item{The Bioconductor SVN history}
+\item{The SCM (SVN/git) history for a GRAN package}
+}
+
+When found, package versions not already in the GRAN repository proper or notrack directory are built into the \code{repo}'s associated notrack directory.
+
+The repository is the constructed as a sibling to \code{repo}'s repository using only symbolic links. This allows many virtual repositories to contain the same versions of packages without physical file duplication.
 }
 \author{
 Gabriel Becker

@@ -41,6 +41,7 @@ setMethod("errlogfile", "GRANRepository", function(repo) {
 
 ##' Retrieve the path to a GRAN (sub) repository
 ##' @rdname location-methods
+##' @param repo A GRANRepository object.
 ##' @aliases location,GRANREpository-method
 setMethod("location", "GRANRepository", function(repo) {
     ret = file.path(repobase(repo), "src", "contrib")
@@ -88,8 +89,15 @@ setMethod("staging", "GRANRepository", function(repo) {
     normalizePath2(ret)
 })
 
+##' temporary library
+##'
+##' @param repo A GRANRepository object
+##' @docType methods
+##' @rdname templib
 ##' @export
 setGeneric("temp_lib", function(repo) standardGeneric("temp_lib"))
+##' @rdname templib
+##' @aliases temp_lib,GRANRepository
 setMethod("temp_lib", "GRANRepository",
           function(repo) normalizePath2(param(repo)@tempLibLoc))
 
@@ -193,7 +201,7 @@ setMethod("repo_url","NULL", function(repo) NULL)
 ##' @return For destination, the full path to the contrib directory the packages
 ##' will be deployed to
 ##' @docType methods
-##' ##' @export
+##' @export
 setGeneric("checkout_dir", function(repo) standardGeneric("checkout_dir"))
 ##' @rdname checkout_dir-methods
 ##' @aliases checkout_dir,GRANRepository-method
@@ -231,60 +239,107 @@ setMethod("versions_df<-", "GRANRepository", function(x, value) {
     x
     })
 
+##' Repository build results
+##'
+##' @param x A GRANRepository object
+##' @return A data.frame of build results
+##' @docType methods
+##' @rdname reporesults
 ##' @export
 setGeneric("repo_results", function(x) standardGeneric("repo_results"))
+##' @rdname reporesults
+##' @aliases repo_results,GRANRepository
 setMethod("repo_results", "GRANRepository", function(x) x@results)
 
 ##' ##'@export
+##' @rdname reporesults
+##' @param value The new results data.frame
 setGeneric("repo_results<-", function(x, value) standardGeneric("repo_results<-"))
+##' @rdname reporesults
+##' @aliases repo_results<-,GRANRepository
+
 setMethod("repo_results<-", "GRANRepository", function(x, value) {
     x@results = value
     x
     })
 
-##'@export
+##' Extract parameter object
+##' @param x An object with an associated paramater
+##' @docType methods
+##' @export
 setGeneric("param", function(x) standardGeneric("param"))
+##' @rdname param
+##' @aliases param,GRANRepository
 setMethod("param", "GRANRepository",
           function(x) x@param)
 
-##'@export
+##' @param value A new parameter object
+##' @rdname param
+##' @export
 setGeneric("param<-", function(x, value) standardGeneric("param<-"))
+##' @rdname param
+##' @aliases param<-,GRANRepository
 setMethod("param<-", "GRANRepository",
           function(x, value){
               x@param = value
               x
           })
 
+##' Get or set individual parameters on a GRANRepository object
+##' @param x A GRANRepository object
+##' @details These functions get or set individual repository build parameters
+##' on a GRANRepository object.
+##' @seealso \code{\link{RepoBuildParam}}
+##' @docType methods
+##' @rdname GRANparams
 ##' @export
 setGeneric("repo_name", function(x) standardGeneric("repo_name"))
+##' @rdname GRANparams
+##' @aliases repo_name,GRANRepository
 setMethod("repo_name", "GRANRepository",
           function(x) param(x)@repo_name)
 
 
+##' @rdname GRANparams
 ##' @export
 setGeneric("temp_repo", function(x) standardGeneric("temp_repo"))
+##' @rdname GRANparams
+##' @aliases temp_repo,GRANRepository
 setMethod("temp_repo", "GRANRepository",
           function(x) param(x)@temp_repo)
 
 
 
-##'@export
+##' @rdname GRANparams
+##' @export
 setGeneric("check_warn_ok", function(x) standardGeneric("check_warn_ok"))
+##' @rdname GRANparams
+##' @aliases check_warn_ok,GRANRepository
 setMethod("check_warn_ok", "GRANRepository",
           function(x)  param(x)@check_warn_ok)
 
-##'@export
+##'@rdname GRANparams
+##' @export
 setGeneric("check_note_ok", function(x) standardGeneric("check_note_ok"))
+##' @rdname GRANparams
+##' @aliases check_note_ok,GRANRepository
 setMethod("check_note_ok", "GRANRepository",
           function(x)  param(x)@check_note_ok)
 
+##' @rdname GRANparams
 ##' @export
 setGeneric("suspended_pkgs", function(x) standardGeneric("suspended_pkgs"))
+##' @rdname GRANparams
+##' @aliases suspended_pkgs,GRANRepository
 setMethod("suspended_pkgs", "GRANRepository",
           function(x) param(x)@suspended)
 
-##'@export
+##' @rdname GRANparams
+##' @param value The new parameter value
+##' @export
 setGeneric("suspended_pkgs<-", function(x, value) standardGeneric("suspended_pkgs<-"))
+##' @rdname GRANparams
+##' @aliases suspended_pkgs<-,GRANRepository
 setMethod("suspended_pkgs<-", "GRANRepository",
           function(x, value) {
               param(x)@suspended = value
@@ -295,10 +350,13 @@ setMethod("suspended_pkgs<-", "GRANRepository",
 
 
 
-##'@export
+##'@rdname GRANparams
+##' @aliases sh_init_script,GRANRepository
+##' @export
 setMethod("sh_init_script", "GRANRepository",
           function(x) param(x)@shell_init)
-
+##'@rdname GRANparams
+##' @aliases sh_init_script<-,GRANRepository
 ##'@export
 
 setMethod("sh_init_script<-", "GRANRepository",
@@ -310,26 +368,45 @@ setMethod("sh_init_script<-", "GRANRepository",
 
 
 
-##'@export
+##' @rdname GRANparams
+##' @export
 setGeneric("extra_fun", function(x) standardGeneric("extra_fun"))
+##' @rdname GRANparams
+##' @export
 setMethod("extra_fun", "GRANRepository",
           function(x)  param(x)@extra_fun)
 
+##' @rdname GRANparams
+##' @export
 setGeneric("check_test_on", function(x) standardGeneric("check_test_on"))
+##' @rdname GRANparams
+##' @aliases check_test_on,RepoBuildParam
 setMethod("check_test_on", "RepoBuildParam", function(x) x@check_test)
+##' @rdname GRANparams
+##' @aliases check_test_on,GRANRepository
 setMethod("check_test_on", "GRANRepository", function(x) check_test_on(param(x)))
 
-
+##' @rdname GRANparams
+##' @export
 setGeneric("install_test_on", function(x) standardGeneric("install_test_on"))
+##' @rdname GRANparams
+##' @aliases install_test_on,RepoBuildParam
+
 setMethod("install_test_on", "RepoBuildParam", function(x) x@install_test)
+##' @rdname GRANparams
+##' @aliases install_test_on,GRANRepository
 setMethod("install_test_on", "GRANRepository", function(x) install_test_on(param(x)))
 
 
+##' @rdname GRANparams
+##' @aliases logfun,GRANRepository
 ##' @export
 setMethod("logfun", "GRANRepository",
           function(x) logfun(param(x)))
 
 
+##' @rdname GRANparams
+##' @aliases logfun<-,GRANRepository
 ##' @export
 setMethod("logfun<-", "GRANRepository",
           function(x, value) {
@@ -340,7 +417,15 @@ setMethod("logfun<-", "GRANRepository",
               })
 
 
-
+##' addPkg
+##'
+##' Add a package to the manifest for a GRANRepository
+##' @param x A GRANRepository object
+##' @param \dots passed to manifest method for addPkg
+##' @param rows data.frame or unspecified. passed to manifest method for addPkg
+##' @param versions data.frame passed to manifest method for addPkg
+##' @return \code{x} with the specified package(s) added to the associated manifest
+##' @export
 setMethod("addPkg", "GRANRepository",
           function(x, ..., rows, versions) {
               if(any(manifest_df(rows)$name %in% manifest_df(x)$name))

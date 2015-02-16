@@ -4,6 +4,8 @@
 \name{checkout_dir}
 \alias{checkout_dir}
 \alias{checkout_dir,GRANRepository-method}
+\alias{checkout_dir,NULL}
+\alias{checkout_dir,NULL-method}
 \title{checkout_dir
 Return the directory that package sources will be checked-out into
 for use in the build process}
@@ -11,6 +13,8 @@ for use in the build process}
 checkout_dir(repo)
 
 \S4method{checkout_dir}{GRANRepository}(repo)
+
+\S4method{checkout_dir}{`NULL`}(repo)
 }
 \arguments{
 \item{repo}{a GRANRepository object}

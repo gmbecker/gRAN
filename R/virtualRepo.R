@@ -8,10 +8,9 @@ basepkgs = pkgs[ pkgs[,"Priority"] %in% "base", "Package"]
 
 
 
-
+## This is superceded by lazyRepo in switchr
 ##' @rdname virtualRepo-funs
 ##' @param sinfo A sessionInfo object or character vector containing the text from printing such an object
-##' @export
 sessionRepo = function(sinfo = sessionInfo(),
     repo_dir, doi= NULL, dir,
     name = NULL , replace = FALSE, stoponfail = TRUE, GRepo = GRANRepo$repo,
@@ -55,7 +54,6 @@ sinfoToPkgDF = function(sinfo) {
 
 ##' @rdname virtualRepo-funs
 ##' @return for \code{getPkgVersions} and \code{getSessionPackages}, a character vector with the full path to each downloaded/built tar.gz file.
-##' @export
 getSessionPackages = function(sinfo, dir, GRepo = NULL, stoponfail = FALSE) {
     if(!(is(sinfo, "sessionInfo") || is(sinfo, "character") || is(sinfo, "parsedSessionInfo"))){
         stop("sinfo must be a character vector or sessionInfo object")
@@ -139,7 +137,6 @@ getPkgVersions = function(pkgs, dir, GRepo = NULL, stoponfail = FALSE,pkgcol = "
 ##' @return for \code{makeVirtualRepo} and \code{sessionRepo}, the path to the created virtual repository
 ##' @author Gabriel Becker
 ##' @importFrom digest digest
-##' @export
 
 makeVirtualRepo = function(pkgdf,
     repo_dir,

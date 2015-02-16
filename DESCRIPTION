@@ -14,15 +14,12 @@ Imports:
     tools,
     BiocInstaller,
     XML,
-    brew,
     hwriter,
-    digest,
-    RCurl
+    digest
 Depends:
     switchr,
     methods
 Suggests:
-    getopt,
     parallel,
     BiocStyle
 SystemRequirements: svn, git

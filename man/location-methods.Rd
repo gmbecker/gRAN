@@ -8,6 +8,9 @@
 \usage{
 \S4method{location}{GRANRepository}(repo)
 }
+\arguments{
+\item{repo}{A GRANRepository object.}
+}
 \description{
 Retrieve the path to a GRAN (sub) repository
 }

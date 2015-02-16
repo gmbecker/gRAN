@@ -3,7 +3,8 @@
 
 
 
-##'@export
+##' @rdname repobuildparam
+##' @export
 setClass("RepoBuildParam", representation(
     repo_name = "character",
     temp_repo = "character",
@@ -25,6 +26,7 @@ setClass("RepoBuildParam", representation(
          contains = "SwitchrParam")
 
 
+##' @rdname granrepository
 ##' @export
 setClass("GRANRepository", representation(
     results = "data.frame",
@@ -92,6 +94,7 @@ updateGRANRepoObject = function(object, ...) {
 ##' @param param A RepoBuildParam object controlling the location and behavior of
 ##' the repository being built
 ##' @param ... Passed through to the default value of \code{param}
+##' @rdname granrepository
 ##' @export
 GRANRepository = function(manifest,
     results,
@@ -112,6 +115,9 @@ GRANRepository = function(manifest,
 
 
 ##' RepoBuildParam
+##'
+##' Parameters for building a GRAN repository. Most behavior during the
+##' GRAN building process is specified via this object/constructor.
 ##' 
 ##' @param basedir The base directory. By default the temporary repository,
 ##' temporary install library, and package staging area will be located in
@@ -137,17 +143,19 @@ GRANRepository = function(manifest,
 ##'   final repository to be built
 ##' @param auth character. Authentication information required to add packages
 ##'   to the manifest.
-##' @param manifest data.frame. The manifest of package information associated
-##'   with this repository. Defaults to an empty manifest.
 ##' @param dest_url The base URL the destination directory corresponds to. The
 ##' subrepository name will be appended to this to generate the URL used when
 ##' installing from the repository.
 ##' @param shell_init An optional shell script to source before invoking system
 ##' commands, e.g. a bashrc file. Ignored if "" or not specified.
+##' @param logfun The function to use to write log messages during the repository
+##' build process. Defaults to writeGRANLog with \code{logfile} and \code{errlog}
+##' specified as the full and error log locations, respectively.
 ##' @param install_test logical. Should the install test be performed? Required
 ##' to build packages with vignettes, and for the check test
 ##' @param check_test logical. Should R CMD check be run on the packages as a
 ##' cohort. Requires install test.
+##' @rdname repobuildparam
 ##' @export
 
 
