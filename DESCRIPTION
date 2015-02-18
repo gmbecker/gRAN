@@ -1,7 +1,7 @@
 Package: GRANBase
 Type: Package
 Title: GRAN
-Version: 0.9.76
+Version: 0.9.77
 Author: Gabriel Becker[aut,cre], Cory Barr [cre,ctb]
 Maintainer: Gabriel Becker <becker.gabriel@gene.com>
 Copyright: Genentech Inc

@@ -5,9 +5,10 @@ GRANonGRAN = function(repo)
                                 "installing it into the GRAN repository at",
                                 destination(repo)))
 #    babyGRAN = file.path(repobase(repo), "GRANpkg")
+    if(file.exists(file.path(repobase(repo), "GRAN")))
+        unlink(file.path(repobase(repo), "GRAN"), recursive=TRUE)
     babyGRAN = file.path(repobase(repo), "GRAN")
-    if(!file.exists(file.path(babyGRAN, "inst", "scripts")))
-        dir.create(file.path(babyGRAN, "inst","scripts"), recursive = TRUE)
+    dir.create(file.path(babyGRAN, "inst","scripts"), recursive = TRUE)
     GRANRepo = repo
     res = file.copy(system.file("GRAN", package="GRANBase"),
               normalizePath2(repobase(repo)), recursive=TRUE,
