@@ -9,7 +9,7 @@ makeSrcDirs = function(repo, cores = 3L, scm_auth)
         type = manifest$type, scm_auth= scm_auth, branch = manifest$branch,
         subdir = manifest$subdir, prefer_svn = TRUE, name = manifest$name)
     path = checkout_dir(repo)
-    versions = versions_df(repo)
+    versions = versions_df(repo)[binds,]
     res <- mapply(#mcmapply2(
         function(nm, src,  repo, path, version) {
             ##hack for now, supports github but not other git repos

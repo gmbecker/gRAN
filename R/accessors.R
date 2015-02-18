@@ -188,7 +188,9 @@ setMethod("repo_url","GRANRepository",
           function(repo) paste(param(repo)@dest_url,
                                param(repo)@repo_name,
                                sep="/"))
-
+##' @rdname repo_url-methods
+##' @aliases repo_url,NULL
+##' @export
 setMethod("repo_url","NULL", function(repo) NULL)
 
 

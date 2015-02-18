@@ -1,5 +1,5 @@
 ##' @import switchr
-
+##' @import methods
 
 
 
@@ -26,7 +26,7 @@ setClass("RepoBuildParam", representation(
          contains = "SwitchrParam")
 
 
-##' @rdname granrepository
+##' @rdname GRANRepository
 ##' @export
 setClass("GRANRepository", representation(
     results = "data.frame",
@@ -94,7 +94,7 @@ updateGRANRepoObject = function(object, ...) {
 ##' @param param A RepoBuildParam object controlling the location and behavior of
 ##' the repository being built
 ##' @param ... Passed through to the default value of \code{param}
-##' @rdname granrepository
+##' @rdname GRANRepository
 ##' @export
 GRANRepository = function(manifest,
     results,

@@ -1,9 +1,10 @@
 Package: GRANBase
 Type: Package
 Title: GRAN
-Version: 0.9.75
-Author: Gabriel Becker, Cory Barr
+Version: 0.9.76
+Author: Gabriel Becker[aut,cre], Cory Barr [cre,ctb]
 Maintainer: Gabriel Becker <becker.gabriel@gene.com>
+Copyright: Genentech Inc
 Description: Repository based tools for department and analysis level
     reproduciblity. With this package, users can: create custom branched,
     continuous integration-ready R repositories, recreate R installation
@@ -14,8 +15,7 @@ Imports:
     tools,
     BiocInstaller,
     XML,
-    hwriter,
-    digest
+    hwriter
 Depends:
     switchr,
     methods

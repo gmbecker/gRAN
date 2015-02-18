@@ -75,7 +75,11 @@ is saved within the created directory structure as the repo.R file. This allows 
 repo = makeRepo(file.path(repdir, "stable"))
 @ 
 
-The \Rfunction{makeRepo} function also accepts a {\tt buildOnly} argument, which will cause only the specified packages (and their reverse dependencies) to be rebuilt, regardless of changes in version number.
+The \Rfunction{makeRepo} function also accepts a {\tt build\_pkgs} argument, which will cause only the specified packages (and their reverse dependencies) to be rebuilt, regardless of changes in version number.
+
+<<eval=TRUE>>=
+repo2  = makeRepo(repo, build_pkgs=basename(testpkgs)[1])
+@ 
 \newpage
 \section{The repository build process}
 

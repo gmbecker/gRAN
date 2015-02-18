@@ -17,6 +17,8 @@
 ##' \code{GRANRepository} object if one does not already exist.
 ##' @return A GRANRepository object which has used to create a repository.
 ##'
+##' @docType methods
+##' @rdname makerepo
 ##' @export
 
 

@@ -19,6 +19,8 @@ available.packages(contriburl = contrib.url(getOption("repos"), type), method,
 \arguments{
 \item{contriburl}{The repository or contrib url}
 
+\item{method}{See base documentation}
+
 \item{fields}{See base documentation}
 
 \item{type}{The type of packages to query}

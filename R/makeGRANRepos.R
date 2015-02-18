@@ -1,4 +1,5 @@
-
+##' @rdname makerepo
+##' @aliases makeRepo,PkgManifest
 setMethod("makeRepo", "PkgManifest",
           function(x, cores = 3L, build_pkgs = NULL,
                    scm_auth = list("bioconductor.org" =
@@ -17,6 +18,8 @@ setMethod("makeRepo", "PkgManifest",
           })
 
 
+##' @rdname makerepo
+##' @aliases makeRepo,SessionManifest
 
 setMethod("makeRepo", "SessionManifest",
           function(x, cores = 3L, build_pkgs = NULL, 
@@ -33,7 +36,8 @@ setMethod("makeRepo", "SessionManifest",
 
 
 
-
+##' @rdname makerepo
+##' @aliases makeRepo,GRANRepository
 setMethod("makeRepo", "GRANRepository",
           function(x, cores = 3L, build_pkgs = NULL,  
                    scm_auth = list("bioconductor.org" =
@@ -92,6 +96,8 @@ setMethod("makeRepo", "GRANRepository",
               repo
           })
 
+##' @rdname makerepo
+##' @aliases makeRepo,character
 
 setMethod("makeRepo", "character",
           function(x, cores = 3L, build_pkgs = NULL,  

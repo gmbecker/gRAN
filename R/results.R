@@ -1,21 +1,22 @@
 
-ResultsRow = function(name = NA,
+ResultsRow = function(name = NA_character_,
     building = TRUE,
     status = "ok",
     version = "0.0-0",
-    lastAttempt = NA,
-    lastAttemptVersion = NA,
-    lastAttemptStatus = NA,
-    lastbuilt = NA,
-    lastbuiltversion = NA,
-    lastbuiltstatus = NA,
-    buildReason = NA,
-    maintainer  = NA,
+    lastAttempt = NA_character_,
+    lastAttemptVersion = NA_character_,
+    lastAttemptStatus = NA_character_,
+    lastbuilt = NA_character_,
+    lastbuiltversion = NA_character_,
+    lastbuiltstatus = NA_character_,
+    buildReason = NA_character_,
+    maintainer  = NA_character_,
     suspended  = FALSE) {
     data.frame(name = name, status = status,
                version = version,
                lastAttempt = lastAttempt,
                lastAttemptStatus = lastAttemptStatus,
+               lastAttemptVersion = lastAttemptVersion,
                lastbuilt = lastbuilt,
                lastbuiltversion = lastbuiltversion,
                lastbuiltstatus = lastbuiltstatus,
@@ -30,6 +31,10 @@ init_results = function(repo) {
         repo_results(repo) = ResultsRow(name = manifest_df(repo)$name)
     else {
         df = repo_results(repo)
+        missingcols = setdiff(names(ResultsRow()), names(df))
+        for(col in missingcols)
+            df[[col]] = ResultsRow()[[col]]
+
         df$status = ifelse(df$suspended, NA_character_, "ok")
         df = df[,names(ResultsRow())]
         repo_results(repo) = df
