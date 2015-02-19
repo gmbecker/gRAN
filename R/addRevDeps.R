@@ -29,7 +29,7 @@ addRevDeps = function(repo)
     pkgs = repo_results(repo)$name[getBuilding(repo)]
     revdeps = sapply(pkgs, dependsOnPkgs, dependencies = "all",
         lib.loc = temp_lib(repo), simplify=FALSE)
-    if(!length(unlist(revdeps))) {
+    if(!length(unlist(revdeps)) || all(revdeps %in% pkgs)) {
         logfun(repo)("NA", "No reverse dependencies detected")
         return(repo)
     }
@@ -72,6 +72,8 @@ addRevDeps = function(repo)
                      "Building reverse dependencies in temporary repository.")
         tmprepo = repo
         repo_results(tmprepo) = manifest[rdepBuildPkgs,]
+        manifest_df(tmprepo) = manifest_df(tmprepo)[rdepBuildPkgs,]
+        versions_df(tmprepo) = versions_df(tmprepo)[rdepBuildPkgs,]
         repo_results(tmprepo)$building = TRUE
         repo_results(tmprepo)$status="ok"
         tmprepo = buildBranchesInRepo(repo = tmprepo, temp = TRUE,
