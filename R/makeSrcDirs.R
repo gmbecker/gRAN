@@ -7,7 +7,7 @@ makeSrcDirs = function(repo, cores = 3L, scm_auth)
     scm_auth = replicate(scm_auth, n=nrow(manifest), simplify=FALSE)
     sources = mapply(makeSource, url = manifest$url,
         type = manifest$type, scm_auth= scm_auth, branch = manifest$branch,
-        subdir = manifest$subdir, prefer_svn = TRUE, name = manifest$name)
+        subdir = manifest$subdir,  name = manifest$name)
     path = checkout_dir(repo)
     versions = versions_df(repo)[binds,]
     res <- mapply(#mcmapply2(
