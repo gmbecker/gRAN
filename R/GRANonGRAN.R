@@ -38,6 +38,12 @@ GRANonGRAN = function(repo)
     }
     if(!"switchr" %in% manifest_df(repo, session_only=FALSE)$name)
         repo = addPkg(repo, name = "switchr", url="http://github.com/gmbecker/switchr", type = "git")
+    else {
+        df = manifest_df(repo)
+        df[df$name == "switchr", "building"] = TRUE
+        manifest_df(repo) = df
+    }
+        
     repo
     
         
