@@ -21,12 +21,15 @@ addRevDeps = function(repo)
     manifest = repo_results(repo)
     ##if this is the first time we are building the repository all the packages
     ##will be being built, so no need to check rev deps
-    if(!file.exists(temp_lib(repo)) || all(getBuilding(repo)))    {
+    ## ignore suspended packages when checking if everything is being built
+    if(!file.exists(temp_lib(repo)) || all(getBuilding(repo) |
+                                           manifest$name %in% suspended_pkgs(repo)))    {
         logfun(repo)("NA", paste("All packages are being built, skipping",
                                  "reverse dependency check."))
         return(repo)
     }
-    pkgs = repo_results(repo)$name[getBuilding(repo)]
+    
+    pkgs = manifest$name[getBuilding(repo)]
     revdeps = sapply(pkgs, dependsOnPkgs, dependencies = "all",
         lib.loc = temp_lib(repo), simplify=FALSE)
     if(!length(unlist(revdeps)) || all(revdeps %in% pkgs)) {
@@ -57,7 +60,7 @@ addRevDeps = function(repo)
     }
 
 
-    rdepBuildPkgs = manifest$buildReason != "vbump" & !manifest$suspended & grepl(paste0("(", paste(pkgs, collapse="|"), ")"), manifest$revDepOf)
+    rdepBuildPkgs = manifest$buildReason != "vbump" & !(manifest$name %in% suspended_pkgs(repo)) & grepl(paste0("(", paste(pkgs, collapse="|"), ")"), manifest$revDepOf)
     manifest[rdepBuildPkgs, "buildReason"] = "is rdep"
     manifest[rdepBuildPkgs, "building"] = TRUE 
     
@@ -67,20 +70,22 @@ addRevDeps = function(repo)
                               paste(manifest$name[rdepBuildPkgs],
                                     collapse=" , ")))
 
-    if(sum(rdepBuildPkgs) >0) {
-        logfun(repo)("NA",
-                     "Building reverse dependencies in temporary repository.")
-        tmprepo = repo
-        repo_results(tmprepo) = manifest[rdepBuildPkgs,]
-        manifest_df(tmprepo) = manifest_df(tmprepo)[rdepBuildPkgs,]
-        versions_df(tmprepo) = versions_df(tmprepo)[rdepBuildPkgs,]
-        repo_results(tmprepo)$building = TRUE
-        repo_results(tmprepo)$status="ok"
-        tmprepo = buildBranchesInRepo(repo = tmprepo, temp = TRUE,
-           # incremental = FALSE)
-            incremental = TRUE)
-        manifest[rdepBuildPkgs, ] = repo_results(tmprepo)
-    }
+## I don't think we need this because this is happening before the main
+    ## buildBranchesInRepo call....
+    ##    if(sum(rdepBuildPkgs) >0) {
+    ##        logfun(repo)("NA",
+    ##                     "Building reverse dependencies in temporary repository.")
+    ##        tmprepo = repo
+    ##       repo_results(tmprepo) = manifest[rdepBuildPkgs,]
+    ##       manifest_df(tmprepo) = manifest_df(tmprepo)[rdepBuildPkgs,]
+    ##       versions_df(tmprepo) = versions_df(tmprepo)[rdepBuildPkgs,]
+    ##       repo_results(tmprepo)$building = TRUE
+    ##       repo_results(tmprepo)$status="ok"
+    ##       tmprepo = buildBranchesInRepo(repo = tmprepo, temp = TRUE,
+                                        # incremental = FALSE)
+    ##           incremental = TRUE)
+    ##       manifest[rdepBuildPkgs, ] = repo_results(tmprepo)
+    ##   }
     repo_results(repo) = manifest
     repo
 }
