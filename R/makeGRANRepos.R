@@ -66,7 +66,7 @@ setMethod("makeRepo", "GRANRepository",
                   suspended_pkgs(repo) = setdiff(suspended_pkgs(repo),
                                     build_pkgs)
               } else {
-                  repo_results(repo)$building = !manifest_df(repo)$name %in% suspendend_pkgs(repo)
+                  repo_results(repo)$building = !manifest_df(repo)$name %in% suspended_pkgs(repo)
               }
                   
 
