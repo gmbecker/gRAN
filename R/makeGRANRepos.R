@@ -65,7 +65,10 @@ setMethod("makeRepo", "GRANRepository",
                       manifest_df(repo)$name %in% build_pkgs
                   suspended_pkgs(repo) = setdiff(suspended_pkgs(repo),
                                     build_pkgs)
+              } else {
+                  repo_results(repo)$building = !manifest_df(repo)$name %in% suspendend_pkgs(repo)
               }
+                  
 
               print(paste("Building", sum(getBuilding(repo)), "packages"))
               ##package, build thine self!
