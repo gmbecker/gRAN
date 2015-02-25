@@ -78,7 +78,7 @@ isOkStatus = function(status= repo_results(repo)$status,
                       (check_note_ok(repo) & status == "check note(s)"))
 }
 
-install.packages2 = function(pkgs, repos, lib,  ...)
+install.packages2 = function(pkgs, repos, lib,  ..., param = SwitchrParam())
 {
     outdir = tempdir()
     wd = getwd()
@@ -88,9 +88,21 @@ install.packages2 = function(pkgs, repos, lib,  ...)
     ##end up in both locations!
     ##install.packages(pkgs, ..., keep_outputs=outdir)
     avail = available.packages(contrib.url(repos))
-    install.packages(pkgs = pkgs, repos = repos,
-                     INSTALL_opts = sprintf("-l %s", lib), lib = lib,
-                     ..., keep_outputs=TRUE)
+    args = list(pkgs = pkgs, repos = repos, lib = lib, ...,
+        INSTALL_opts = sprintf("-l %s", lib),
+        keep_outputs = TRUE)
+    
+
+    tmpfile = tempfile(fileext=".rda")
+    save(args, file =tmpfile)
+    code = sprintf("load('%s'); do.call(install.packages, args)", tmpfile)
+    codefile = tempfile(pattern="instcode", fileext=".R")
+    cat(code, file= codefile)
+    cmd = paste0("R_LIBS_SITE=", lib, " R_LIBS_USER=",lib, " R", " --no-save <", codefile)
+    system_w_init(cmd, param = param)
+    ##    install.packages(pkgs = pkgs, repos = repos,
+    ##                     INSTALL_opts = sprintf("-l %s", lib), lib = lib,
+    ##                     ..., keep_outputs=TRUE)
     ret = sapply(pkgs, function(p)
     {
         if(! p %in% avail[,"Package"])

@@ -14,7 +14,8 @@ doPkgTests = function(repo, cores = 3L)
 
 
     if(install_test_on(repo)) {
-        repo = installTest(repo, cores = cores)        
+        ##        repo = installTest(repo, cores = cores)
+        repo = installTest(repo, cores = cores)
         repo = buildBranchesInRepo(repo, temp=FALSE,
             incremental = TRUE, ## want to skip testing if pkg already passed
             cores = cores)
@@ -26,7 +27,6 @@ doPkgTests = function(repo, cores = 3L)
     repo
 
 }
-
 
 installTest = function(repo, cores = 3L)
 {
@@ -57,7 +57,13 @@ installTest = function(repo, cores = 3L)
     oldlp = .libPaths()
     .libPaths(loc)
     on.exit(.libPaths(oldlp))
-    res = install.packages2(bres$name, lib = loc, repos = c(paste0("file://",temp_repo(repo)), BiocInstaller::biocinstallRepos(), "http://R-Forge.R-project.org"), type = "source", dependencies=TRUE)
+    
+    res = install.packages2(bres$name, lib = loc,
+        repos = c(paste0("file://",temp_repo(repo)),
+            BiocInstaller::biocinstallRepos(),
+            "http://R-Forge.R-project.org"),
+        type = "source", dependencies=TRUE, Ncpus = cores,
+        param = param(repo))
     success = processInstOut(names(res), res, repo)
     cleanupInstOut(res)
     
