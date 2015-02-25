@@ -78,7 +78,7 @@ isOkStatus = function(status= repo_results(repo)$status,
                       (check_note_ok(repo) & status == "check note(s)"))
 }
 
-install.packages2 = function(pkgs, repos, ...)
+install.packages2 = function(pkgs, repos, lib,  ...)
 {
     outdir = tempdir()
     wd = getwd()
@@ -88,7 +88,9 @@ install.packages2 = function(pkgs, repos, ...)
     ##end up in both locations!
     ##install.packages(pkgs, ..., keep_outputs=outdir)
     avail = available.packages(contrib.url(repos))
-    install.packages(pkgs, repos, ..., keep_outputs=TRUE)
+    install.packages(pkgs = pkgs, repos = repos,
+                     INSTALL_opts = sprintf("-l %s", lib), lib = lib,
+                     ..., keep_outputs=TRUE)
     ret = sapply(pkgs, function(p)
     {
         if(! p %in% avail[,"Package"])
