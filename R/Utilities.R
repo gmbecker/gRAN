@@ -94,8 +94,8 @@ install.packages2 = function(pkgs, repos, lib,  ..., param = SwitchrParam())
     
 
     tmpfile = tempfile(fileext=".rda")
-    save(args, file =tmpfile)
-    code = sprintf("load('%s'); do.call(install.packages, args)", tmpfile)
+    save(args, outdir, file =tmpfile)
+    code = sprintf("load('%s'); setwd(outdir); do.call(install.packages, args)", tmpfile)
     codefile = tempfile(pattern="instcode", fileext=".R")
     cat(code, file= codefile)
     cmd = paste0("R_LIBS_SITE=", lib, " R_LIBS_USER=",lib, " R", " --no-save <", codefile)
