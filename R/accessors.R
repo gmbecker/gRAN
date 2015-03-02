@@ -168,6 +168,28 @@ setMethod("check_result_dir","GRANRepository",
                                    param(repo)@repo_name, "CheckResults" ))
 
 
+##' install_result_dir
+##' Return the path where instal results for packages will be deployed for use in
+##' the build report.
+##'
+##' @rdname install_result_dir-methods
+##' @param repo a GRANRepository object
+##' @return The directory where install results should be deployed for use in the
+##' build report
+##' @docType methods
+##' @export
+setGeneric("install_result_dir", function(repo) standardGeneric("install_result_dir"))
+##' @rdname install_result_dir-methods
+##' @aliases install_result_dir,GRANRepository-method
+##' @export
+setMethod("install_result_dir","GRANRepository",
+          function(repo) file.path(normalizePath2(param(repo)@dest_base),
+                                   param(repo)@repo_name, "InstallResults" ))
+
+
+
+
+
 
 ##' repo_url
 ##' Return the url that the repository will be served at. This is the web

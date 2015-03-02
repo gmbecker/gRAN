@@ -78,9 +78,12 @@ isOkStatus = function(status= repo_results(repo)$status,
                       (check_note_ok(repo) & status == "check note(s)"))
 }
 
-install.packages2 = function(pkgs, repos, lib,  ..., param = SwitchrParam())
+install.packages2 = function(pkgs, repos, lib,  ..., param = SwitchrParam(),
+    outdir = tempdir())
 {
-    outdir = tempdir()
+
+    if(!file.exists(outdir))
+        dir.create(normalizePath(outdir), recursive=TRUE)
     wd = getwd()
     on.exit(setwd(wd))
     setwd(outdir)
