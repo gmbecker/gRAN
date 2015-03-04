@@ -93,7 +93,7 @@ install.packages2 = function(pkgs, repos, lib,  ..., param = SwitchrParam(),
     avail = available.packages(contrib.url(repos))
     args = list(pkgs = pkgs, repos = repos, lib = lib, ...,
         INSTALL_opts = sprintf("-l %s", lib),
-        keep_outputs = TRUE)
+        keep_outputs = outdir)
     
 
     tmpfile = tempfile(fileext=".rda")
