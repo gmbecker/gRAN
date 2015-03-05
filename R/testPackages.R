@@ -62,7 +62,7 @@ installTest = function(repo, cores = 3L)
         repos = c(paste0("file://",temp_repo(repo)),
             BiocInstaller::biocinstallRepos(),
             "http://R-Forge.R-project.org"),
-        type = "source", dependencies=TRUE, Ncpus = cores,
+        type = "source", dependencies=TRUE, ## Ncpus = cores,
         param = param(repo),
         outdir = install_result_dir(repo))
     success = processInstOut(names(res), res, repo)
