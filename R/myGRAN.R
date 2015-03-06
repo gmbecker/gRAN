@@ -33,6 +33,15 @@ GRANRepo$repo = NULL
 ##' @export
 defaultGRAN = function() GRANRepo$repo
 
+
+##' defaultGRANURL
+##'
+##' Return the default GRAN repository for this package, or NULL.
+##' @export
+defaultGRANURL = function() repo_url(GRANRepo$repo)
+
+
+
 ##' currentPackage
 ##'
 ##' Returns the name of the GRAN package loaded (GRAN or GRANBase)

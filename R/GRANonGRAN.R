@@ -6,7 +6,7 @@ GRANonGRAN = function(repo)
                                 destination(repo)))
 #    babyGRAN = file.path(repobase(repo), "GRANpkg")
     if(file.exists(file.path(repobase(repo), "GRAN")))
-        unlink(file.path(repobase(repo), "GRAN"), recursive=TRUE)
+        unlink(file.path(repobase(repo), "GRAN"), recursive=TRUE, force=TRUE)
     babyGRAN = file.path(repobase(repo), "GRAN")
     dir.create(file.path(babyGRAN, "inst","scripts"), recursive = TRUE)
     GRANRepo = repo
@@ -41,6 +41,9 @@ GRANonGRAN = function(repo)
     else {
         df = manifest_df(repo)
         df[df$name == "switchr", "building"] = TRUE
+        res = repo_results(repo)
+        ##        res[res$name == "switchr", "lastbuiltversion"] = "0.0-0"
+                                        #need to force switchr build
         manifest_df(repo) = df
     }
         
