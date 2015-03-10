@@ -4,19 +4,21 @@ GRANonGRAN = function(repo)
     logfun(repo)("GRAN", paste("Creating repository specific GRAN package and",
                                 "installing it into the GRAN repository at",
                                 destination(repo)))
-#    babyGRAN = file.path(repobase(repo), "GRANpkg")
-    if(file.exists(file.path(repobase(repo), "GRAN")))
-        unlink(file.path(repobase(repo), "GRAN"), recursive=TRUE, force=TRUE)
-    babyGRAN = file.path(repobase(repo), "GRAN")
+
+    tmpdir = tempdir()
+    babyGRAN = file.path(tmpdir, "GRAN")
+    if(file.exists(babyGRAN))
+        unlink(babyGRAN, recursive=TRUE, force=TRUE)
+
     dir.create(file.path(babyGRAN, "inst","scripts"), recursive = TRUE)
     GRANRepo = repo
     res = file.copy(system.file("GRAN", package="GRANBase"),
-              normalizePath2(repobase(repo)), recursive=TRUE,
+              normalizePath2(tmpdir), recursive=TRUE,
               overwrite=TRUE)
     if(any(!res))
         stop("copy failed")
     saveRepo(GRANRepo,
-         filename = file.path(repobase(repo), "GRAN", "inst", "myrepo.R"))
+         filename = file.path(babyGRAN, "inst", "myrepo.R"))
     code = paste("getGRAN = function(...) {",
         sprintf("install.packages('GRAN', ..., repos = c('%s', getOption('repos')))", repo_url(repo)),
         "};", "getGRAN(type='source')", collapse = "\n")
