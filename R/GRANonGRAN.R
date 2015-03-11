@@ -5,7 +5,7 @@ GRANonGRAN = function(repo)
                                 "installing it into the GRAN repository at",
                                 destination(repo)))
 
-    tmpdir = tempdir()
+    tmpdir = repobase(repo)
     babyGRAN = file.path(tmpdir, "GRAN")
     if(file.exists(babyGRAN))
         unlink(babyGRAN, recursive=TRUE, force=TRUE)
