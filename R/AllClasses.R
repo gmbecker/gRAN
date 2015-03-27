@@ -104,7 +104,7 @@ GRANRepository = function(manifest,
     if(missing(results))
         results = ResultsRow(name = manifest_df(manifest)$name)
     if(is(manifest, "PkgManifest"))
-        manifest = SessionManifest(manifest - manifest,
+        manifest = SessionManifest(manifest = manifest,
             versions = data.frame(name = manifest_df(manifest)$name,
                 version = NA_character_,
                 stringsAsFactors = FALSE))
