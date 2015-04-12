@@ -4,6 +4,7 @@
 \name{repo_url}
 \alias{repo_url}
 \alias{repo_url,GRANRepository-method}
+\alias{repo_url,NULL-method}
 \title{repo_url
 Return the url that the repository will be served at. This is the web
 address corresponding to repository, suitable for calling contrib.url.  e.g
@@ -12,6 +13,8 @@ http://www.website.com/gran/current/}
 repo_url(repo)
 
 \S4method{repo_url}{GRANRepository}(repo)
+
+\S4method{repo_url}{`NULL`}(repo)
 }
 \arguments{
 \item{repo}{a GRANRepository object}

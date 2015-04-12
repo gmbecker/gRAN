@@ -123,7 +123,7 @@ readPkgsNEWS = function(df, oldlib = .libPaths(), tmplib = file.path(tempdir(), 
     as.data.frame(newsres)
 }
 
-globalVariables(Version)
+globalVariables("Version")
 innerReadNEWS = function(pkg, instver, repo, newlib, oldlib) {
     .libPaths(c(newlib))
     on.exit(.libPaths(oldlib))
