@@ -3,7 +3,8 @@
 
 
 
-##'@export
+##' @rdname RepoBuildParam
+##' @export
 setClass("RepoBuildParam", representation(
     repo_name = "character",
     temp_repo = "character",
@@ -25,6 +26,7 @@ setClass("RepoBuildParam", representation(
          contains = "SwitchrParam")
 
 
+##' @rdname GRANRepository
 ##' @export
 setClass("GRANRepository", representation(
     results = "data.frame",
@@ -92,6 +94,7 @@ updateGRANRepoObject = function(object, ...) {
 ##' @param param A RepoBuildParam object controlling the location and behavior of
 ##' the repository being built
 ##' @param ... Passed through to the default value of \code{param}
+##' @docType methods
 ##' @export
 GRANRepository = function(manifest,
     results,
@@ -112,6 +115,8 @@ GRANRepository = function(manifest,
 
 
 ##' RepoBuildParam
+##'
+##' Constructor for  RepoBuildParam objects
 ##' 
 ##' @param basedir The base directory. By default the temporary repository,
 ##' temporary install library, and package staging area will be located in
@@ -123,9 +128,9 @@ GRANRepository = function(manifest,
 ##' @param temp_checkout Location to create temporary checkouts/copies of package
 ##'   source code
 ##' @param errlog The file to append error output to during the building and
-##'   testing processes
+##'   testing processes. Specifying a non-default \code{logfun} overrides this argument.
 ##' @param logfile The file to append summary log information to during building
-##'   and testing
+##'   and testing. Specifying a non-default \code{logfun} overrides this argument.
 ##' @param check_note_ok logical. Whether packages that raise notes during
 ##'   R CMD check should be considered to have passed
 ##' @param check_warn_ok logical. Whether packages that raise warnings during
@@ -137,17 +142,19 @@ GRANRepository = function(manifest,
 ##'   final repository to be built
 ##' @param auth character. Authentication information required to add packages
 ##'   to the manifest.
-##' @param manifest data.frame. The manifest of package information associated
-##'   with this repository. Defaults to an empty manifest.
 ##' @param dest_url The base URL the destination directory corresponds to. The
 ##' subrepository name will be appended to this to generate the URL used when
 ##' installing from the repository.
 ##' @param shell_init An optional shell script to source before invoking system
 ##' commands, e.g. a bashrc file. Ignored if "" or not specified.
+##' @param logfun A function to call to write the error and full log messages. The default is a closer which carries around the locations specified via \code{logfile} and \code{errfile}.
 ##' @param install_test logical. Should the install test be performed? Required
 ##' to build packages with vignettes, and for the check test
 ##' @param check_test logical. Should R CMD check be run on the packages as a
 ##' cohort. Requires install test.
+##' @return A parameter object representing the options to use when building a package
+##' repository from a GRANRepository object.
+##' @rdname RepoBuildParam
 ##' @export
 
 

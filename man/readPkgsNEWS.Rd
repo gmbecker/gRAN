@@ -8,9 +8,15 @@ readPkgsNEWS(df, oldlib = .libPaths(), tmplib = file.path(tempdir(),
   "libloc"), repos = unique(df$Repository), newlib = NULL)
 }
 \arguments{
-\item{df}{A data.frame or matrix of out-of-date packages currently installed, with columns Package, Installed (installed version), and Repository (contriburl of repo with newer version). Other columns are ignored. A}
+\item{df}{A data.frame or matrix of out-of-date packages currently installed, with columns Package, Installed (installed version), and Repository (contriburl of repo with newer version). Other columns are ignored.}
+
+\item{oldlib}{The location of the library of 'old', currently installed packages}
 
 \item{tmplib}{A temporary library directory to install new versions of the packages into so that their NEWS files can be accessed.}
+
+\item{repos}{The urls of package repositories to search for updated versions of packages installed in \code{oldlib}}
+
+\item{newlib}{The location of a 'new' library. If specified, package versions installed here will be used for the comparison /instead of/ the latest versions available in \code{repos}}
 }
 \value{
 A data.frame with 3 counts for each updatable package: bugfixes, u_visible_changes (user visible changes) and deprec (deprecation and defunct entries). All counts are NA if the package does not have parsable NEWS.

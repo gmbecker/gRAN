@@ -1,3 +1,9 @@
+## The function in this file are largely deprecated and have been superseeded by
+## the lazyRepo and makeRepo functionality in switchr.
+
+## I'm leaving these here until I can have a closer look before removing them altogether.
+
+
 ##base packages are not available anywhere but the core R distribution
 ## so we will never find them and do not need to look. The version will always
 ## match the R version (XXX double check in case of patched)
@@ -11,7 +17,7 @@ basepkgs = pkgs[ pkgs[,"Priority"] %in% "base", "Package"]
 
 ##' @rdname virtualRepo-funs
 ##' @param sinfo A sessionInfo object or character vector containing the text from printing such an object
-##' @export
+
 sessionRepo = function(sinfo = sessionInfo(),
     repo_dir, doi= NULL, dir,
     name = NULL , replace = FALSE, stoponfail = TRUE, GRepo = GRANRepo$repo,
@@ -55,7 +61,6 @@ sinfoToPkgDF = function(sinfo) {
 
 ##' @rdname virtualRepo-funs
 ##' @return for \code{getPkgVersions} and \code{getSessionPackages}, a character vector with the full path to each downloaded/built tar.gz file.
-##' @export
 getSessionPackages = function(sinfo, dir, GRepo = NULL, stoponfail = FALSE) {
     if(!(is(sinfo, "sessionInfo") || is(sinfo, "character") || is(sinfo, "parsedSessionInfo"))){
         stop("sinfo must be a character vector or sessionInfo object")
@@ -67,7 +72,6 @@ getSessionPackages = function(sinfo, dir, GRepo = NULL, stoponfail = FALSE) {
 ##' @param pkgs A data.frame  of package versions to locate and/or build
 ##' @param pkgcol The column in \code{pkgs} or \code{pkgsdf} containing the package names
 ##' @param verscol The column in \code{pkgs} or \code{pkgsdf} containing the package versions
-##' @export
 getPkgVersions = function(pkgs, dir, GRepo = NULL, stoponfail = FALSE,pkgcol = "Package", verscol = "Version") {
   
     if(!(is.null(GRepo) || is(GRepo, "character") || is(GRepo, "GRANRepository"))){
@@ -136,12 +140,9 @@ getPkgVersions = function(pkgs, dir, GRepo = NULL, stoponfail = FALSE,pkgcol = "
 ##' contain only the packages for this set of package versions. In generally this should
 ##' *not* be your standard library location.
 ##' @param Rvers The R version to build into the repository structure, if desired. Defaults to no specific version (suitable for src packages).
-##' @param pkgcol  Column in the dataframe that contains package name
-##' @param verscol Column in the dataframe taht contains package version
 ##' @return for \code{makeVirtualRepo} and \code{sessionRepo}, the path to the created virtual repository
 ##' @author Gabriel Becker
 ##' @importFrom digest digest
-##' @export
 
 makeVirtualRepo = function(pkgdf,
     repo_dir,

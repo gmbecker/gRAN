@@ -40,6 +40,7 @@ setMethod("errlogfile", "GRANRepository", function(repo) {
     ret})
 
 ##' Retrieve the path to a GRAN (sub) repository
+##' @param repo a GRANRepository object
 ##' @rdname location-methods
 ##' @aliases location,GRANREpository-method
 setMethod("location", "GRANRepository", function(repo) {
@@ -88,8 +89,15 @@ setMethod("staging", "GRANRepository", function(repo) {
     normalizePath2(ret)
 })
 
+##' @rdname GRANRepo_param_acs
+##' @param repo A GRANRepository object
+##' @aliases temp_lib
 ##' @export
 setGeneric("temp_lib", function(repo) standardGeneric("temp_lib"))
+##' @rdname GRANRepo_param_acs
+##' @aliases temp_lib,GRANRepository
+##' @export
+
 setMethod("temp_lib", "GRANRepository",
           function(repo) normalizePath2(param(repo)@tempLibLoc))
 

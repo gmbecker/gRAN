@@ -69,10 +69,6 @@ contain only the packages for this set of package versions. In generally this sh
 \item{pkgdf}{A data.frame containing the package names and versions to populate the repository with}
 
 \item{Rvers}{The R version to build into the repository structure, if desired. Defaults to no specific version (suitable for src packages).}
-
-\item{pkgcol}{Column in the dataframe that contains package name}
-
-\item{verscol}{Column in the dataframe taht contains package version}
 }
 \value{
 for \code{getPkgVersions} and \code{getSessionPackages}, a character vector with the full path to each downloaded/built tar.gz file.

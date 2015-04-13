@@ -94,8 +94,11 @@ buildRiskReport = function(to_update = old.packages(repos = repo_urls),
 ##'
 ##' Attempts to generate a per-package summary of risky-to-ignore changes for updatable packages.
 ##' @title Read and summarize the NEWS files for packages at risk (updatable)
-##' @param df A data.frame or matrix of out-of-date packages currently installed, with columns Package, Installed (installed version), and Repository (contriburl of repo with newer version). Other columns are ignored. A
+##' @param df A data.frame or matrix of out-of-date packages currently installed, with columns Package, Installed (installed version), and Repository (contriburl of repo with newer version). Other columns are ignored.
+##' @param oldlib The location of the library of 'old', currently installed packages
 ##' @param tmplib A temporary library directory to install new versions of the packages into so that their NEWS files can be accessed.
+##' @param repos The urls of package repositories to search for updated versions of packages installed in \code{oldlib}
+##' @param newlib The location of a 'new' library. If specified, package versions installed here will be used for the comparison /instead of/ the latest versions available in \code{repos}
 ##' @return A data.frame with 3 counts for each updatable package: bugfixes, u_visible_changes (user visible changes) and deprec (deprecation and defunct entries). All counts are NA if the package does not have parsable NEWS.
 ##' @importFrom utils news
 ##' @export
