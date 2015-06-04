@@ -16,8 +16,15 @@
 identifyRisk = function(to_update = old.packages(repos = repo_urls),
     important_pkgs = installed.packages(lib.loc = liblocs)[,"Package"],
     liblocs = .libPaths(),
-    repo_urls = getOption("repos"), gRAN = GRANRepo$repo)
+    repo_urls = getOption("repos"), gran_repo_name)
 {
+    if(!missing(gran_repo_name)) {
+        loadGRAN(gran_repo_name)
+        gRAN = defaultGRAN()
+    } else {
+        gRAN = NULL
+    }
+        
     if(!is.null(gRAN))
         repo_urls = c(repo_url(gRAN), repo_urls)
     if(is(to_update, "matrix"))
@@ -69,7 +76,7 @@ buildRiskReport = function(to_update = old.packages(repos = repo_urls),
   risks = identifyRisk(to_update= to_update, important_pkgs = important_pkgs)
   oldmat$ImpPkgsAffected = sapply(risks$splash_damage, function(vec, imp) sum(imp %in% vec), imp = important_pkgs)
   ##use hwriter for now, something better will come later
-  css_file = system.file("js_css", "RiskReport.css", package = currentPackage())
+  css_file = system.file2("js_css", "RiskReport.css", package = "GRANBase")
   css = paste(readLines(css_file), collapse = "\n")
   pg =  openPage(filename = file, title  = paste("Update Risk Assessment", Sys.Date()), css = css)
 

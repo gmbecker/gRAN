@@ -1,14 +1,13 @@
 Package: GRANBase
 Type: Package
-Title: GRAN
-Version: 0.9.93
+Title: Creating continuously integrated package repositories
+Version: 1.0.1
 Author: Gabriel Becker[aut,cre], Cory Barr [cre,ctb]
 Maintainer: Gabriel Becker <becker.gabriel@gene.com>
 Copyright: Genentech Inc
 Description: Repository based tools for department and analysis level
-    reproduciblity. With this package, users can: create custom branched,
-    continuous integration-ready R repositories, recreate R installation
-    libraries from sessionInfo objects or outputs, and assess the risk changing
+    reproduciblity. 'GRANBase' allows creation of custom branched,
+    continuous integration-ready R repositories, including incremental testing of only packages which have changed since the last repository build.
     package versions.
 License: Artistic-2.0
 Imports:

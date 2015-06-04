@@ -58,6 +58,7 @@ installTest = function(repo, cores = 3L)
     .libPaths(loc)
     on.exit(.libPaths(oldlp))
     
+    
     res = install.packages2(bres$name, lib = loc,
         repos = c(paste0("file://",temp_repo(repo)),
             BiocInstaller::biocinstallRepos(),
@@ -135,6 +136,11 @@ checkTest = function(repo, cores = 3L)
     
     tars = tars[unlist(ord)]
     outs = mcmapply2( function(tar, nm, repo) {
+                         if(nm == "GRANBase") {
+                                     logfun(repo)(nm, paste("Not checking GRANBase package to avoid recursion problems"))
+                                     return("ok")
+                                 }
+                                     
         logfun(repo)(nm, paste("Running R CMD check on ", tar))
         ## We built the vignettes during this round of building, so if the pkg is going to
         ##fail on building vignettes it will have already happened by this point

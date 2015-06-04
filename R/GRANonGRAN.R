@@ -6,49 +6,76 @@ GRANonGRAN = function(repo)
                                 destination(repo)))
 
     tmpdir = repobase(repo)
-    babyGRAN = file.path(tmpdir, "GRAN")
+    pkgname = paste0("GRAN", repo_name(repo))
+    babyGRAN = file.path(tmpdir, pkgname)
     if(file.exists(babyGRAN))
         unlink(babyGRAN, recursive=TRUE, force=TRUE)
 
-    dir.create(file.path(babyGRAN, "inst","scripts"), recursive = TRUE)
+    dirs = file.path(babyGRAN, c("inst/scripts", "R", "man", "vignettes"))
+    sapply(dirs, dir.create, recursive = TRUE)
     GRANRepo = repo
-    res = file.copy(system.file("GRAN", package="GRANBase"),
-              normalizePath2(tmpdir), recursive=TRUE,
-              overwrite=TRUE)
+               
+    fils = list.files(system.file2("GRAN", package="GRANBase"), recursive=TRUE)
+    res = file.copy(file.path(system.file2("GRAN", package="GRANBase"), fils),
+              file.path(babyGRAN, fils), overwrite=TRUE)
     if(any(!res))
         stop("copy failed")
     saveRepo(GRANRepo,
          filename = file.path(babyGRAN, "inst", "myrepo.R"))
     code = paste("getGRAN = function(...) {",
-        sprintf("install.packages('GRAN', ..., repos = c('%s', getOption('repos')))", repo_url(repo)),
+        sprintf("install.packages('%s', ..., repos = c('%s', getOption('repos')))",
+                pkgname, repo_url(repo)),
         "};", "getGRAN(type='source')", collapse = "\n")
     cat(code, file = file.path(babyGRAN, "inst", "scripts", "getGRAN.R"))
     cat(code, file = file.path(dest_base(repo), paste0("getGRAN-", repo_name(repo), ".R")))
     DESC = readLines(file.path(babyGRAN, "DESCRIPTION"))
-    DESC[1] = "Package: GRAN"
+    DESC[1] = paste0("Package: ", pkgname)
     writeLines(DESC, con = file.path(babyGRAN, "DESCRIPTION"))
-
-    if("GRAN" %in% manifest_df(repo)$name) {
-        granInd = which(repo_results(repo)$name == "GRAN")
-        repo_results(repo)[granInd,] = ResultsRow(name = "GRAN")
-        manifest_df(repo)[granInd,] = ManifestRow(name="GRAN",
+    cat(paste0("pkgname = '", pkgname, "'"), file = file.path(babyGRAN, "R", "00packagename.R"))
+    
+    if(pkgname %in% manifest_df(repo)$name) {
+        granInd = which(repo_results(repo)$name == pkgname)
+        repo_results(repo)[granInd,] = ResultsRow(name = pkgname)
+        manifest_df(repo)[granInd,] = ManifestRow(name=pkgname,
                              url = babyGRAN, type="local", subdir = ".",
                              branch = "master")
     } else {
-        repo = addPkg(repo, name="GRAN", url = babyGRAN, type="local",
+        repo = addPkg(repo, name=pkgname, url = babyGRAN, type="local",
             subdir = ".")
     }
-    if(!"switchr" %in% manifest_df(repo, session_only=FALSE)$name)
-        repo = addPkg(repo, name = "switchr", url="http://github.com/gmbecker/switchr", type = "git")
-    else {
-        df = manifest_df(repo)
-        df[df$name == "switchr", "building"] = TRUE
-        res = repo_results(repo)
-        ##        res[res$name == "switchr", "lastbuiltversion"] = "0.0-0"
-                                        #need to force switchr build
-        manifest_df(repo) = df
+
+    cran_use_ok = use_cran_granbase(repo)
+    if(cran_use_ok) {
+        ## this should give us GRANBase, switchr, and dependencies
+
+        ## can't test it without it being on CRAN though :-/
+        res = tryCatch(install_packages("GRANBase", dependencies=TRUE, lib = temp_lib(repo)),
+            error = function(e) e)
+        if(is(res, "error"))
+            cran_use_ok = FALSE
     }
-        
+            
+    if(!cran_use_ok) { ## force switchr and GRANBase into the manifest and make them build
+        if(!"switchr" %in% manifest_df(repo, session_only=FALSE)$name)
+            repo = addPkg(repo, name = "switchr", url="http://github.com/gmbecker/switchr", type = "git")
+        else {
+            df = repo_results(repo)
+            df[df$name == "switchr", "building"] = TRUE
+            df[df$name == "switchr", "lastbuiltversion"] = "0.0-0"
+            repo_results(repo) = df
+        }
+
+        if(!"GRANBase" %in% manifest_df(repo, session_only=FALSE)$name)
+           repo = addPkg(repo, name = "GRANBase",  url="http://github.com/gmbecker/gRAN", type = "git")
+        else {
+           df = repo_results(repo)
+           df[df$name == "GRANBase", "building"] = TRUE
+           df[df$name == "GRANBase", "lastbuiltversion"] = "0.0-0"
+
+           repo_results(repo) = df
+       }
+    }
+    
     repo
     
         

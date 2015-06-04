@@ -103,6 +103,8 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
                             logfun(repo)(pkg, paste0("Forcing rebuild of version ", vnum, "."))
                         }
 
+                        if(pkg == "GRANBase" && !grepl("--no-build-vignettes", opts))
+                           opts = paste(opts, "--no-build-vignettes")
                         command <- paste("R CMD build", checkout, opts )
                         if(!temp)
                             command = paste0("R_LIBS_USER=", temp_lib(repo), " ", command) 

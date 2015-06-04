@@ -1,12 +1,4 @@
 #!/bin/bash
-DIR=inst/GRAN
-HOME=`pwd`
-if [ -d "$DIR" ]; then
-   echo "Removing temp copy of GRAN package at $DIR"
-   rm -f -r $DIR
-else
-	echo "Directory to cleanup not found!"
-fi
 
 SESREPO=vignettes/mySessionRepo
 if [ -d "$SESRepo" ]; then

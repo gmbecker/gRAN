@@ -1,3 +1,18 @@
+system.file2 = function(..., package = "GRANBase") {
+    ret = tryCatch(system.file(..., package = package), error = function(e) e)
+
+    if(!is.null(ret) && !is(ret, "error"))
+        return(ret)
+    instp = installed.packages()
+    if(!package %in% instp[,"Package"])
+        return(NULL)
+    path = file.path(instp[package,"LibPath"], package, ...)
+    if(file.exists(path))
+        return(path)
+    else
+        return(NULL)
+}
+
 
 ##' writeGRANLog
 ##'
@@ -14,7 +29,6 @@ writeGRANLog = function(pkg, msg, type = "full", logfile, errfile)
 {
     
     dt = date()
-    targs = 
     
     if(type == "error")
     {
