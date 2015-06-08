@@ -1,7 +1,7 @@
 Package: GRANBase
 Type: Package
 Title: Creating continuously integrated package repositories
-Version: 1.0.2
+Version: 1.0.3
 Author: Gabriel Becker[aut,cre], Cory Barr [cre,ctb]
 Maintainer: Gabriel Becker <becker.gabriel@gene.com>
 Copyright: Genentech Inc
@@ -21,3 +21,5 @@ Suggests:
     parallel,
     BiocStyle
 SystemRequirements: svn, git
+Url: https://github.com/gmbecker/gRAN
+BugReports: https://github.com/gmbecker/gRAN/issues
