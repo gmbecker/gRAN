@@ -54,13 +54,14 @@ suppressPackageStartupMessages(library(GRANBase))
 
 <<eval=TRUE>>=
 
-testpkgs = list.files(system.file("testpkgs", package = currentPackage()), full.names = TRUE)
-man = PkgManifest(name = basename(testpkgs), url = testpkgs, type = "local")
+testpkgs = list.files(system.file("testpkgs", package = "GRANBase"), full.names = TRUE)
+man = PkgManifest(name = basename(testpkgs), 
+    url =  testpkgs, type = "local")
 repdir = file.path(tempdir(), "repos")
 dir.create(repdir)
 repo = makeRepo(man, repo_name= "stable", basedir = repdir,
     destination = repdir, dest_url = paste0("file://", normalizePath(repdir)),
-    cores = 1L)
+    cores = 2L)
 @ 
 <<eval=TRUE>>=
 available.packages(repo, type="source")
@@ -72,13 +73,13 @@ We refer readers to the documentation for that function regarding the customizat
 Once a \gran repository is created, its \Rclass{GRANRepository} object 
 is saved within the created directory structure as the repo.R file. This allows future builds to be invoked by the simpler syntax of passing a \Rclass{GRANRepository} object or path to a created repository to \Rfunction{makeRepo} directly:
 
-<<eval=TRUE>>=
+<<eval=FALSE>>=
 repo = makeRepo(file.path(repdir, "stable"), cores=1L)
 @ 
 
 The \Rfunction{makeRepo} function also accepts a {\tt build\_pkgs} argument, which will cause only the specified packages (and their reverse dependencies) to be rebuilt, regardless of changes in version number.
 
-<<eval=TRUE>>=
+<<eval=FALSE>>=
 repo2  = makeRepo(repo, build_pkgs=basename(testpkgs)[1],
     cores = 1L)
 @ 

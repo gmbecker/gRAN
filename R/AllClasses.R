@@ -22,7 +22,9 @@ setClass("RepoBuildParam", representation(
     dest_url = "character",
     install_test = "logical",
     check_test = "logical",
-    suspended = "character"),
+    suspended = "character",
+    use_cran_granbase = "logical"),
+         prototype = prototype(use_cran_granbase = TRUE),
          contains = "SwitchrParam")
 
 
@@ -155,6 +157,10 @@ GRANRepository = function(manifest,
 ##' to build packages with vignettes, and for the check test
 ##' @param check_test logical. Should R CMD check be run on the packages as a
 ##' cohort. Requires install test.
+##' @param use_cran_granbase logical. Should GRANBase and dependencies
+##' be installed from CRAN if possible during the repo build process. If
+##' FALSE, or if installation fails, versions of  switchr and GRANBase from
+##' github will be automatically added to the manifest being built.
 ##' @rdname repobuildparam
 ##' @export
 
@@ -179,7 +185,8 @@ RepoBuildParam = function(
     shell_init = character(),
     logfun = function(...) writeGRANLog(..., logfile = logfile, errfile = errlog),
     install_test = TRUE,
-    check_test = TRUE)
+    check_test = TRUE,
+    use_cran_granbase = TRUE)
 {
     
     if(!file.exists(basedir))
@@ -210,7 +217,8 @@ RepoBuildParam = function(
         shell_init = shell_init,
         logfun = logfun,
         install_test = install_test,
-        check_test = check_test)
+        check_test = check_test,
+               use_cran_granbase = use_cran_granbase)
     repo
 }
 

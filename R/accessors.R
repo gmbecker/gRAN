@@ -392,6 +392,10 @@ setMethod("sh_init_script<-", "GRANRepository",
 
 
 
+
+
+
+
 ##' @rdname GRANparams
 ##' @export
 setGeneric("extra_fun", function(x) standardGeneric("extra_fun"))
@@ -461,3 +465,52 @@ setMethod("addPkg", "GRANRepository",
           })
 
 
+
+
+
+
+##' @rdname GRANparams
+##' @return logical indicating whether GRANBase should be installed
+##' from CRAN during the repository build process. If FALSE, or if GRANBase
+##' can't be found on your CRAN mirror, GRANBase will be checked out and built
+##' from github.
+##'
+##' @docType methods
+##' @export
+setGeneric("use_cran_granbase", function(x) stop("This object doesn't contain repository build parameters"))
+
+##' @rdname GRANparams
+##' @docType methods
+##' @export
+setGeneric("use_cran_granbase<-", function(x, value) stop("This object doesn't contain repository build parameters"))
+
+
+
+##'@rdname GRANparams
+##' @aliases use_cran_granbase,GRANRepository
+##' @export
+setMethod("use_cran_granbase", "GRANRepository",
+          function(x) param(x)@use_cran_granbase)
+##'@rdname GRANparams
+##' @aliases use_cran_granbase<-,GRANRepository
+##'@export
+
+setMethod("use_cran_granbase<-", "GRANRepository",
+          function(x, value) {
+              param(x)@use_cran_granbase= value
+              x
+              })
+
+##' @aliases use_cran_granbase,RepoBuildParam
+##' @export
+setMethod("use_cran_granbase", "RepoBuildParam",
+          function(x) x@use_cran_granbase)
+##'@rdname GRANparams
+##' @aliases use_cran_granbase<-,RepoBuildParam
+##'@export
+
+setMethod("use_cran_granbase<-", "RepoBuildParam",
+          function(x, value) {
+              x@use_cran_granbase= value
+              x
+              })
