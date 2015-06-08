@@ -1,0 +1,31 @@
+% \VignetteIndexEntry{GRANBase overview}
+% \VignetteDepends{BiocStyle}
+% \VignetteKeywords{reprise}
+% \VignettePackage{GRANBase}
+\documentclass[10pt]{article}
+
+\title{A GRAN repository package}
+\author{Gabriel Becker}
+\date{\today}
+
+
+<<<eval = TRUE, echo=FALSE, results=tex>>=
+BiocStyle::latex()
+@ 
+
+\newcommand{\gran}{{\tt GRAN }}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+\maketitle
+\tableofcontents
+\newpage
+
+This package provides a default GRAN repository for use with {\tt
+switchr} and {\tt GRANBase}. It generally should created or used directly.
+
+Packages like this are automatically deployed in GRAN repositories
+when they are created via {\tt GRANBase}, and when loaded, will add
+that repository to {\tt switchr}'s list of default repositories.
+\end{document}

@@ -50,6 +50,7 @@ Given a manifest, initial construction and rebuilding of individual \gran reposi
 
 <<eval=TRUE,echo=FALSE>>=
 suppressPackageStartupMessages(library(GRANBase))
+options(error=traceback)
 @ 
 
 <<eval=TRUE>>=

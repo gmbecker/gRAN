@@ -61,7 +61,7 @@ installTest = function(repo, cores = 3L)
     
     res = install.packages2(bres$name, lib = loc,
         repos = c(paste0("file://",temp_repo(repo)),
-            BiocInstaller::biocinstallRepos(),
+            defaultRepos(),
             "http://R-Forge.R-project.org"),
         type = "source", dependencies=TRUE, ## Ncpus = cores,
         param = param(repo),
