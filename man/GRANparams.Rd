@@ -43,6 +43,8 @@
 \alias{use_cran_granbase}
 \alias{use_cran_granbase,GRANRepository}
 \alias{use_cran_granbase,GRANRepository-method}
+\alias{use_cran_granbase,RepoBuildParam}
+\alias{use_cran_granbase,RepoBuildParam-method}
 \alias{use_cran_granbase<-}
 \alias{use_cran_granbase<-,GRANRepository}
 \alias{use_cran_granbase<-,GRANRepository-method}
@@ -105,6 +107,8 @@ use_cran_granbase(x) <- value
 \S4method{use_cran_granbase}{GRANRepository}(x)
 
 \S4method{use_cran_granbase}{GRANRepository}(x) <- value
+
+\S4method{use_cran_granbase}{RepoBuildParam}(x)
 
 \S4method{use_cran_granbase}{RepoBuildParam}(x) <- value
 }

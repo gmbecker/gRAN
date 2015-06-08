@@ -1,16 +1,17 @@
 system.file2 = function(..., package = "GRANBase") {
     ret = tryCatch(system.file(..., package = package), error = function(e) e)
 
-    if(!is.null(ret) && !is(ret, "error"))
+    if(!is.null(ret) && !is(ret, "error") && nchar(ret))
         return(ret)
     instp = installed.packages()
     if(!package %in% instp[,"Package"])
-        return(NULL)
-    path = file.path(instp[package,"LibPath"], package, ...)
+        return("")
+    ind = which(instp[,"Package"] == package)[1]
+    path = file.path(instp[ind,"LibPath"], package, ...)
     if(file.exists(path))
         return(path)
     else
-        return(NULL)
+        return("")
 }
 
 

@@ -1,3 +1,4 @@
+globalVariables("defaultGRAN")
 ##' identifyRisk
 ##'
 ##' Identify packages which could possibly be effected by updating the specified list of packages to their latest versions.
@@ -5,8 +6,8 @@
 ##' @param important_pkgs list of packages to check for risk of change cascades from updating the packages in \code{to_update}. Defaults to all installed packages
 ##' @param liblocs the library locations to look for installed packages
 ##' @param repo_urls The repositories to check for new versions of packages
-##' @param gRAN  A GRANRepository object. Defaults to the repository associated
-##' with the version of the GRAN package in use (or NULL if there isn't one).
+##' @param gran_repo_name Optional. The name of a GRAN repository to use. Assumes that a
+##' a package named GRAN<gran_repo_name> is available to load. 
 ##'
 ##' @return A list containing two named lists: splash_damage and in_danger. splash_damage lists the packages potentially affected by updating each package in \code{to_update}. in_danger lists the packages from \code{to_update} that affect each package in \code{important_pkgs} (packages which are unaffected are omitted).
 ##' @author Gabriel Becker

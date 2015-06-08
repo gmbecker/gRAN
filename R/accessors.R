@@ -454,6 +454,7 @@ setMethod("logfun<-", "GRANRepository",
 ##' @param versions data.frame passed to manifest method for addPkg
 ##' @return \code{x} with the specified package(s) added to the associated manifest
 ##' @export
+##' @importMethodsFrom switchr addPkg
 setMethod("addPkg", "GRANRepository",
           function(x, ..., rows, versions) {
               if(any(manifest_df(rows)$name %in% manifest_df(x)$name))
@@ -463,6 +464,10 @@ setMethod("addPkg", "GRANRepository",
               repo_results(x) = rbind(repo_results(x), ResultsRow(name = manifest_df(x)$name[new]))
               x
           })
+
+
+
+
 
 
 
@@ -501,6 +506,7 @@ setMethod("use_cran_granbase<-", "GRANRepository",
               x
               })
 
+##' @rdname GRANparams
 ##' @aliases use_cran_granbase,RepoBuildParam
 ##' @export
 setMethod("use_cran_granbase", "RepoBuildParam",
