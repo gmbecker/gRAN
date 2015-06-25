@@ -1,21 +1,20 @@
 Package: GRANBase
 Type: Package
 Title: Creating Continuously Integrated Package Repositories from Manifests
-Version: 1.0.4
+Version: 1.0.9
 Author: Gabriel Becker[aut,cre], Cory Barr [cre,ctb]
 Maintainer: Gabriel Becker <becker.gabriel@gene.com>
 Copyright: Genentech Inc
 Description: Repository based tools for department and analysis level
-    reproduciblity. 'GRANBase' allows creation of custom branched,
-    continuous integration-ready R repositories, including incremental testing of only packages which have changed since the last repository build.
-    package versions.
+    reproducibility. 'GRANBase' allows creation of custom branched,
+    continuous integration-ready R repositories, including incremental testing of only packages which have changed versions since the last repository build.
 License: Artistic-2.0
 Imports:
     tools,
     XML,
     hwriter
 Depends:
-    switchr (>= 0.9.4),
+    switchr (>= 0.9.6),
     methods
 Suggests:
     parallel,

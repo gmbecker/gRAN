@@ -61,9 +61,19 @@ man = PkgManifest(name = basename(testpkgs),
 repdir = file.path(tempdir(), "repos")
 dir.create(repdir)
 repo = makeRepo(man, repo_name= "stable", basedir = repdir,
-    destination = repdir, dest_url = paste0("file://", normalizePath(repdir)),
-    cores = 2L)
+    destination = repdir,
+    cores = 1L, install_test = FALSE, check_test = FALSE)
 @ 
+
+NOTE: In the above code, we disabled the installation and \texttt{R
+  CMD check}-related tests due to not playing well with the CRAN build
+system. In most cases, these should be \texttt{TRUE} in order to
+create a validated package repository. Also note that in the output
+below, the \texttt{willfail} package appears in the repository. This
+would not be the case if the check test was turned on, as it is
+engineered as a test case to fail check.
+
+
 <<eval=TRUE>>=
 available.packages(repo, type="source")
 @ 

@@ -461,7 +461,10 @@ setMethod("addPkg", "GRANRepository",
                   stop("Some of the packages to be added already appear in the repo manifest")
               manifest(x) = addPkg(manifest(x), ..., rows = rows, versions = versions)
               new = which(!manifest_df(x)$name %in% repo_results(x)$name)
-              repo_results(x) = rbind(repo_results(x), ResultsRow(name = manifest_df(x)$name[new]))
+              oldres = repo_results(x)
+              newres = ResultsRow(name = manifest_df(x)$name[new])
+              oldres = oldres[,names(newres)]
+              repo_results(x) = rbind(oldres, newres)
               x
           })
 

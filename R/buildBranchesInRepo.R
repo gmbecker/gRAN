@@ -51,7 +51,7 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
         ## not very many packages ended up being actually built
         oldvers = character(length(svnCheckoutsLoc))
         names(oldvers) = results$name
-        avl = tryCatch(available.packages(paste0("file://", repoLoc), filters= "duplicates"),
+        avl = tryCatch(available.packages(makeFileURL( repoLoc), filters= "duplicates"),
             error = function(x) x)
         if(is(avl, "error"))
             oldvers = rep(NA, times = nrow(results))

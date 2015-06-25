@@ -181,7 +181,7 @@ RepoBuildParam = function(
     extra_fun = function(...) NULL,
     destination = basedir,
     auth = "",
-    dest_url = paste0("file://", normalizePath2(destination)),
+    dest_url = makeFileURL(normalizePath2(destination)),
     shell_init = character(),
     logfun = function(...) writeGRANLog(..., logfile = logfile, errfile = errlog),
     install_test = TRUE,

@@ -15,7 +15,7 @@ RepoBuildParam(basedir, repo_name = "current",
   check_note_ok = TRUE, check_warn_ok = TRUE,
   tempLibLoc = file.path(basedir, repo_name, "LibLoc"),
   extra_fun = function(...) NULL, destination = basedir, auth = "",
-  dest_url = paste0("file://", normalizePath2(destination)),
+  dest_url = makeFileURL(normalizePath2(destination)),
   shell_init = character(), logfun = function(...) writeGRANLog(..., logfile
   = logfile, errfile = errlog), install_test = TRUE, check_test = TRUE,
   use_cran_granbase = TRUE)

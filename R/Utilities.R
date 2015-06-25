@@ -1,3 +1,4 @@
+
 system.file2 = function(..., package = "GRANBase") {
     ret = tryCatch(system.file(..., package = package), error = function(e) e)
 

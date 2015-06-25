@@ -60,7 +60,7 @@ installTest = function(repo, cores = 3L)
     
     
     res = install.packages2(bres$name, lib = loc,
-        repos = c(paste0("file://",temp_repo(repo)),
+        repos = c(makeFileURL(temp_repo(repo)),
             defaultRepos(),
             "http://R-Forge.R-project.org"),
         type = "source", dependencies=TRUE, ## Ncpus = cores,
