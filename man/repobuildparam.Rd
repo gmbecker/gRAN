@@ -18,7 +18,7 @@ RepoBuildParam(basedir, repo_name = "current",
   dest_url = makeFileURL(normalizePath2(destination)),
   shell_init = character(), logfun = function(...) writeGRANLog(..., logfile
   = logfile, errfile = errlog), install_test = TRUE, check_test = TRUE,
-  use_cran_granbase = TRUE)
+  use_cran_granbase = TRUE, archive_timing = 2, archive_retries = 2)
 }
 \arguments{
 \item{basedir}{The base directory. By default the temporary repository,
@@ -73,10 +73,11 @@ to build packages with vignettes, and for the check test}
 \item{check_test}{logical. Should R CMD check be run on the packages as a
 cohort. Requires install test.}
 
-\item{use_cran_granbase}{logical. Should GRANBase and dependencies
-be installed from CRAN if possible during the repo build process. If
-FALSE, or if installation fails, versions of  switchr and GRANBase from
-github will be automatically added to the manifest being built.}
+\item{use_cran_granbase}{logical. Currently ignored.}
+
+\item{archive_timing}{numeric. Number of seconds to wait between attempts to pull a package from the CRAN archive}
+
+\item{archive_retries}{numeric. Number of times to retry pulling a package from the CRAN archive.}
 }
 \description{
 Parameters for building a GRAN repository. Most behavior during the

@@ -5,43 +5,31 @@ GRANonGRAN = function(repo)
                                 "installing it into the GRAN repository at",
                                 destination(repo)))
 
-    f = file("~/granchecklog", open = "a")
-    on.exit(close(f))
-    cat("sysfile2 test: ",list.files(system.file2(package="GRANBase"), recursive=TRUE), sep="\n", file = f)
     tmpdir = repobase(repo)
     pkgname = paste0("GRAN", repo_name(repo))
     babyGRAN = file.path(tmpdir, pkgname)
     if(file.exists(babyGRAN))
         unlink(babyGRAN, recursive=TRUE, force=TRUE)
-    cat(babyGRAN, file = f)
     dirs = file.path(babyGRAN, c("inst/scripts", "R", "man", "vignettes"))
     sapply(dirs, dir.create, recursive = TRUE)
     GRANRepo = repo
-    cat(3, file = f)           
     fils = list.files(system.file2("GRAN", package="GRANBase"), recursive=TRUE)
-    cat(fils, sep="\n", file =f)
     res = file.copy(file.path(system.file2("GRAN", package="GRANBase"), fils),
               file.path(babyGRAN, fils), overwrite=TRUE)
 
-    cat(4, file = f)
     if(any(!res))
         stop("copy failed")
     saveRepo(GRANRepo,
          filename = file.path(babyGRAN, "inst", "myrepo.R"))
-    cat(5, file = f)
     code = paste("getGRAN = function(...) {",
         sprintf("install.packages('%s', ..., repos = c('%s', getOption('repos')))",
                 pkgname, repo_url(repo)),
         "};", "getGRAN(type='source')", collapse = "\n")
     cat(code, file = file.path(babyGRAN, "inst", "scripts", "getGRAN.R"))
-    cat(6, file = f)
     cat(code, file = file.path(dest_base(repo), paste0("getGRAN-", repo_name(repo), ".R")))
-    cat(7, file = f)
     DESC = readLines(file.path(babyGRAN, "DESCRIPTION"))
-    cat(8, file = f)
     DESC[1] = paste0("Package: ", pkgname)
     writeLines(DESC, con = file.path(babyGRAN, "DESCRIPTION"))
-    cat(9, file = f)
     cat(paste0("pkgname = '", pkgname, "'"), file = file.path(babyGRAN, "R", "00packagename.R"))
     
     if(pkgname %in% manifest_df(repo)$name) {
@@ -55,17 +43,17 @@ GRANonGRAN = function(repo)
             subdir = ".")
     }
 
-    cran_use_ok = use_cran_granbase(repo)
+##    cran_use_ok = use_cran_granbase(repo)
+    cran_use_ok = FALSE
     if(cran_use_ok) {
         ## this should give us GRANBase, switchr, and dependencies
 
         ## can't test it without it being on CRAN though :-/
-        res = tryCatch(install_packages("GRANBase", dependencies=TRUE, lib = temp_lib(repo)),
+        res = tryCatch(install.packages("GRANBase", dependencies=TRUE, lib = temp_lib(repo)),
             error = function(e) e)
         if(is(res, "error"))
             cran_use_ok = FALSE
     }
-    cat(10, file = f)
             
     if(!cran_use_ok) { ## force switchr and GRANBase into the manifest and make them build
         if(!"switchr" %in% manifest_df(repo, session_only=FALSE)$name)
@@ -87,7 +75,6 @@ GRANonGRAN = function(repo)
            repo_results(repo) = df
        }
     }
-    cat(11, file = f)
     
     repo
     

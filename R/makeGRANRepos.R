@@ -43,8 +43,6 @@ setMethod("makeRepo", "GRANRepository",
                    scm_auth = list("bioconductor.org" =
                        c("readonly", "readonly")),
                     ...) {
-              fil = file("~/granchecklog", open = "w")
-              on.exit(close(fil))
               repo = x
               if(file.exists(destination(repo)))
                   repo2 = tryCatch(loadRepo(paste(destination(repo), "repo.R",
@@ -72,29 +70,29 @@ setMethod("makeRepo", "GRANRepository",
               }
                   
 
-              cat(paste("Building", sum(getBuilding(repo)), "packages"), file = fil)
+              message(paste("Building", sum(getBuilding(repo)), "packages"))
               ##package, build thine self!
               repo = GRANonGRAN(repo)
               ##do checkouts
-              cat(paste("Starting makeSrcDirs", Sys.time()), file = fil)
-              cat(file=fil,paste("Building", sum(getBuilding(repo)), "packages"))
+              message(paste("Starting makeSrcDirs", Sys.time()))
+              message(paste("Building", sum(getBuilding(repo)), "packages"))
               repo = makeSrcDirs(repo, cores = cores, scm_auth = scm_auth)
               ##add reverse dependencies to build list
               repo = addRevDeps(repo)
               ##do checkouts again to grab reverse deps
               repo = makeSrcDirs(repo, cores = cores, scm_auth = scm_auth)
               ##build temp repository
-              cat(file=fil,paste("Starting buildBranchesInRepo", Sys.time()))
-              cat(file=fil,paste("Building", sum(getBuilding(repo)), "packages"))
+              message(paste("Starting buildBranchesInRepo", Sys.time()))
+              message(paste("Building", sum(getBuilding(repo)), "packages"))
               ##if we have a single package specified we want to build it with or without a version bump
               repo = buildBranchesInRepo( repo = repo, temp = TRUE, cores = cores, incremental = is.null(build_pkgs))
               ##test packges
-              cat(file=fil,paste("Invoking package tests", Sys.time()))
-              cat(file=fil,paste("Building", sum(getBuilding(repo)), "packages"))
+              message(paste("Invoking package tests", Sys.time()))
+              message(paste("Building", sum(getBuilding(repo)), "packages"))
               repo = doPkgTests(repo, cores = cores)
               ##copy successfully built tarballs to final repository
-              cat(file=fil,paste("starting migrateToFinalRepo", Sys.time()))
-              cat(file=fil,paste("Built", sum(getBuilding(repo)), "packages"))
+              message(paste("starting migrateToFinalRepo", Sys.time()))
+              message(paste("Built", sum(getBuilding(repo)), "packages"))
               repo = migrateToFinalRepo(repo)
               
               finalizeRepo(repo)

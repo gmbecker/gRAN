@@ -157,10 +157,9 @@ GRANRepository = function(manifest,
 ##' to build packages with vignettes, and for the check test
 ##' @param check_test logical. Should R CMD check be run on the packages as a
 ##' cohort. Requires install test.
-##' @param use_cran_granbase logical. Should GRANBase and dependencies
-##' be installed from CRAN if possible during the repo build process. If
-##' FALSE, or if installation fails, versions of  switchr and GRANBase from
-##' github will be automatically added to the manifest being built.
+##' @param use_cran_granbase logical. Currently ignored.
+##' @param archive_timing numeric. Number of seconds to wait between attempts to pull a package from the CRAN archive
+##' @param archive_retries numeric. Number of times to retry pulling a package from the CRAN archive.
 ##' @rdname repobuildparam
 ##' @export
 
@@ -186,7 +185,9 @@ RepoBuildParam = function(
     logfun = function(...) writeGRANLog(..., logfile = logfile, errfile = errlog),
     install_test = TRUE,
     check_test = TRUE,
-    use_cran_granbase = TRUE)
+    use_cran_granbase = TRUE,
+    archive_timing = 2,
+    archive_retries = 2)
 {
     
     if(!file.exists(basedir))
@@ -218,7 +219,9 @@ RepoBuildParam = function(
         logfun = logfun,
         install_test = install_test,
         check_test = check_test,
-               use_cran_granbase = use_cran_granbase)
+        use_cran_granbase = use_cran_granbase,
+        archive_timing = archive_timing,
+        archive_retries = archive_retries)
     repo
 }
 
