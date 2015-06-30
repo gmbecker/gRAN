@@ -7,3 +7,6 @@ Bugfixes
 	* Remove unintentional logging to ~/granchecklog file
 	* Provide default values for archive_timing and archive_retries in RepoBuildParam constructor
 	* Temporarily disable use_cran_granbase functionality
+Changes in version 1.0.11 (2015-30-06)
+Bugfixes   
+	* Fix code in repo-specific GRAN package generated during build process.

@@ -77,12 +77,19 @@ engineered as a test case to fail check.
 <<eval=TRUE>>=
 available.packages(repo, type="source")
 @ 
+
+Note that the repository contains the package \texttt{GRANstable}. This
+was generated automatically, and exports a \texttt{defaultGRAN}
+function which the  \texttt{switchr} package will use when the package is loaded to encorporate
+our package into the set of default repositories.
+
 We refer readers to the documentation for that function regarding the customization options.
 
 \gran represents (sub)repositories as \Rclass{GRANRepository} objects. These objects contain all the information required to build and deploy the repository.
 
 Once a \gran repository is created, its \Rclass{GRANRepository} object 
 is saved within the created directory structure as the repo.R file. This allows future builds to be invoked by the simpler syntax of passing a \Rclass{GRANRepository} object or path to a created repository to \Rfunction{makeRepo} directly:
+
 
 <<eval=FALSE>>=
 repo = makeRepo(file.path(repdir, "stable"), cores=1L)

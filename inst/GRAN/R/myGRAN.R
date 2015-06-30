@@ -7,7 +7,7 @@ myGRANenv = new.env()
 ##' @export
 defaultGRAN = function() {
     if(is.null(myGRANenv$repo))
-        myGRANenv$repo = loadRepo(system.file("repo.R", package = pkgname))
+        myGRANenv$repo = loadRepo(system.file("myrepo.R", package = pkgname))
     myGRANenv$repo
 }
 
