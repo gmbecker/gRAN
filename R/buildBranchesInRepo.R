@@ -10,6 +10,8 @@
 ##' @return a list with success and fail elements containing the directories which succeeded and failed the build
 ##' @author Cory Barr, Gabriel Becker
 ##' @importFrom tools write_PACKAGES
+##' @importFrom utils compareVersion
+##' 
 buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
                                 incremental = TRUE, manifest = manifest_df(repo)) {
   

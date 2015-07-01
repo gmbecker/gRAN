@@ -9,7 +9,8 @@
 ##' method of install_packages in switchr
 ##' @docType methods
 ##' @export
-##' @importMethodsFrom switchr install_packages defaultRepos
+##' @importMethodsFrom switchr install_packages
+
 
 setMethod("install_packages", c(pkgs = "character", repos= "GRANRepository"), function(pkgs, repos,versions, verbose, ...) {
     install_packages(pkgs = pkgs, repos = c(repo_url(repos), defaultRepos()),

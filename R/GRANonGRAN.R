@@ -1,4 +1,5 @@
 #Package, build thine self
+##'@importFrom utils install.packages
 GRANonGRAN = function(repo)
 {
     logfun(repo)("GRAN", paste("Creating repository specific GRAN package and",

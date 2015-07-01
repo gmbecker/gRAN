@@ -1,6 +1,6 @@
 ##' @import switchr
 ##' @import methods
-
+NULL
 
 
 ##' @rdname repobuildparam

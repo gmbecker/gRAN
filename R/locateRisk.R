@@ -12,6 +12,7 @@ globalVariables("defaultGRAN")
 ##' @return A list containing two named lists: splash_damage and in_danger. splash_damage lists the packages potentially affected by updating each package in \code{to_update}. in_danger lists the packages from \code{to_update} that affect each package in \code{important_pkgs} (packages which are unaffected are omitted).
 ##' @author Gabriel Becker
 ##' @importFrom tools dependsOnPkgs
+##' @importFrom utils installed.packages old.packages
 ##' @export
 
 identifyRisk = function(to_update = old.packages(repos = repo_urls),
