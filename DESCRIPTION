@@ -18,7 +18,8 @@ Depends:
     methods
 Suggests:
     parallel,
-    BiocStyle
+    BiocStyle,
+    RUnit
 SystemRequirements: svn, git
 URL: https://github.com/gmbecker/gRAN
 BugReports: https://github.com/gmbecker/gRAN/issues

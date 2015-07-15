@@ -8,7 +8,7 @@ Copyright: Creator of the contained repository
 Description: An encapsulated GRAN repository built using GRANBase.
 License: Artistic-2.0
 Depends:
-    GRANBase
+    GRANBase, switchr
 Suggests:
     BiocStyle
 SystemRequirements: svn, git

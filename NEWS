@@ -12,4 +12,9 @@ Bugfixes
 	* Fix code in repo-specific GRAN package generated during build process.
 Changes in version 1.0.12 (2015-01-07)
 Bugfixes
-	* Now import symbols from utls explicitly.
+	* Now import symbols from utils explicitly.
+Changes in version 1.0.13 (2015-14-07)
+Bugfixes
+	* No longer erroneously clear temp repo when install and check testing is disabled
+New Features
+    * added clear_repo and clear_temp_fils convenience function for clearing out files in order to build a fresh repo.

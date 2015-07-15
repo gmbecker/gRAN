@@ -9,10 +9,14 @@ migrateToFinalRepo = function(repo)
     bman = getBuildingManifest(repo = repo)
 
     ## if they aren't being tested at all, we don't build them twice.
-    if(all(getBuildingResults(repo)$status == "ok - not tested"))
+    
+    if(all(getBuildingResults(repo)$status == "ok - not tested")) {
         stagingLoc = file.path(temp_repo(repo), "src/contrib")
-    else
+        clearstage = FALSE
+    }  else {
         stagingLoc = staging(repo)
+        clearstage = TRUE
+    }
     
     repo = markFailedRevDeps(repo)
     logfun(repo)("NA", paste("Migrating", sum(getBuilding(repo)), "successfully built and tested packages to final repository at", repoLoc))
@@ -37,13 +41,14 @@ migrateToFinalRepo = function(repo)
         repo_results(repo)$status[getBuilding(repo)][!out] = "GRAN FAILURE"
         return(repo)
     }
-    out = tryCatch(file.remove(list.files(stagingLoc, pattern = "\\.tar.*", full.names=TRUE)), error=function(x) x)
+    if(clearstage) {
+        out = tryCatch(file.remove(list.files(stagingLoc, pattern = "\\.tar.*", full.names=TRUE)), error=function(x) x)
 
-    if(is(out, "error"))
-    {
-        logfun(repo)("NA", c("Unable to remove tarballs from staging directory after deployment: ", out$message), type="both")
+        if(is(out, "error"))
+        {
+            logfun(repo)("NA", c("Unable to remove tarballs from staging directory after deployment: ", out$message), type="both")
+        }
     }
-
     
     oldwd = getwd()
     setwd(repoLoc)
