@@ -18,3 +18,6 @@ Bugfixes
 	* No longer erroneously clear temp repo when install and check testing is disabled
 New Features
     * added clear_repo and clear_temp_fils convenience function for clearing out files in order to build a fresh repo.
+Changes in version 1.0.14 (2015-15-07)
+Bugfixes
+	* Include clear.R in github repo
