@@ -21,3 +21,8 @@ New Features
 Changes in version 1.0.14 (2015-15-07)
 Bugfixes
 	* Include clear.R in github repo
+Changes in version 1.0.15 (2015-16-07)
+API changes
+	* clear_repo and clear_temp_fils now return the GRANRepository object
+	* clear_repo now resets the repo build results
+	

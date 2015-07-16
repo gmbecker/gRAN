@@ -64,3 +64,12 @@ updateResults = function(repo)
     
     
 }
+
+resetResults = function(repo) {
+    res = repo_results(repo)
+    res2 = ResultsRow(name = res$name, suspended= res$suspended,
+        maintainer = res$maintainer)
+    repo_results(repo) = res2
+    repo
+}
+        

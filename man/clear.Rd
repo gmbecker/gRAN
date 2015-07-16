@@ -7,7 +7,7 @@
 \usage{
 clear_temp_fils(repo, checkout = FALSE)
 
-clear_repo(repo, archivedir = NULL)
+clear_repo(repo, all = TRUE, checkout = FALSE, archivedir = NULL)
 }
 \arguments{
 \item{repo}{GRANRepository - The repository to clean}
@@ -15,10 +15,15 @@ clear_repo(repo, archivedir = NULL)
 \item{checkout}{logical - Should the checkouts of packages also be cleared.
 Generally this is not necessary (default: FALSE)}
 
-\item{archivedir}{}
+\item{all}{logical - Should temporary artifacts from the build process also be cleared
+(via automatically calling clear_temp_fils). Defaults to TRUE}
+
+\item{archivedir}{character - Optional. A directory where build packages
+deployed to the repository will be archived. Package versions already in
+the archive will not be overwritten. Defaults to NULL (no archiving).}
 }
 \value{
-logical scalar indicating full success (TRUE) or one or more failures (FALSE). The repository log will contain more detailed information about failures.
+The GRANRepository object, ready to be rebuilt.
 }
 \description{
 These are convenience functions which clears the intermediate
@@ -27,8 +32,9 @@ when, e.g., building a repository for the first time with
 a new version of R.
 }
 \details{
-\code{clear_repo} removes packages deployed into the destination repository
-and updates the PACKAGES and PACKAGES.gz files. \code{clear_temp_fils} clears
+\code{clear_repo} removes packages deployed into the destination repository,
+updates the PACKAGES and PACKAGES.gz files, and resets the build results within the
+GRANRepository object. \code{clear_temp_fils} clears
 intermediate files from the library location used during building, the temporary
 repository, the package staging area, and the store of install- and check-results.
 }
