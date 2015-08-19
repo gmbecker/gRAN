@@ -107,7 +107,7 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
 
                         if(pkg == "GRANBase" && !grepl("--no-build-vignettes", opts))
                            opts = paste(opts, "--no-build-vignettes")
-                        command <- paste("R CMD build", checkout, opts )
+                        command <- paste("R_TESTS='' R CMD build", checkout, opts )
                         if(!temp)
                             command = paste0("R_LIBS_USER=", temp_lib(repo), " ", command) 
                         out = tryCatch(system_w_init(command, intern = TRUE,

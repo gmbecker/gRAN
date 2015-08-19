@@ -20,18 +20,43 @@ setMethod("contrib.url", "GRANRepository", function(repos, type) {
 ##' @param fields See base documentation
 ##' @param type The type of packages to query
 ##' @param filters See base documetnation
+##' @param repos Character string for the repository to query. GRANRepository
+##' objects should be passed to the contriburl argument.
 ##' @rdname availpkgs
 ##' @docType methods
 ##' @export
-setGeneric("available.packages", available.packages)
+setGeneric("available.packages", function(contriburl, method, fields = NULL, type = getOption("pkgType"), filters = NULL, repos = NULL) standardGeneric("available.packages"))
+
+##' @rdname availpkgs
+##' @aliases available.packages,ANY
+setMethod("available.packages", "ANY",
+          function (contriburl, 
+                    method, fields = NULL, type = getOption("pkgType"),
+                    filters = NULL,
+                    repos = NULL)
+          {
+              args = list(contriburl = contriburl, fields = fields, type = type, filters = filters)
+              if("repos" %in% names(formals(utils::available.packages)))
+                  args$repos = repos
+              else if(!is.null(repos))
+                  args$contriburl = contrib.url(repos, type= type)
+              if(!missing(method))
+                  args$method = method
+
+              do.call(utils::available.packages, args)
+          })
+
+
 ##' @rdname availpkgs
 ##' @aliases available.packages,GRANRepository
 setMethod("available.packages", "GRANRepository",
           function (contriburl, 
                     method, fields = NULL, type = getOption("pkgType"),
-                    filters = NULL)
+                    filters = NULL,
+                    repos = NULL)
       {
           available.packages(contrib.url(contriburl, type), method = method,
                              fields = fields, type = type,
-                             filters = filters)
+                             filters = filters,
+                             repos = NULL)
       })

@@ -79,6 +79,7 @@ clear_repo = function(repo, all = TRUE, checkout = FALSE, archivedir = NULL) {
     if(!res)
         warning("Failed to fully clear packages from deployed repository")
     repo = resetResults(repo)
+    saveRepoFiles(repo)
     repo
 
 }

@@ -3,18 +3,22 @@
 \docType{methods}
 \name{available.packages}
 \alias{available.packages}
+\alias{available.packages,ANY}
+\alias{available.packages,ANY-method}
 \alias{available.packages,GRANRepository}
 \alias{available.packages,GRANRepository-method}
 \title{available.packages
 A generic for available.packages and a method for GRANRepository objects}
 \usage{
-available.packages(contriburl = contrib.url(getOption("repos"), type), method,
-  fields = NULL, type = getOption("pkgType"), filters = NULL)
+available.packages(contriburl, method, fields = NULL,
+  type = getOption("pkgType"), filters = NULL, repos = NULL)
 
+\S4method{available.packages}{ANY}(contriburl, method, fields = NULL,
+  type = getOption("pkgType"), filters = NULL, repos = NULL)
 
-  \S4method{available.packages}{GRANRepository}(contriburl = contrib.url(getOption("repos"),
-  type), method, fields = NULL, type = getOption("pkgType"),
-  filters = NULL)
+\S4method{available.packages}{GRANRepository}(contriburl, method,
+  fields = NULL, type = getOption("pkgType"), filters = NULL,
+  repos = NULL)
 }
 \arguments{
 \item{contriburl}{The repository or contrib url}
@@ -26,6 +30,9 @@ available.packages(contriburl = contrib.url(getOption("repos"), type), method,
 \item{type}{The type of packages to query}
 
 \item{filters}{See base documetnation}
+
+\item{repos}{Character string for the repository to query. GRANRepository
+objects should be passed to the contriburl argument.}
 }
 \description{
 available.packages
