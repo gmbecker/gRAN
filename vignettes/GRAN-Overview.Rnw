@@ -59,7 +59,8 @@ testpkgs = list.files(system.file("testpkgs", package = "GRANBase"), full.names 
 man = PkgManifest(name = basename(testpkgs), 
     url =  testpkgs, type = "local")
 repdir = file.path(tempdir(), "repos")
-dir.create(repdir)
+if(!file.exists(repdir))
+    dir.create(repdir)
 repo = makeRepo(man, repo_name= "stable", basedir = repdir,
     destination = repdir,
     cores = 1L, install_test = FALSE, check_test = FALSE)

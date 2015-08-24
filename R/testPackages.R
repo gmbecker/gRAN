@@ -122,34 +122,42 @@ checkTest = function(repo, cores = 3L)
         return(repo)
     #pat = paste0("(", paste(bres$name, collapse="|"), ")_.*\\.tar.gz")
     #tars = list.files(pattern = pat)
-    tars = unlist(mapply(function(nm, vr) list.files(pattern = paste0(nm, "_", vr, ".tar.gz")), nm = bres$name, vr = bres$version))
-    if(length(tars) < nrow(bres)) {
-        missing = sapply(bres$name, function(x) !any(grepl(x, tars, fixed=TRUE)))
+    expectedTars = file.path(staging(repo), paste0(bres$name,"_", bres$version, ".tar.gz"))
+    tars = expectedTars[file.exists(expectedTars)]
+##    tars = unlist(mapply(function(nm, vr) list.files(pattern = paste0(nm, "_", vr, ".tar.gz")), nm = bres$name, vr = bres$version))
+    if(!identical(expectedTars, tars)){
+        missing = !file.exists(expectedTars)
+        ##        missing = sapply(bres$name,
+        ##            function(x) !any(grepl(paste0("^",x, "_"), tars, fixed=TRUE)))
         logfun(repo)("NA", c("Tarballs not found for these packages during check test:", paste(bres$name[missing], collapse = " , ")), type = "both")
-        #tars = tars[order(bres$name[!missing])]
         repo_results(repo)$status[manifest_df(repo)$name %in% bres$name[missing]] = "Unable to check - missing tarball"
         bres  = bres[!missing,]
-        binds[binds] = binds[binds] & !missing
+        binds[missing] = FALSE
     }
     #tars = tars[order(bres$name)]
-    ord = mapply(function(nm, vr) grep(paste0(nm, "_", vr), tars), nm = bres$name, vr = bres$version)
+##    ord = mapply(function(nm, vr) grep(paste0(nm, "_", vr), tars), nm = bres$name, vr = bres$version)
     
-    tars = tars[unlist(ord)]
-    outs = mcmapply2( function(tar, nm, repo) {
-                         if(nm == "GRANBase") {
-                                     logfun(repo)(nm, paste("Not checking GRANBase package to avoid recursion problems"))
-                                     return("ok")
-                                 }
-                                     
-        logfun(repo)(nm, paste("Running R CMD check on ", tar))
-        ## We built the vignettes during this round of building, so if the pkg is going to
-        ##fail on building vignettes it will have already happened by this point
-        cmd = paste0('R_LIBS="', temp_lib(repo),  '" R_HOME="',
-            R.home(),'" R CMD check ', tar, " --no-build-vignettes")
-        out = tryCatch(system_w_init(cmd, intern=TRUE, param = param(repo)),
-            error=function(x) x)
-        out
-    }, tar = tars, nm = bres$name, repo = list(repo), mc.cores = cores,
+  ##  tars = tars[unlist(ord)]
+    outs = mcmapply2(
+        function(nm, tar, repo)
+        {
+            if(nm == "GRANBase") {
+                logfun(repo)(nm, paste("Not checking GRANBase package to avoid recursion problems"))
+                return(c("* GRANBase not checked to prevent recursion",
+                         "* DONE",
+                         "* Status: OK"))
+            }
+            
+            logfun(repo)(nm, paste("Running R CMD check on ", tar))
+            ## We built the vignettes during this round of building, so if the pkg is going to
+            ##fail on building vignettes it will have already happened by this point
+            cmd = paste0('R_LIBS="', temp_lib(repo),  '" R_HOME="',
+                R.home(),'" R CMD check ', tar, " --no-build-vignettes")
+            out = tryCatch(system_w_init(cmd, intern=TRUE, param = param(repo)),
+                error=function(x) x)
+            out
+
+    },  nm = bres$name, tar = tars,repo = list(repo), mc.cores = cores,
         SIMPLIFY=FALSE)
     
     success = mapply(function(nm, out, repo) {

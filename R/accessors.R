@@ -494,6 +494,8 @@ setGeneric("use_cran_granbase<-", function(x, value) stop("This object doesn't c
 
 
 
+
+
 ##'@rdname GRANparams
 ##' @aliases use_cran_granbase,GRANRepository
 ##' @export
@@ -521,5 +523,90 @@ setMethod("use_cran_granbase", "RepoBuildParam",
 setMethod("use_cran_granbase<-", "RepoBuildParam",
           function(x, value) {
               x@use_cran_granbase= value
+              x
+              })
+
+
+
+
+##' @rdname GRANparams
+##' @export
+setGeneric("check_timeout", function(x) stop("This object doesn't contain repository build parameters"))
+
+##' @rdname GRANparams
+##' @docType methods
+##' @export
+setGeneric("check_timeout<-", function(x, value) stop("This object doesn't contain repository build parameters"))
+
+##'@rdname GRANparams
+##' @aliases check_timeout,GRANRepository
+##' @export
+setMethod("check_timeout", "GRANRepository",
+          function(x) param(x)@check_timeout)
+##'@rdname GRANparams
+##' @aliases check_timeout<-,GRANRepository
+##'@export
+
+setMethod("check_timeout<-", "GRANRepository",
+          function(x, value) {
+              param(x)@check_timeout= value
+              x
+              })
+
+
+##'@rdname GRANparams
+##' @aliases check_timeout,RepoBuildParam
+##' @export
+setMethod("check_timeout", "RepoBuildParam",
+          function(x) x@check_timeout)
+##'@rdname GRANparams
+##' @aliases check_timeout<-,RepoBuildParam
+##'@export
+
+setMethod("check_timeout<-", "RepoBuildParam",
+          function(x, value) {
+              x@check_timeout= value
+              x
+              })
+
+
+##' @rdname GRANparams
+##' @export
+setGeneric("build_timeout", function(x) stop("This object doesn't contain repository build parameters"))
+
+##' @rdname GRANparams
+##' @docType methods
+##' @export
+setGeneric("build_timeout<-", function(x, value) stop("This object doesn't contain repository build parameters"))
+
+
+##'@rdname GRANparams
+##' @aliases build_timeout,GRANRepository
+##' @export
+setMethod("build_timeout", "GRANRepository",
+          function(x) param(x)@build_timeout)
+##'@rdname GRANparams
+##' @aliases build_timeout<-,GRANRepository
+##'@export
+
+setMethod("build_timeout<-", "GRANRepository",
+          function(x, value) {
+              param(x)@build_timeout= value
+              x
+              })
+
+
+##'@rdname GRANparams
+##' @aliases build_timeout,RepoBuildParam
+##' @export
+setMethod("build_timeout", "RepoBuildParam",
+          function(x) x@build_timeout)
+##'@rdname GRANparams
+##' @aliases build_timeout<-,RepoBuildParam
+##'@export
+
+setMethod("build_timeout<-", "RepoBuildParam",
+          function(x, value) {
+              x@build_timeout= value
               x
               })

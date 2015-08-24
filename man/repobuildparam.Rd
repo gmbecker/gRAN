@@ -18,7 +18,8 @@ RepoBuildParam(basedir, repo_name = "current",
   dest_url = makeFileURL(normalizePath2(destination)),
   shell_init = character(), logfun = function(...) writeGRANLog(..., logfile
   = logfile, errfile = errlog), install_test = TRUE, check_test = TRUE,
-  use_cran_granbase = TRUE, archive_timing = 2, archive_retries = 2)
+  use_cran_granbase = TRUE, archive_timing = 2, archive_retries = 2,
+  build_timeout = 10 * 60, check_timeout = 15 * 60)
 }
 \arguments{
 \item{basedir}{The base directory. By default the temporary repository,
@@ -78,6 +79,12 @@ cohort. Requires install test.}
 \item{archive_timing}{numeric. Number of seconds to wait between attempts to pull a package from the CRAN archive}
 
 \item{archive_retries}{numeric. Number of times to retry pulling a package from the CRAN archive.}
+
+\item{build_timeout}{numeric. Number of seconds before timeout during
+the build step for a single package. Defaults to 10 minutes.}
+
+\item{check_timeout}{numeric. Number of seconds before timeout during
+the check step for a single package. Defaults to 15 minutes.}
 }
 \description{
 Parameters for building a GRAN repository. Most behavior during the

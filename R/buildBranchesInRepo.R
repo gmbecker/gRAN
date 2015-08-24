@@ -1,3 +1,8 @@
+
+
+
+
+
 ##' create the tarballs in the new repo from the svn branch locs
 ##'
 ##' 
@@ -70,61 +75,20 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
 
     vers_restrict = subset(versions_df(repo), versions_df(repo)$name %in% manifest$name)
     
-    
-    res <- mcmapply2(#svnCheckoutsLoc,
-                    ##res <- mapply(
-                    function (checkout, repo, opts, oldver, vers_restr, incremental) {
-                        ## incremental build logic. If incremental == TRUE,
-                        ## we only rebuild if the package version number has bumped.
-                        vnum = read.dcf(file.path(checkout, "DESCRIPTION"))[1,"Version"]
-                        pkg = getPkgNames(checkout)
+    tofun = function(e,checkout, ...)  {
+        pkg = getPkgNames(checkout)
+        logfun(repo)(pkg,
+                     paste("Building package",
+                           pkg,
+                           "timed out after",
+                           build_timeout(repo),
+                           "seconds."),
+                     type = "both")
+        e
+        ##"build timed-out."
+    }
 
-                        if(!is.na(vers_restr) && vnum != vers_restr) {
-                            logfun(repo)(pkg, paste("Wrong version number for pkg",
-                                                    pkg, "Needed", vers_restr,
-                                                    "have", vnum, "error earlier",
-                                                    "in build process?"),
-                                         type = "both")
-                            ret = "wrong version"
-                            names(ret) = vnum
-                            return(ret)
-                        }
-
-
-                        ## we don't support changing the version restriction backward, should we?
-                        if(is.na(oldver) || compareVersion(vnum, oldver) == 1 )
-                        {
-                            logfun(repo)(pkg, paste0("Had version ", oldver,
-                                                     ". Building new version ", vnum))
-                        } else if (incremental) {
-                            logfun(repo)(pkg, paste0("Package up to date at version ", vnum, ". Not rebuilding."))
-                            ret = "up-to-date"
-                            names(ret) = vnum
-                            return(ret)
-                        } else {
-                            logfun(repo)(pkg, paste0("Forcing rebuild of version ", vnum, "."))
-                        }
-
-                        if(pkg == "GRANBase" && !grepl("--no-build-vignettes", opts))
-                           opts = paste(opts, "--no-build-vignettes")
-                        command <- paste("R_TESTS='' R CMD build", checkout, opts )
-                        if(!temp)
-                            command = paste0("R_LIBS_USER=", temp_lib(repo), " ", command) 
-                        out = tryCatch(system_w_init(command, intern = TRUE,
-                            param = param(repo)), error = function(x) x)
-                        if(is(out, "error") || ("status" %in% attributes(out) && attr(out, "status") > 0) || !file.exists(paste0(pkg, "_", vnum, ".tar.gz"))) {
-                            type = if(temp) "Temporary" else "Final"
-                            logfun(repo)(pkg, paste(type,"package build failed. R CMD build returned non-zero status"), type ="both")
-                            logfun(repo)(pkg, c("R CMD build output for failed package build:", out), type="error")
-                            ret = "failed"
-                        } else {
-                            #XXX we want to include the full output when the build succeeds?
-                            logfun(repo)(pkg, "Sucessfully built package.", type="full")
-                            ret = "ok"
-                        }
-                        names(ret) = vnum
-                        ret
-                    },
+    res <- mcmapply2(.innerBuild,
                      checkout = svnCheckoutsLoc,
                      repo = list(repo), opts = opts,
                      mc.cores=cores,
@@ -132,9 +96,10 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
                      oldver = oldvers,
                      incremental = incremental,
                      vers_restr = vers_restrict$version,
-                    USE.NAMES=FALSE
-
-                    )
+                     temp = temp,
+                     USE.NAMES=FALSE
+                     
+                     )
     versions = names(res)
     res = unlist(res)
     ## at the temp stage we don't want to include anything
@@ -152,7 +117,7 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
     sameversion = res == "up-to-date"
     ##this may need to be more sophisticated later if we are building binaries for mac/win?
     write_PACKAGES(".", type="source")
-    if(any(res == "failed")) {
+    if(any(res %in% c("failed", "build timed-out"))) {
         warning("Warning: not all packages were succesfully built")
     }
 
@@ -165,4 +130,58 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
     repo_results(repo)[binds,] = results
     repo
 
+}
+
+.innerBuild = function (checkout, repo, opts, oldver, vers_restr, incremental, temp) {
+    
+    ## incremental build logic. If incremental == TRUE,
+    ## we only rebuild if the package version number has bumped.
+    vnum = read.dcf(file.path(checkout, "DESCRIPTION"))[1,"Version"]
+    pkg = getPkgNames(checkout)
+    
+    if(!is.na(vers_restr) && vnum != vers_restr) {
+        logfun(repo)(pkg, paste("Wrong version number for pkg",
+                                pkg, "Needed", vers_restr,
+                                "have", vnum, "error earlier",
+                                "in build process?"),
+                     type = "both")
+        ret = "wrong version"
+        names(ret) = vnum
+        return(ret)
+    }
+                                            
+    
+    ## we don't support changing the version restriction backward, should we?
+    if(is.na(oldver) || compareVersion(vnum, oldver) == 1 )
+    {
+        logfun(repo)(pkg, paste0("Had version ", oldver,
+                                 ". Building new version ", vnum))
+    } else if (incremental) {
+        logfun(repo)(pkg, paste0("Package up to date at version ", vnum, ". Not rebuilding."))
+        ret = "up-to-date"
+        names(ret) = vnum
+        return(ret)
+    } else {
+        logfun(repo)(pkg, paste0("Forcing rebuild of version ", vnum, "."))
+    }
+                                            
+    if(pkg == "GRANBase" && !grepl("--no-build-vignettes", opts))
+        opts = paste(opts, "--no-build-vignettes")
+    command <- paste("R_TESTS='' R CMD build", checkout, opts )
+    if(!temp)
+        command = paste0("R_LIBS_USER=", temp_lib(repo), " ", command) 
+    out = tryCatch(system_w_init(command, intern = TRUE,
+        param = param(repo)), error = function(x) x)
+    if(is(out, "error") || ("status" %in% attributes(out) && attr(out, "status") > 0) || !file.exists(paste0(pkg, "_", vnum, ".tar.gz"))) {
+        type = if(temp) "Temporary" else "Final"
+        logfun(repo)(pkg, paste(type,"package build failed. R CMD build returned non-zero status"), type ="both")
+        logfun(repo)(pkg, c("R CMD build output for failed package build:", out), type="error")
+        ret = "failed"
+                                            } else {
+                                        #XXX we want to include the full output when the build succeeds?
+                                                logfun(repo)(pkg, "Sucessfully built package.", type="full")
+                                                ret = "ok"
+                                            }
+    names(ret) = vnum
+    ret
 }

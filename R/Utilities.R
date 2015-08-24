@@ -155,3 +155,19 @@ getBuildingResults = function(repo, results = repo_results(repo))
     results[getBuilding(repo, results),]
 }
 
+##' Call function with a timeout
+##'
+##' @param timeout numeric. Timeout, in seconds.
+##' @param fun function. The function to call
+##' @param ... dots. Passed to \code{fun}
+##' @param ontimeout function. Function called on timeout, must accept 1 argument,
+##' which will be the error object from tryCatch.
+##' @return The value returned by calling \code{fun(...)}, or, in the case
+##' of a timeout, the result of calling \code{ontimeout} with the error.
+##' @export
+callWithTimeout = function(timeout, fun, ..., ontimeout = function(e, ...) e) {
+    setTimeLimit(elapsed = timeout, transient=TRUE)
+    on.exit(setTimeLimit(elapsed=Inf, transient=TRUE))
+    
+    tryCatch(fun(...), error = function(e) ontimeout(e, ...) )
+}

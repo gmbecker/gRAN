@@ -2,6 +2,16 @@
 % Please edit documentation in R/accessors.R
 \docType{methods}
 \name{repo_name}
+\alias{build_timeout}
+\alias{build_timeout,GRANRepository}
+\alias{build_timeout,GRANRepository-method}
+\alias{build_timeout,RepoBuildParam}
+\alias{build_timeout,RepoBuildParam-method}
+\alias{build_timeout<-}
+\alias{build_timeout<-,GRANRepository}
+\alias{build_timeout<-,GRANRepository-method}
+\alias{build_timeout<-,RepoBuildParam}
+\alias{build_timeout<-,RepoBuildParam-method}
 \alias{check_note_ok}
 \alias{check_note_ok,GRANRepository}
 \alias{check_note_ok,GRANRepository-method}
@@ -10,6 +20,16 @@
 \alias{check_test_on,GRANRepository-method}
 \alias{check_test_on,RepoBuildParam}
 \alias{check_test_on,RepoBuildParam-method}
+\alias{check_timeout}
+\alias{check_timeout,GRANRepository}
+\alias{check_timeout,GRANRepository-method}
+\alias{check_timeout,RepoBuildParam}
+\alias{check_timeout,RepoBuildParam-method}
+\alias{check_timeout<-}
+\alias{check_timeout<-,GRANRepository}
+\alias{check_timeout<-,GRANRepository-method}
+\alias{check_timeout<-,RepoBuildParam}
+\alias{check_timeout<-,RepoBuildParam-method}
 \alias{check_warn_ok}
 \alias{check_warn_ok,GRANRepository}
 \alias{check_warn_ok,GRANRepository-method}
@@ -111,6 +131,30 @@ use_cran_granbase(x) <- value
 \S4method{use_cran_granbase}{RepoBuildParam}(x)
 
 \S4method{use_cran_granbase}{RepoBuildParam}(x) <- value
+
+check_timeout(x)
+
+check_timeout(x) <- value
+
+\S4method{check_timeout}{GRANRepository}(x)
+
+\S4method{check_timeout}{GRANRepository}(x) <- value
+
+\S4method{check_timeout}{RepoBuildParam}(x)
+
+\S4method{check_timeout}{RepoBuildParam}(x) <- value
+
+build_timeout(x)
+
+build_timeout(x) <- value
+
+\S4method{build_timeout}{GRANRepository}(x)
+
+\S4method{build_timeout}{GRANRepository}(x) <- value
+
+\S4method{build_timeout}{RepoBuildParam}(x)
+
+\S4method{build_timeout}{RepoBuildParam}(x) <- value
 }
 \arguments{
 \item{x}{A GRANRepository object}

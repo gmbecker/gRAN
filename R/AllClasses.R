@@ -23,8 +23,13 @@ setClass("RepoBuildParam", representation(
     install_test = "logical",
     check_test = "logical",
     suspended = "character",
-    use_cran_granbase = "logical"),
-         prototype = prototype(use_cran_granbase = TRUE),
+    use_cran_granbase = "logical",
+    build_timeout = "numeric",
+    check_timeout = "numeric"
+    ),
+         prototype = prototype(use_cran_granbase = TRUE,
+                               build_timeout = 10*60,
+                               check_timeout = 15*60),
          contains = "SwitchrParam")
 
 
@@ -160,6 +165,10 @@ GRANRepository = function(manifest,
 ##' @param use_cran_granbase logical. Currently ignored.
 ##' @param archive_timing numeric. Number of seconds to wait between attempts to pull a package from the CRAN archive
 ##' @param archive_retries numeric. Number of times to retry pulling a package from the CRAN archive.
+##' @param build_timeout numeric. Number of seconds before timeout during
+##' the build step for a single package. Defaults to 10 minutes.
+##' @param check_timeout numeric. Number of seconds before timeout during
+##' the check step for a single package. Defaults to 15 minutes.
 ##' @rdname repobuildparam
 ##' @export
 
@@ -187,7 +196,9 @@ RepoBuildParam = function(
     check_test = TRUE,
     use_cran_granbase = TRUE,
     archive_timing = 2,
-    archive_retries = 2)
+    archive_retries = 2,
+    build_timeout = 10*60,
+    check_timeout = 15*60)
 {
     
     if(!file.exists(basedir))
@@ -221,7 +232,9 @@ RepoBuildParam = function(
         check_test = check_test,
         use_cran_granbase = use_cran_granbase,
         archive_timing = archive_timing,
-        archive_retries = archive_retries)
+        archive_retries = archive_retries,
+        build_timeout = build_timeout,
+        check_timeout = check_timeout)
     repo
 }
 

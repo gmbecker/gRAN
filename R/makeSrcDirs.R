@@ -12,10 +12,6 @@ makeSrcDirs = function(repo, cores = 3L, scm_auth)
     versions = versions_df(repo)[binds,]
     res <- mapply(#mcmapply2(
         function(nm, src,  repo, path, version) {
-            ##hack for now, supports github but not other git repos
-            ## eventually I need to write gotoVersCommit for git checkouts
-#            if(!is.na(version) && is(src, "GitSource"))
-#                src = as(src, "SVNSource")
                 
             ret = makePkgDir(name = nm, source = src, path =path,
                 latest_only = FALSE, param = param(repo), forceRefresh=FALSE)
