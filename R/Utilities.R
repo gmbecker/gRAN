@@ -83,6 +83,21 @@ getMaintainers = function(codir, manifest = manifest_df(repo),
     })
 }
 
+getCOedVersions = function(codir, manifest = manifest_df(repo),
+    branch = manifest$branch, repo) {
+    locs = getCheckoutLocs(codir, manifest = manifest,
+        branch = branch, repo = repo)
+
+    vers = lapply(unname(locs), function(x) {
+                      dsc = readLines(file.path(x, "DESCRIPTION"))
+                      vline = grep("^[V|v]ersion:.*", dsc, value = TRUE)
+                      v = gsub("^[V|v]ersion: (.*)$", "\\1", vline)
+                      pline = grep("^[P|p]ackage:.*", dsc, value = TRUE)
+                      names(v) = gsub(".*: (.*)", "\\1", pline)
+                      v
+                  })
+    unlist(vers)
+}
 
 
 isOkStatus = function(status= repo_results(repo)$status,
