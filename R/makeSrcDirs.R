@@ -31,11 +31,14 @@ makeSrcDirs = function(repo, cores = 3L, scm_auth)
     res = unlist(res)
     if(!is.logical(res)) 
         print(res)
-    repo_results(repo)$status[binds][!res] = "source checkout failed"
+    fullres = repo_results(repo)
+    fullres$status[binds][!res] = "source checkout failed"
     vrs = getCOedVersions(path, repo = repo)
-    inds = repo_results(repo)$version %in% names(vrs)
-    repo_results(repo)$version[inds] = vrs[match(repo_results(repo)$version[inds],
+    inds = fullres$name %in% names(vrs)
+
+    fullres$version[inds] = vrs[match(fullres$name[inds],
                                   names(vrs))]
+    repo_results(repo) = fullres
     repo
 }
 
