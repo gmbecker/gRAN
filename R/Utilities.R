@@ -127,7 +127,7 @@ install.packages2 = function(pkgs, repos, lib,  ..., param = SwitchrParam(),
     ## the keep_outputs=dir logic doesn't work, the files just
     ##end up in both locations!
     ##install.packages(pkgs, ..., keep_outputs=outdir)
-    ## avail = available.packages(contrib.url(repos))
+     avail = available.packages(contrib.url(repos, type = "source"))
     ## args = list(pkgs = pkgs, repos = repos, lib = lib, ...,
     ##     INSTALL_opts = sprintf("-l %s", lib),
     ##     keep_outputs = outdir)
