@@ -57,6 +57,8 @@ installTest = function(repo, cores = 3L)
     .libPaths(loc)
     on.exit(.libPaths(oldlp))
     
+    if(!file.exists(install_result_dir(repo)))
+        dir.create(install_result_dir(repo))
     
     res = install.packages2(bres$name, lib = loc,
         repos = c(makeFileURL(temp_repo(repo)),
@@ -87,6 +89,11 @@ processInstOut = function(pkg, out, repo)
         ret = TRUE
     } else if (out == "unavailable") {
         logfun(repo)(pkg, paste("Package", pkg, "unavailable in temporary repository. Likely package name mismatch between manifest and DESCRIPTION file"), type = "both")
+        ret = FALSE
+    } else if (out == "output missing") {
+        logfun(repo)(pkg, paste("Package", pkg, "was not successfully installed and no",
+                                "output is available. Likely culprit: failure during",
+                                "installation of one of it's dependencies?"), type = "both")
         ret = FALSE
     } else {
         logfun(repo)(pkg, paste0("Installation of ", pkg, " from temporary repository failed"), type="both")

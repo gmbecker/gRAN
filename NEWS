@@ -29,3 +29,9 @@ Changes in version 1.0.18 (2015-24-07)
 Bugfixes
 	* change in way tarballs are detected during check test to avoid  
 	  missing tarball bug
+Changes in version 1.0.25 (2015-17-09)
+API changes
+	* Installation of packages during package test now (again) occurs in parallel
+Changes in version 1.0.26 (2015-18-09)
+Bugfixes
+	* Handle missing installation output (seemingly) caused by a dependency failing to install during parallel installation.

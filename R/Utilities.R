@@ -148,6 +148,8 @@ install.packages2 = function(pkgs, repos, lib,  ..., param = SwitchrParam(),
         if(! p %in% avail[,"Package"])
             return("unavailable")
         fil = file.path(outdir, paste0(p, ".out"))
+        if(!file.exists(fil))
+            return("output missing")
         tmp = readLines(fil)
         outcome = tmp[length(tmp)]
         if(grepl("* DONE", outcome, fixed=TRUE))
