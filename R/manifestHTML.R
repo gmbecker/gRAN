@@ -7,7 +7,9 @@
 manifestHTML = function(repo)
     {
         doc = openPage("buildreport.html", dirname = destination(repo))
-        hwrite(as.matrix(table(repo_results(repo)$lastAttemptStatus)), page = doc)
+        lastattempt = repo_results(repo)$lastAttemptStatus
+        attmptab =  as.matrix(table(lastattempt))
+        hwrite(attmptab, page = doc)
         hwrite("<br/>", page = doc)
         
         tmpman = repo_results(repo)[,c("name", "lastAttemptVersion",
@@ -19,6 +21,7 @@ manifestHTML = function(repo)
         tmpman[is.na(tmpman)] = "NA"
         tmpman$CheckResult = paste0("<a href='", checkrep, "'>check log</a>")
         tmpman$CheckResult[!file.exists(file.path(destination(repo), checkrep))] = ""
-        hwrite(tmpman, page = doc)
+        tmpmanvec = as.character(as.matrix(tmpman))
+        hwrite(tmpmanvec, dim = dim(tmpman), page = doc)
         closePage(doc, splash=FALSE)
     }
