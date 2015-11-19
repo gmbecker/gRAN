@@ -39,7 +39,7 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
             else
                 repoLoc = file.path(repoLoc, "src", "contrib")
         }
-        opts = "--no-build-vignettes --no-manual --no-resave-data"
+        opts = c("--no-build-vignettes", "--no-manual", "--no-resave-data")
     } else {
         repoLoc = staging(repo)
         opts = "--resave-data"
@@ -164,24 +164,30 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
     } else {
         logfun(repo)(pkg, paste0("Forcing rebuild of version ", vnum, "."))
     }
+    evars = character()
+   
                                             
     if(pkg == "GRANBase" && !grepl("--no-build-vignettes", opts))
-        opts = paste(opts, "--no-build-vignettes")
-    command <- paste("R_TESTS='' R CMD build", checkout, opts )
-    if(!temp)
-        command = paste0("R_LIBS_USER=", temp_lib(repo), " ", command) 
-    out = tryCatch(system_w_init(command, intern = TRUE,
+        opts = c(opts, "--no-build-vignettes")
+    evars = c(evars, "R_TESTS=''")
+    ## command <- paste("R CMD build", checkout)
+    command <- paste("R")
+    opts = c(paste("CMD build", checkout), opts)
+    ## if(!temp)
+    ##  #   evars = c(evars, R_LIBS_USER=temp_lib(repo))
+    evars = c(evars, paste0("R_LIBS=", temp_lib(repo)))
+    out = tryCatch(system_w_init(command, args = opts, env = evars, intern = TRUE,
         param = param(repo)), error = function(x) x)
     if(is(out, "error") || ("status" %in% attributes(out) && attr(out, "status") > 0) || !file.exists(paste0(pkg, "_", vnum, ".tar.gz"))) {
         type = if(temp) "Temporary" else "Final"
         logfun(repo)(pkg, paste(type,"package build failed. R CMD build returned non-zero status"), type ="both")
         logfun(repo)(pkg, c("R CMD build output for failed package build:", out), type="error")
         ret = "failed"
-                                            } else {
+    } else {
                                         #XXX we want to include the full output when the build succeeds?
-                                                logfun(repo)(pkg, "Sucessfully built package.", type="full")
-                                                ret = "ok"
-                                            }
+        logfun(repo)(pkg, "Sucessfully built package.", type="full")
+        ret = "ok"
+    }
     names(ret) = vnum
     ret
 }

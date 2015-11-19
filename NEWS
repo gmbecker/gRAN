@@ -40,3 +40,8 @@ Bugfixes
 	* Fix occasional infinite recursion error when writing build report.
 API changes
 	* Use hwriter to write out build report. Remove dependency on XML package.
+Changes in version 1.1.2 (2015-11-10)
+Bugfixes
+	* Fix bug in using new system_w_init (env expects charvec of "VAR=value", NOT named char vec.
+API changes
+	* require switchr version 0.9.22
