@@ -159,7 +159,13 @@ checkTest = function(repo, cores = 3L)
             ##fail on building vignettes it will have already happened by this point
             cmd = paste0('R_LIBS="', temp_lib(repo),  '" R_HOME="',
                 R.home(),'" R CMD check ', tar, " --no-build-vignettes")
-            out = tryCatch(system_w_init(cmd, intern=TRUE, param = param(repo)),
+            env = c(paste0('R_LIBS="', temp_lib(repo), '"'),
+                    paste0('R_HOME="', R.home(), '"'))
+            args = c("check", tar, "--no-build-vignettes")
+            cmd = "Rcmd"
+                    
+            out = tryCatch(system_w_init(cmd, args = args, env = env,
+                                         intern=TRUE, param = param(repo)),
                 error=function(x) x)
             out
 
