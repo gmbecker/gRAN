@@ -162,7 +162,7 @@ checkTest = function(repo, cores = 3L)
             env = c(paste0('R_LIBS="', temp_lib(repo), '"'),
                     paste0('R_HOME="', R.home(), '"'))
             args = c("check", tar, "--no-build-vignettes")
-            cmd = "Rcmd"
+            cmd = file.path(R.home("bin"), "Rcmd")
                     
             out = tryCatch(system_w_init(cmd, args = args, env = env,
                                          intern=TRUE, param = param(repo)),
