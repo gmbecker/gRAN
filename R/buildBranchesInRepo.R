@@ -167,7 +167,7 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
     evars = character()
    
                                             
-    if(pkg == "GRANBase" && !grepl("--no-build-vignettes", opts))
+    if((temp || pkg == "GRANBase") && !grepl("--no-build-vignettes", opts))
         opts = c(opts, "--no-build-vignettes")
     evars = c(evars, "R_TESTS=''")
     ## command <- paste("R CMD build", checkout)
