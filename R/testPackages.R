@@ -54,7 +54,7 @@ installTest = function(repo, cores = 3L)
     }
 
     oldlp = .libPaths()
-    .libPaths(loc)
+    .libPaths2(loc, exclude.site=TRUE)
     on.exit(.libPaths(oldlp))
     
     if(!file.exists(install_result_dir(repo)))
