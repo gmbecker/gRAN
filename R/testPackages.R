@@ -53,6 +53,9 @@ installTest = function(repo, cores = 3L)
         return(repo)
     }
 
+    reps = c(makeFileURL(temp_repo(repo)),
+            defaultRepos(),
+            "http://R-Forge.R-project.org")
     oldlp = .libPaths()
     .libPaths2(loc, exclude.site=TRUE)
     on.exit(.libPaths(oldlp))
@@ -61,9 +64,7 @@ installTest = function(repo, cores = 3L)
         dir.create(install_result_dir(repo))
     
     res = install.packages2(bres$name, lib = loc,
-        repos = c(makeFileURL(temp_repo(repo)),
-            defaultRepos(),
-            "http://R-Forge.R-project.org"),
+        repos = reps,
         type = "source", dependencies=TRUE, ## Ncpus = cores, problems with installing deps?
         param = param(repo),
         outdir = install_result_dir(repo))
