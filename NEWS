@@ -52,3 +52,6 @@ Bugfixes
 Changes in version 1.1.4 (2016-02-10)
 Bugfixes
 	* Make sure that repos for install test are forced *before* changing libpath!!!
+Changes in version 1.1.5 (2016-3-23)
+Bugfixes
+	* Don't build or test installation of GRAN<reponame> package, as this can break when they have versioned dependences on GRANBase, which is loaded at the time.

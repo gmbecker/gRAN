@@ -62,6 +62,9 @@ installTest = function(repo, cores = 3L)
     
     if(!file.exists(install_result_dir(repo)))
         dir.create(install_result_dir(repo))
+
+    granpkgs = bres[grepl("^GRAN", bres$name),]
+    bres = bres[!grepl("^GRAN", bres$name),]
     
     res = install.packages2(bres$name, lib = loc,
         repos = reps,
@@ -148,9 +151,9 @@ checkTest = function(repo, cores = 3L)
     outs = mcmapply2(
         function(nm, tar, repo)
         {
-            if(nm == "GRANBase") {
-                logfun(repo)(nm, paste("Not checking GRANBase package to avoid recursion problems"))
-                return(c("* GRANBase not checked to prevent recursion",
+            if(grepl("^GRAN", nm)) {
+                logfun(repo)(nm, paste("Not checking", nm, "package to avoid recursion problems"))
+                return(c(paste("*", nm, "not checked to prevent recursion"),
                          "* DONE",
                          "* Status: OK"))
             }

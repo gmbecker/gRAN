@@ -166,8 +166,10 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
     }
     evars = character()
    
-                                            
-    if((temp || pkg == "GRANBase") && !grepl("--no-build-vignettes", opts))
+
+    #GRANBase is loaded, so new versions of repo packages can fail to
+    # load. Do simple, no-install builds for GRANBase and GRAN* packages, always
+    if((temp || grepl("^GRAN", pkg)) && !grepl("--no-build-vignettes", opts))
         opts = c(opts, "--no-build-vignettes")
     evars = c(evars, "R_TESTS=''")
     ## command <- paste("R CMD build", checkout)
