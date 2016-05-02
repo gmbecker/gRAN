@@ -452,14 +452,18 @@ setMethod("logfun<-", "GRANRepository",
 ##' @param \dots passed to manifest method for addPkg
 ##' @param rows data.frame or unspecified. passed to manifest method for addPkg
 ##' @param versions data.frame passed to manifest method for addPkg
+##' @param replace logical. Should the information in \code{...}/\code{rows}
+##' replace existing rows for the same pacakge? Defaults to FALSE, in which case
+##' an error is thrown.
 ##' @return \code{x} with the specified package(s) added to the associated manifest
 ##' @export
 ##' @importMethodsFrom switchr addPkg
 setMethod("addPkg", "GRANRepository",
-          function(x, ..., rows, versions) {
-              if(any(manifest_df(rows)$name %in% manifest_df(x)$name))
+          function(x, ..., rows, versions, replace = FALSE) {
+              if(any(manifest_df(rows)$name %in% manifest_df(x)$name) && !replace)
                   stop("Some of the packages to be added already appear in the repo manifest")
-              manifest(x) = addPkg(manifest(x), ..., rows = rows, versions = versions)
+              manifest(x) = addPkg(manifest(x), ..., rows = rows, versions = versions,
+                                   replace = replace)
               new = which(!manifest_df(x)$name %in% repo_results(x)$name)
               oldres = repo_results(x)
               newres = ResultsRow(name = manifest_df(x)$name[new])

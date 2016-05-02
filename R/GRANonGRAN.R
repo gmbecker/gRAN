@@ -33,17 +33,20 @@ GRANonGRAN = function(repo)
     writeLines(DESC, con = file.path(babyGRAN, "DESCRIPTION"))
     cat(paste0("pkgname = '", pkgname, "'"), file = file.path(babyGRAN, "R", "00packagename.R"))
     
-    if(pkgname %in% manifest_df(repo)$name) {
-        granInd = which(repo_results(repo)$name == pkgname)
-        repo_results(repo)[granInd,] = ResultsRow(name = pkgname)
-        manifest_df(repo)[granInd,] = ManifestRow(name=pkgname,
-                             url = babyGRAN, type="local", subdir = ".",
-                             branch = "master")
-    } else {
-        repo = addPkg(repo, name=pkgname, url = babyGRAN, type="local",
-            subdir = ".")
-    }
+    ## if(pkgname %in% manifest_df(repo)$name) {
+    ##     granInd = which(repo_results(repo)$name == pkgname)
+    ##     repo_results(repo)[granInd,] = ResultsRow(name = pkgname)
+    ##     manifest_df(repo)[granInd,] = ManifestRow(name=pkgname,
+    ##                          url = babyGRAN, type="local", subdir = ".",
+    ##                          branch = "master")
+    ## } else {
+    ##     repo = addPkg(repo, name=pkgname, url = babyGRAN, type="local",
+    ##         subdir = ".")
+    ## }
 
+    repo = addPkg(repo, name=pkgname, url = babyGRAN, type="local",
+                  subdir = ".", replace = TRUE)
+    
 ##    cran_use_ok = use_cran_granbase(repo)
     cran_use_ok = FALSE
     if(cran_use_ok) {
