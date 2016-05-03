@@ -465,10 +465,14 @@ setMethod("addPkg", "GRANRepository",
               manifest(x) = addPkg(manifest(x), ..., rows = rows, versions = versions,
                                    replace = replace)
               new = which(!manifest_df(x)$name %in% repo_results(x)$name)
-              oldres = repo_results(x)
-              newres = ResultsRow(name = manifest_df(x)$name[new])
-              oldres = oldres[,names(newres)]
-              repo_results(x) = rbind(oldres, newres)
+              if(length(new)) {
+                  oldres = repo_results(x)
+                  newres = ResultsRow(name = manifest_df(x)$name[new])
+                  oldres = oldres[,names(newres)]
+                  repo_results(x) = rbind(oldres, newres)
+              }
+              ## fail fast and hard if the manifest and results df don't line up
+              stopifnot(identical(manifest_df(x)$name, repo_results(x)$name))
               x
           })
 

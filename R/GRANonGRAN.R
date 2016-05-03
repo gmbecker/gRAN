@@ -60,25 +60,20 @@ GRANonGRAN = function(repo)
     }
             
     if(!cran_use_ok) { ## force switchr and GRANBase into the manifest and make them build
-        if(!"switchr" %in% manifest_df(repo, session_only=FALSE)$name)
-            repo = addPkg(repo, name = "switchr", url="git://github.com/gmbecker/switchr", type = "git")
-        else {
-            df = repo_results(repo)
-            df[df$name == "switchr", "building"] = TRUE
-            df[df$name == "switchr", "lastbuiltversion"] = "0.0-0"
-            repo_results(repo) = df
-        }
-
-        if(!"GRANBase" %in% manifest_df(repo, session_only=FALSE)$name)
-           repo = addPkg(repo, name = "GRANBase",  url="git://github.com/gmbecker/gRAN", type = "git")
-        else {
-           df = repo_results(repo)
-           df[df$name == "GRANBase", "building"] = TRUE
-           df[df$name == "GRANBase", "lastbuiltversion"] = "0.0-0"
-
-           repo_results(repo) = df
-       }
+        pkgs = c("switchr", "GRANBase")
+        repo = addPkg(repo,
+                      name = pkgs,
+                      url = c("git://github.com/gmbecker/switchr",
+                              "git://github.com/gmbecker/gRAN"),
+                      type = "git", replace=TRUE)
+        
+        df = repo_results(repo)
+        df[df$name %in% pkgs, "building"] = TRUE
+        df[df$name %in% pkgs, "lastbuiltversion"] = "0.0-0"
+        
+        repo_results(repo) = df
     }
+
     
     repo
     
