@@ -275,13 +275,13 @@ setGeneric("repo_results", function(x) standardGeneric("repo_results"))
 ##' @aliases repo_results,GRANRepository
 setMethod("repo_results", "GRANRepository", function(x) x@results)
 
-##' ##'@export
 ##' @rdname reporesults
 ##' @param value The new results data.frame
+##' @export
 setGeneric("repo_results<-", function(x, value) standardGeneric("repo_results<-"))
 ##' @rdname reporesults
 ##' @aliases repo_results<-,GRANRepository
-
+##' @export
 setMethod("repo_results<-", "GRANRepository", function(x, value) {
     x@results = value
     x

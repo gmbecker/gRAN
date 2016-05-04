@@ -28,7 +28,5 @@ A data.frame of build results
 }
 \description{
 Repository build results
-
-##'@export
 }
 
