@@ -46,8 +46,11 @@ GRANonGRAN = function(repo)
 
     repo = addPkg(repo, name=pkgname, url = babyGRAN, type="local",
                   subdir = ".", replace = TRUE)
-    
-##    cran_use_ok = use_cran_granbase(repo)
+    ## addPkg doesn't reset the results
+    granInd = which(repo_results(repo)$name == pkgname)
+    repo_results(repo)[granInd,] = ResultsRow(name = pkgname)
+
+    ##    cran_use_ok = use_cran_granbase(repo)
     cran_use_ok = FALSE
     if(cran_use_ok) {
         ## this should give us GRANBase, switchr, and dependencies
