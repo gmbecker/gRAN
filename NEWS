@@ -1,3 +1,7 @@
+Changes in version 1.1.11 (2016-05-17)
+Bugfixes
+	* Fix bug in loadRepo that called prepDirStructure with the wrong basedir
+
 Changes in version 1.1.10 (2016-05-17)
 API Changes
 	* add support for single-package logging
