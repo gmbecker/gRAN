@@ -125,7 +125,7 @@ loadRepo = function(filename) {
         res = updateGRANRepoObject(res)
     }
     ## Just in case
-    prepDirStructure(normalizePath2(repobase(res), ".."),
+    prepDirStructure(normalizePath2(file.path(repobase(res), "..")),
                      repo_name(res),
                      temp_repo(res),
                      checkout_dir(res),
