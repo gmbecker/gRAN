@@ -125,12 +125,12 @@ loadRepo = function(filename) {
         res = updateGRANRepoObject(res)
     }
     ## Just in case
-    prepDirStructure(dirname(repobase(res)),
+    prepDirStructure(normalizePath2(repobase(res), ".."),
                      repo_name(res),
                      temp_repo(res),
                      checkout_dir(res),
                      temp_lib(res),
-                     destination(res))
+                     dest_base(res))
     
     ##refresh closure for log function
     logfun(res) = function(pkg, msg, type = "full") writeGRANLog(pkg, msg, type,

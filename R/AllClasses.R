@@ -263,7 +263,7 @@ prepDirStructure = function(basedir, subrepo, temprepo, tempcheckout,
     if(!file.exists(file.path(destination, subrepo, "CheckResults")))
         dir.create(file.path(destination, subrepo, "CheckResults"),
                    recursive = TRUE)
-      if(!file.exists(file.path(destination, subrepo, "SinglePkgLogs")))
+    if(!file.exists(file.path(destination, subrepo, "SinglePkgLogs")))
         dir.create(file.path(destination, subrepo, "SinglePkgLogs"),
                    recursive = TRUE)
   
