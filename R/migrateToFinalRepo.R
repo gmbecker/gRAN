@@ -2,9 +2,6 @@ migrateToFinalRepo = function(repo)
 {
     repoLoc = destination(repo)
 
-
-
-
     man = manifest_df(repo)
     bman = getBuildingManifest(repo = repo)
 

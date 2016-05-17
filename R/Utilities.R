@@ -25,9 +25,12 @@ system.file2 = function(..., package = "GRANBase") {
 ##' should be written to
 ##' @param logfile The location of the full log file to write/append to
 ##' @param errfile the location of the error log file to write/append to
+##' @param pkglog character. The package-specific log file to write to if
+##' applicable.
 ##' @note This function is not intended for direct use by the end user.
 ##' @export
-writeGRANLog = function(pkg, msg, type = "full", logfile, errfile)
+writeGRANLog = function(pkg, msg, type = "full", logfile,
+                      errfile, pkglog)
 {
     
     dt = date()
@@ -43,7 +46,8 @@ writeGRANLog = function(pkg, msg, type = "full", logfile, errfile)
         targ = logfile
         err = character()
     }
-
+    if(!is.null(pkg) && !is.na(pkg))
+        targ = c(targ, pkglog)
     
     fullmsg = paste("\n",err, "pkg:", pkg, "(", dt, ") - ",
         paste(paste0("\t",msg), collapse="\n\t"))

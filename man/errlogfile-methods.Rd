@@ -4,11 +4,14 @@
 \name{errlogfile}
 \alias{errlogfile}
 \alias{errlogfile,GRANRepository-method}
+\alias{errlogfile,RepoBuildParam-method}
 \title{Log file location of a GRAN (sub) repository}
 \usage{
 errlogfile(repo)
 
 \S4method{errlogfile}{GRANRepository}(repo)
+
+\S4method{errlogfile}{RepoBuildParam}(repo)
 }
 \arguments{
 \item{repo}{a GRANRepository object}

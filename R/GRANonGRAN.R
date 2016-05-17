@@ -124,9 +124,18 @@ loadRepo = function(filename) {
         res = dget(textConnection(txt2))
         res = updateGRANRepoObject(res)
     }
+    ## Just in case
+    prepDirStructure(repobase(res),
+                     repo_name(res),
+                     temp_repo(res),
+                     checkout_dir(res),
+                     temp_lib(res),
+                     destination(res))
+    
     ##refresh closure for log function
     logfun(res) = function(pkg, msg, type = "full") writeGRANLog(pkg, msg, type,
-              logfile = logfile(res), errfile = errlogfile(res))
+              logfile = logfile(res), errfile = errlogfile(res),
+              pkglog = pkg_log_file(pkg, res))
     res
 }
             

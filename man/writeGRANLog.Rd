@@ -4,7 +4,7 @@
 \alias{writeGRANLog}
 \title{writeGRANLog}
 \usage{
-writeGRANLog(pkg, msg, type = "full", logfile, errfile)
+writeGRANLog(pkg, msg, type = "full", logfile, errfile, pkglog)
 }
 \arguments{
 \item{pkg}{The name of the package the log is about}
@@ -17,6 +17,9 @@ should be written to}
 \item{logfile}{The location of the full log file to write/append to}
 
 \item{errfile}{the location of the error log file to write/append to}
+
+\item{pkglog}{character. The package-specific log file to write to if
+applicable.}
 }
 \description{
 Utility function which writes gran logs

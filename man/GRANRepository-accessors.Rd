@@ -4,12 +4,15 @@
 \name{logfile}
 \alias{logfile}
 \alias{logfile,GRANRepository-method}
+\alias{logfile,RepoBuildParam-method}
 \alias{logfile-method,GRANRepository}
 \title{Log file location of a GRAN (sub) repository}
 \usage{
 logfile(repo)
 
 \S4method{logfile}{GRANRepository}(repo)
+
+\S4method{logfile}{RepoBuildParam}(repo)
 }
 \arguments{
 \item{repo}{a GRANRepository object}

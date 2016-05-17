@@ -14,10 +14,14 @@ setGeneric("logfile", function(repo) standardGeneric("logfile"))
 ##' @rdname GRANRepository-accessors
 ##' @aliases logfile,GRANRepository-method
 setMethod("logfile", "GRANRepository", function(repo) {
-    ret = param(repo)@logfile
+    ret = logfile(param(repo))
     if(!file.exists(dirname(ret)))
         dir.create(dirname(ret), recursive = TRUE)
     ret})
+
+##' @rdname GRANRepository-accessors
+##' @aliases logfile,RepoBuildParam-method
+setMethod("logfile", "RepoBuildParam", function(repo) repo@logfile)
 
 
 ##' errlogfile
@@ -38,6 +42,9 @@ setMethod("errlogfile", "GRANRepository", function(repo) {
     if(!file.exists(dirname(ret)))
         dir.create(dirname(ret), recursive = TRUE)
     ret})
+##' @rdname errlogfile-methods
+##' @aliases errlogfile,RepoBuildParam-method
+setMethod("errlogfile", "RepoBuildParam", function(repo) repo@errlog)
 
 ##' Retrieve the path to a GRAN (sub) repository
 ##' @rdname location-methods
@@ -618,3 +625,41 @@ setMethod("build_timeout<-", "RepoBuildParam",
               x@build_timeout= value
               x
               })
+
+##' @rdname GRANparams
+##' @docType methods
+##' @export
+setGeneric("pkg_log_dir", function(x) standardGeneric("pkg_log_dir"))
+
+##' @rdname GRANparams
+##' @aliases pkg_log_dir,RepoBuildParam
+##' @export
+setMethod("pkg_log_dir", "RepoBuildParam", function(x) {
+    file.path(normalizePath2(x@dest_base),
+              x@repo_name,
+              "SinglePkgLogs")
+       
+})
+
+##' @rdname GRANparams
+##' @aliases pkg_log_dir,GRANRepository
+##' @export
+setMethod("pkg_log_dir", "GRANRepository", function(x) pkg_log_dir(param(x)))
+
+
+
+##' @rdname GRANparams
+##' @param pkg The package name, accepted by pkg_log_file.
+##' @docType methods
+##' @export
+setGeneric("pkg_log_file", function(pkg, x) standardGeneric("pkg_log_file"))
+
+##' @rdname GRANparams
+##' @aliases pkg_log_file,RepoBuildParam
+##' @export
+setMethod("pkg_log_file", c(x = "RepoBuildParam"), function(pkg, x) file.path(pkg_log_dir(x), paste0(pkg, ".log")))
+
+##' @rdname GRANparams
+##' @aliases pkg_log_file,GRANRepository
+##' @export
+setMethod("pkg_log_file", c(x = "GRANRepository"), function(pkg,x ) pkg_log_file(pkg, param(x)))

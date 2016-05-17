@@ -44,6 +44,16 @@
 \alias{logfun,GRANRepository-method}
 \alias{logfun<-,GRANRepository}
 \alias{logfun<-,GRANRepository-method}
+\alias{pkg_log_dir}
+\alias{pkg_log_dir,GRANRepository}
+\alias{pkg_log_dir,GRANRepository-method}
+\alias{pkg_log_dir,RepoBuildParam}
+\alias{pkg_log_dir,RepoBuildParam-method}
+\alias{pkg_log_file}
+\alias{pkg_log_file,ANY,GRANRepository-method}
+\alias{pkg_log_file,ANY,RepoBuildParam-method}
+\alias{pkg_log_file,GRANRepository}
+\alias{pkg_log_file,RepoBuildParam}
 \alias{repo_name}
 \alias{repo_name,GRANRepository}
 \alias{repo_name,GRANRepository-method}
@@ -155,11 +165,25 @@ build_timeout(x) <- value
 \S4method{build_timeout}{RepoBuildParam}(x)
 
 \S4method{build_timeout}{RepoBuildParam}(x) <- value
+
+pkg_log_dir(x)
+
+\S4method{pkg_log_dir}{RepoBuildParam}(x)
+
+\S4method{pkg_log_dir}{GRANRepository}(x)
+
+pkg_log_file(pkg, x)
+
+\S4method{pkg_log_file}{ANY,RepoBuildParam}(pkg, x)
+
+\S4method{pkg_log_file}{ANY,GRANRepository}(pkg, x)
 }
 \arguments{
 \item{x}{A GRANRepository object}
 
 \item{value}{The new parameter value}
+
+\item{pkg}{The package name, accepted by pkg_log_file.}
 }
 \value{
 logical indicating whether GRANBase should be installed

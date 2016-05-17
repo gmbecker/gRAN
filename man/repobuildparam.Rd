@@ -16,10 +16,10 @@ RepoBuildParam(basedir, repo_name = "current",
   tempLibLoc = file.path(basedir, repo_name, "LibLoc"),
   extra_fun = function(...) NULL, destination = basedir, auth = "",
   dest_url = makeFileURL(normalizePath2(destination)),
-  shell_init = character(), logfun = function(...) writeGRANLog(..., logfile
-  = logfile, errfile = errlog), install_test = TRUE, check_test = TRUE,
-  use_cran_granbase = TRUE, archive_timing = 2, archive_retries = 2,
-  build_timeout = 10 * 60, check_timeout = 15 * 60)
+  shell_init = character(), loginnerfun = writeGRANLog,
+  install_test = TRUE, check_test = TRUE, use_cran_granbase = TRUE,
+  archive_timing = 2, archive_retries = 2, build_timeout = 10 * 60,
+  check_timeout = 15 * 60)
 }
 \arguments{
 \item{basedir}{The base directory. By default the temporary repository,
@@ -64,8 +64,9 @@ installing from the repository.}
 \item{shell_init}{An optional shell script to source before invoking system
 commands, e.g. a bashrc file. Ignored if "" or not specified.}
 
-\item{logfun}{The function to use to write log messages during the repository
-build process. Defaults to writeGRANLog with \code{logfile} and \code{errlog}
+\item{loginnerfun}{The function to use to write log messages during the repository
+build process. It will be passed pkg, ..., errfile, logfile, and pkglog based on
+the other arguments to this function. Defaults to writeGRANLog
 specified as the full and error log locations, respectively.}
 
 \item{install_test}{logical. Should the install test be performed? Required

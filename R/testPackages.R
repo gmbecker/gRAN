@@ -72,7 +72,8 @@ installTest = function(repo, cores = 3L)
         param = param(repo),
         outdir = install_result_dir(repo))
     success = processInstOut(names(res), res, repo)
-    cleanupInstOut(res)
+    ## why was I removing some of the output logs? Doesn't seem like we want this.
+    ##cleanupInstOut(res)
     
     logfun(repo)("NA", paste0("Installation successful for ", sum(success), " of ", length(success), " packages."), type = "full")
 

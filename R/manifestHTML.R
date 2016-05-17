@@ -17,9 +17,12 @@ manifestHTML = function(repo)
             "lastbuiltstatus", "lastbuilt", "maintainer")]
         checkrep = file.path("..", "..", "CheckResults", paste0(tmpman$name,
             "_CHECK.log"))
+        pkglog = file.path("..", "..", "SinglePkgLogs", paste0(tmpman$name,
+            ".log"))
 
         tmpman[is.na(tmpman)] = "NA"
         tmpman$CheckResult = paste0("<a href='", checkrep, "'>check log</a>")
+        tmpman$PackageLog =  paste0("<a href='", pkglog, "'>single package log</a>")
         tmpman$CheckResult[!file.exists(file.path(destination(repo), checkrep))] = ""
         tmpmanvec = as.character(as.matrix(tmpman))
         hwrite(tmpmanvec, dim = dim(tmpman), page = doc)
