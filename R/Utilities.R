@@ -58,7 +58,7 @@ getPkgNames = function(path)
 {
     path = normalizePath2(path)
     if(length(path) > 1)
-        sapply(path, getPkgNames)
+        return(sapply(path, getPkgNames))
     if(file.info(path)$isdir && file.exists(file.path(path, "DESCRIPTION")))
         read.dcf(file.path(path, "DESCRIPTION"))[1,"Package"]
     else if (grepl(".tar", path, fixed=TRUE))

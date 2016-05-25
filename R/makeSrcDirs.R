@@ -10,8 +10,7 @@ makeSrcDirs = function(repo, cores = 3L, scm_auth)
         subdir = manifest$subdir,  name = manifest$name)
     path = checkout_dir(repo)
     versions = versions_df(repo)[binds,]
-    res <- mapply(#mcmapply2(
-        function(nm, src,  repo, path, version) {
+    res <- mapply(function(nm, src,  repo, path, version) {
                 
             ret = makePkgDir(name = nm, source = src, path =path,
                 latest_only = FALSE, param = param(repo), forceRefresh=FALSE)

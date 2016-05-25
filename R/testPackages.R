@@ -175,7 +175,7 @@ checkTest = function(repo, cores = 3L)
             out
 
     },  nm = bres$name, tar = tars,repo = list(repo), mc.cores = cores,
-        SIMPLIFY=FALSE)
+        SIMPLIFY=FALSE, mc.preschedule=FALSE)
     
     success = mapply(function(nm, out, repo) {
         if(errorOrNonZero(out) || any(grepl("ERROR", out, fixed=TRUE))) {
