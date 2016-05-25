@@ -97,7 +97,8 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
                      incremental = incremental,
                      vers_restr = vers_restrict$version,
                      temp = temp,
-                     USE.NAMES=FALSE
+                     USE.NAMES=FALSE,
+                     mc.preschedule = FALSE
                      
                      )
     versions = names(res)
