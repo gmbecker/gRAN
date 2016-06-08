@@ -116,6 +116,32 @@ cleanupInstOut = function(out)
 }
 
 
+.innerCheck =  function(nm, tar, repo)
+        {
+            if(grepl("^GRAN", nm)) {
+                logfun(repo)(nm, paste("Not checking", nm, "package to avoid recursion problems"))
+                return(c(paste("*", nm, "not checked to prevent recursion"),
+                         "* DONE",
+                         "* Status: OK"))
+            }
+            
+            logfun(repo)(nm, paste("Running R CMD check on ", tar))
+            ## We built the vignettes during this round of building, so if the pkg is going to
+            ##fail on building vignettes it will have already happened by this point
+            cmd = paste0('R_LIBS="', temp_lib(repo),  '" R_HOME="',
+                R.home(),'" R CMD check ', tar, " --no-build-vignettes")
+            env = c(paste0('R_LIBS="', temp_lib(repo), '"'),
+                    paste0('R_HOME="', R.home(), '"'))
+            args = c("check", tar, "--no-build-vignettes")
+            cmd = file.path(R.home("bin"), "Rcmd")
+                    
+            out = tryCatch(system_w_init(cmd, args = args, env = env,
+                                         intern=TRUE, param = param(repo)),
+                error=function(x) x)
+            out
+
+    }
+
 checkTest = function(repo, cores = 3L)
 {
 ##    if(!check_test_on(repo)) {
@@ -149,33 +175,12 @@ checkTest = function(repo, cores = 3L)
 ##    ord = mapply(function(nm, vr) grep(paste0(nm, "_", vr), tars), nm = bres$name, vr = bres$version)
     
   ##  tars = tars[unlist(ord)]
-    outs = mcmapply2(
-        function(nm, tar, repo)
-        {
-            if(grepl("^GRAN", nm)) {
-                logfun(repo)(nm, paste("Not checking", nm, "package to avoid recursion problems"))
-                return(c(paste("*", nm, "not checked to prevent recursion"),
-                         "* DONE",
-                         "* Status: OK"))
-            }
-            
-            logfun(repo)(nm, paste("Running R CMD check on ", tar))
-            ## We built the vignettes during this round of building, so if the pkg is going to
-            ##fail on building vignettes it will have already happened by this point
-            cmd = paste0('R_LIBS="', temp_lib(repo),  '" R_HOME="',
-                R.home(),'" R CMD check ', tar, " --no-build-vignettes")
-            env = c(paste0('R_LIBS="', temp_lib(repo), '"'),
-                    paste0('R_HOME="', R.home(), '"'))
-            args = c("check", tar, "--no-build-vignettes")
-            cmd = file.path(R.home("bin"), "Rcmd")
-                    
-            out = tryCatch(system_w_init(cmd, args = args, env = env,
-                                         intern=TRUE, param = param(repo)),
-                error=function(x) x)
-            out
-
-    },  nm = bres$name, tar = tars,repo = list(repo), mc.cores = cores,
+    outs = mcmapply2(function(nm, tar, repo) tryCatch(.innerCheck(nm = nm, tar = tar, repo = repo),
+                                                      error = function(x)x)
+       ,  nm = bres$name, tar = tars,repo = list(repo), mc.cores = cores,
         SIMPLIFY=FALSE, mc.preschedule=FALSE)
+    if(length(outs) != nrow(bres))
+        stop("Fatal error. I didn't get check output for all checked packages.")
     
     success = mapply(function(nm, out, repo) {
         if(errorOrNonZero(out) || any(grepl("ERROR", out, fixed=TRUE))) {
@@ -216,6 +221,11 @@ checkTest = function(repo, cores = 3L)
   
     
     success = unlist(success)
+    if(length(success) != sum(binds)) {
+        stop("fatal error. only got ",  length(success), " results from ", sum(binds),
+             " check tests.")
+    }
+        
 
     logfun(repo)("NA", paste0(sum(isOkStatus(status = success, repo = repo)), " of ", length(success), " packages passed R CMD check"))
     repo_results(repo)$status[binds] = success
