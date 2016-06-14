@@ -153,7 +153,8 @@ checkTest = function(repo, cores = 3L)
     on.exit(setwd(oldwd))
     logfun(repo)("NA", paste0("Running R CMD check on remaining packages (", sum(getBuilding(repo = repo)), ") using R at ", R.home(), "."), type = "full")
     manifest = manifest_df(repo)
-    binds  = getBuilding(repo = repo)
+    ## binds is indices now, NOT TRUE/FALSE!!!
+    binds  = which(getBuilding(repo = repo))
     bres = getBuildingResults(repo = repo)
     if(!nrow(bres))
         return(repo)
@@ -169,7 +170,6 @@ checkTest = function(repo, cores = 3L)
         logfun(repo)("NA", c("Tarballs not found for these packages during check test:", paste(bres$name[missing], collapse = " , ")), type = "both")
         repo_results(repo)$status[manifest_df(repo)$name %in% bres$name[missing]] = "Unable to check - missing tarball"
         bres  = bres[!missing,]
-#        binds[missing] = FALSE
         binds = binds[!missing]
     }
     #tars = tars[order(bres$name)]
@@ -222,8 +222,8 @@ checkTest = function(repo, cores = 3L)
 
 
     success = unlist(success)
-    if(length(success) != sum(binds)) {
-        stop("fatal error. only got ",  length(success), " results from ", sum(binds),
+    if(length(success) != length(binds)) {
+        stop("fatal error. only got ",  length(success), " results from ", length(binds),
              " check tests.")
     }
 
