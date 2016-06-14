@@ -7,7 +7,7 @@ doPkgTests = function(repo, cores = 3L)
      logfun(repo)("NA", paste0("Performing 'extra' commands before installation. ", paste(manifest_df(repo)$name, collapse = " , ")), type = "full")
 
     repo = doExtra(repo)
-    
+
     if(is.null(repo_results(repo)$building))
         repo_results(repo)$building = TRUE
 
@@ -59,13 +59,13 @@ installTest = function(repo, cores = 3L)
     oldlp = .libPaths()
     .libPaths2(loc, exclude.site=TRUE)
     on.exit(.libPaths(oldlp))
-    
+
     if(!file.exists(install_result_dir(repo)))
         dir.create(install_result_dir(repo))
 
     granpkgs = bres[grepl("^GRAN", bres$name),]
     bres = bres[!grepl("^GRAN", bres$name),]
-    
+
     res = install.packages2(bres$name, lib = loc,
         repos = reps,
         type = "source", dependencies=TRUE, ## Ncpus = cores, problems with installing deps?
@@ -74,13 +74,13 @@ installTest = function(repo, cores = 3L)
     success = processInstOut(names(res), res, repo)
     ## why was I removing some of the output logs? Doesn't seem like we want this.
     ##cleanupInstOut(res)
-    
+
     logfun(repo)("NA", paste0("Installation successful for ", sum(success), " of ", length(success), " packages."), type = "full")
 
     #update the packages in the manifest we tried to build with success/failure
     repo_results(repo)$status[binds][!success] = "install failed"
     repo
-    
+
 }
 
 
@@ -107,7 +107,7 @@ processInstOut = function(pkg, out, repo)
     }
     ret
 }
-    
+
 cleanupInstOut = function(out)
 {
     torem = out[out!="ok"]
@@ -124,7 +124,7 @@ cleanupInstOut = function(out)
                          "* DONE",
                          "* Status: OK"))
             }
-            
+
             logfun(repo)(nm, paste("Running R CMD check on ", tar))
             ## We built the vignettes during this round of building, so if the pkg is going to
             ##fail on building vignettes it will have already happened by this point
@@ -134,7 +134,7 @@ cleanupInstOut = function(out)
                     paste0('R_HOME="', R.home(), '"'))
             args = c("check", tar, "--no-build-vignettes")
             cmd = file.path(R.home("bin"), "Rcmd")
-                    
+
             out = tryCatch(system_w_init(cmd, args = args, env = env,
                                          intern=TRUE, param = param(repo)),
                 error=function(x) x)
@@ -169,11 +169,12 @@ checkTest = function(repo, cores = 3L)
         logfun(repo)("NA", c("Tarballs not found for these packages during check test:", paste(bres$name[missing], collapse = " , ")), type = "both")
         repo_results(repo)$status[manifest_df(repo)$name %in% bres$name[missing]] = "Unable to check - missing tarball"
         bres  = bres[!missing,]
-        binds[missing] = FALSE
+#        binds[missing] = FALSE
+        binds = binds[!missing]
     }
     #tars = tars[order(bres$name)]
 ##    ord = mapply(function(nm, vr) grep(paste0(nm, "_", vr), tars), nm = bres$name, vr = bres$version)
-    
+
   ##  tars = tars[unlist(ord)]
     outs = mcmapply2(function(nm, tar, repo) tryCatch(.innerCheck(nm = nm, tar = tar, repo = repo),
                                                       error = function(x)x)
@@ -181,12 +182,12 @@ checkTest = function(repo, cores = 3L)
         SIMPLIFY=FALSE, mc.preschedule=FALSE)
     if(length(outs) != nrow(bres))
         stop("Fatal error. I didn't get check output for all checked packages.")
-    
+
     success = mapply(function(nm, out, repo) {
         if(errorOrNonZero(out) || any(grepl("ERROR", out, fixed=TRUE))) {
             logfun(repo)(nm, "R CMD check failed.", type = "both")
             outToErrLog = TRUE
-     
+
             ret = "check fail"
         } else {
             numwarns = length(grep("WARNING", out)) - 1 ##-1 to account for the WARNING count
@@ -216,16 +217,16 @@ checkTest = function(repo, cores = 3L)
         if(outToErrLog)
             logfun(repo)(nm, c("R CMD check output:", out), type="error")
         ret
-        
+
     }, nm = names(outs), out = outs, repo = list(repo))
-  
-    
+
+
     success = unlist(success)
     if(length(success) != sum(binds)) {
         stop("fatal error. only got ",  length(success), " results from ", sum(binds),
              " check tests.")
     }
-        
+
 
     logfun(repo)("NA", paste0(sum(isOkStatus(status = success, repo = repo)), " of ", length(success), " packages passed R CMD check"))
     repo_results(repo)$status[binds] = success
