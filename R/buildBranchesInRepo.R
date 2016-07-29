@@ -125,7 +125,7 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
     res2 = res[!sameversion]
     results$status[!sameversion] = ifelse(res2=="ok", "ok", "build failed")
     results$status[sameversion] = "up-to-date"
-#    results$version[built] = versions[built]
+    results$version[built] = versions[built]
     results$maintainer = getMaintainers(checkout_dir(repo),
                            manifest = manifest)
     repo_results(repo)[binds,] = results
