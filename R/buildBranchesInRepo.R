@@ -181,7 +181,7 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
     evars = c(evars, paste0("R_LIBS=", temp_lib(repo)))
     out = tryCatch(system_w_init(command, args = opts, env = evars, intern = TRUE,
         param = param(repo)), error = function(x) x)
-    if(is(out, "error") || ("status" %in% attributes(out) && attr(out, "status") > 0) || !file.exists(paste0(pkg, "_", vnum, ".tar.gz"))) {
+    if(is(out, "error") || ("status" %in% attributes(out) && attr(out, "status") > 0) || !file.exists(paste0(pkg, "_", vnum, builtPkgExt()))) {
         type = if(temp) "Temporary" else "Final"
         logfun(repo)(pkg, paste(type,"package build failed. R CMD build returned non-zero status"), type ="both")
         logfun(repo)(pkg, c("R CMD build output for failed package build:", out), type="error")

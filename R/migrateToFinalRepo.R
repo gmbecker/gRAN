@@ -4,6 +4,7 @@ migrateToFinalRepo = function(repo)
 
     man = manifest_df(repo)
     bman = getBuildingManifest(repo = repo)
+    clearTmpRepoFailedPkgs(repo)
 
     ## if they aren't being tested at all, we don't build them twice.
     
@@ -54,6 +55,21 @@ migrateToFinalRepo = function(repo)
     repo = updateResults(repo)
 
     repo
+}
+
+clearTmpRepoFailedPkgs = function(repo) {
+
+    res = repo_results(repo)
+    failed = res$building & !isOkStatus(repo = repo)
+    flpkgs = res$name[failed]
+    tarbls = file.path(temp_repo(repo), paste0(flpkgs, "_", res$version[failed], builtPkgExt()))
+    tarbls = tarbls[file.exists(tarbls)]
+    if(length(tarbls)>0)
+        logfun(repo)(NA, msg = paste("Removing", length(tarbls), "tarballs from temporary repo for packages which failed during the buidl process"))
+    file.remote(tarbls)
+
+
+
 }
 
 ##' @importFrom tools package_dependencies

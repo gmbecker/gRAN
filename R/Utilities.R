@@ -30,7 +30,7 @@ system.file2 = function(..., package = "GRANBase") {
 ##' @note This function is not intended for direct use by the end user.
 ##' @export
 writeGRANLog = function(pkg, msg, type = "full", logfile,
-                      errfile, pkglog)
+                      errfile, pkglog = NULL)
 {
     
     dt = date()
@@ -180,6 +180,16 @@ getBuildingManifest = function(repo, results = repo_results(repo),
 getBuildingResults = function(repo, results = repo_results(repo))
 {
     results[getBuilding(repo, results),]
+}
+
+builtPkgExt = function() {
+    if(Sys.info()["sysname"] == "Darwin")
+        ".tgz"
+    else if (.Platform$Os.type == "windows")
+        ".zip"
+    else
+        "tar.gz"
+
 }
 
 

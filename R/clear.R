@@ -70,7 +70,7 @@ clear_repo = function(repo, all = TRUE, checkout = FALSE, archivedir = NULL) {
         if(!file.exists(archivedir))
             dir.create(archivedir)
         
-        fils = list.files(d, pattern = "tar.gz", full.names=TRUE)
+        fils = list.files(d, pattern = builtPkgExt(), full.names=TRUE)
         logfun(repo)("NA", sprintf("Found %d deployed packages. Copying to archive before clearing repository.", length(fils)))
         file.copy(fils, archivedir, overwrite = FALSE)
     }

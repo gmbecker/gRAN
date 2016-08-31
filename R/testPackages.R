@@ -165,7 +165,7 @@ checkTest = function(repo, cores = 3L)
         return(repo)
     #pat = paste0("(", paste(bres$name, collapse="|"), ")_.*\\.tar.gz")
     #tars = list.files(pattern = pat)
-    expectedTars = file.path(staging(repo), paste0(bres$name,"_", bres$version, ".tar.gz"))
+    expectedTars = file.path(staging(repo), paste0(bres$name,"_", bres$version, builtPkgExt()))
     tars = expectedTars[file.exists(expectedTars)]
 ##    tars = unlist(mapply(function(nm, vr) list.files(pattern = paste0(nm, "_", vr, ".tar.gz")), nm = bres$name, vr = bres$version))
     if(!identical(expectedTars, tars)){
