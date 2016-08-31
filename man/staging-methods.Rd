@@ -4,21 +4,29 @@
 \name{staging}
 \alias{staging}
 \alias{staging,GRANRepository-method}
+\alias{staging_logs}
+\alias{staging_logs,GRANRepository-method}
 \title{staging
-Return the staging directory to be used when building the repository. If the directory does not exist it will be created.}
+Return the staging directory or the staging_logs to be used when building the repository. If the directory does not exist it will be created.}
 \usage{
 staging(repo)
 
 \S4method{staging}{GRANRepository}(repo)
+
+staging_logs(repo)
+
+\S4method{staging_logs}{GRANRepository}(repo)
 }
 \arguments{
 \item{repo}{a GRANRepository object}
 }
 \value{
 The path to the repository specific directory
+
+The path to the repository specific directory
 }
 \description{
 staging
-Return the staging directory to be used when building the repository. If the directory does not exist it will be created.
+Return the staging directory or the staging_logs to be used when building the repository. If the directory does not exist it will be created.
 }
 

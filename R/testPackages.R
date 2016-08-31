@@ -70,10 +70,10 @@ installTest = function(repo, cores = 3L)
         repos = reps,
         type = "source", dependencies=TRUE, ## Ncpus = cores, problems with installing deps?
         param = param(repo),
-        outdir = install_result_dir(repo))
+                                        # outdir = install_result_dir(repo))
+        outdir = staging_logs(repo))
     success = processInstOut(names(res), res, repo)
-    ## why was I removing some of the output logs? Doesn't seem like we want this.
-    ##cleanupInstOut(res)
+    cleanupInstOut(res, repo)
 
     logfun(repo)("NA", paste0("Installation successful for ", sum(success), " of ", length(success), " packages."), type = "full")
 
@@ -108,12 +108,17 @@ processInstOut = function(pkg, out, repo)
     ret
 }
 
-cleanupInstOut = function(out)
+## Make sure that old install logs aren't around to gum up the works.
+cleanupInstOut = function(out, repo)
 {
-    torem = out[out!="ok"]
-    file.remove(torem)
-
+    ## beware and check ominous "on OSes that support directories being renamed"
+    ## bit of documentation if this doesn't seem to be working properly.
+    tomv = out[out!="ok"]
+    file.rename(tomv, file.path(install_result_dir(repo), basename(tomv)))
+    #torem = out[out!="ok"]
+    #file.remove(torem)
 }
+
 
 
 .innerCheck =  function(nm, tar, repo)

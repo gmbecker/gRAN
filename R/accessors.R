@@ -79,7 +79,7 @@ setMethod("repobase", "GRANRepository", function(repo) {
 
 
 ##' staging
-##' Return the staging directory to be used when building the repository. If the directory does not exist it will be created.
+##' Return the staging directory or the staging_logs to be used when building the repository. If the directory does not exist it will be created.
 ##'
 ##' @rdname staging-methods
 ##' @param repo a GRANRepository object
@@ -95,6 +95,24 @@ setMethod("staging", "GRANRepository", function(repo) {
         dir.create(ret, recursive=TRUE)
     normalizePath2(ret)
 })
+
+##' @rdname staging-methods
+##' @return The path to the repository specific directory
+##' @export
+setGeneric("staging_logs", function(repo) standardGeneric("staging_logs"))
+##' @rdname staging-methods
+##' @aliases staging_logs,GRANRepository-method
+##' @export
+setMethod("staging_logs", "GRANRepository", function(repo) {
+    ret = file.path(staging(repo), "logs")
+    if(!file.exists(ret))
+        dir.create(ret, recursive=TRUE)
+    normalizePath2(ret)
+})
+
+
+
+
 
 ##' temporary library
 ##'
