@@ -63,8 +63,12 @@ installTest = function(repo, cores = 3L)
     if(!file.exists(install_result_dir(repo)))
         dir.create(install_result_dir(repo))
 
-    granpkgs = bres[grepl("^GRAN", bres$name),]
-    bres = bres[!grepl("^GRAN", bres$name),]
+    granpkginds = grep("^GRAN", bres$name)
+    
+    granpkgs = bres[granpkginds,]
+    binds = binds[-granpkginds]
+    bres = bres[-granpkginds,]
+    
 
     res = install.packages2(bres$name, lib = loc,
         repos = reps,
