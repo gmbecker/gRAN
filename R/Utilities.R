@@ -182,15 +182,41 @@ getBuildingResults = function(repo, results = repo_results(repo))
     results[getBuilding(repo, results),]
 }
 
-builtPkgExt = function() {
+builtPkgExt = function(regex = FALSE) {
     if(Sys.info()["sysname"] == "Darwin")
-        ".tgz"
-    else if (.Platform$Os.type == "windows")
-        ".zip"
+        ret = ".tgz"
+    else if (.Platform$OS.type == "windows")
+        ret = ".zip"
     else
-        "tar.gz"
+        ret = "tar.gz"
+
+    if(regex)
+        ret = gsub(".", "\\.", fixed=TRUE, ret)
+    ret
 
 }
+
+
+trim_PACKAGES = function(dir) {
+
+    pkgs = read.dcf(file.path(dir, "PACKAGES"))
+    pkgsdf = as.data.frame(pkgs)
+    if("File" %in% names(pkgsdf))
+        fils = pkgsdf$Files
+    else
+        
+        fils = file.path(dir, paste0(pkgsdf$Package, "_", pkgsdf$Version, builtPkgExt()))
+    missing = !file.exists(fils)
+    pkgsdf = pkgsdf[!missing,]
+    out <- file(file.path(dir, "PACKAGES"), "wt")
+    outgz <- gzfile(file.path(dir, "PACKAGES.gz"), "wt")
+    write.dcf(pkgsdf, file = out)
+    write.dcf(pkgsdf, file = outgz)
+    close(out)
+    close(outgz)
+    invisible(pkgs[missing, "Package"])
+}
+
 
 
 ## update_PACKAGES = function (dir = ".", fields = NULL, type = c("source", "mac.binary", 

@@ -4,7 +4,10 @@ migrateToFinalRepo = function(repo)
 
     man = manifest_df(repo)
     bman = getBuildingManifest(repo = repo)
-    clearTmpRepoFailedPkgs(repo)
+
+    ## I think this is not necessary because the bug was coming from somewhere else.
+    ## might still be a good idea eventually though...
+    ##  clearTmpRepoFailedPkgs(repo)
 
     ## if they aren't being tested at all, we don't build them twice.
     
@@ -40,12 +43,17 @@ migrateToFinalRepo = function(repo)
         return(repo)
     }
     if(clearstage) {
-        out = tryCatch(file.remove(list.files(stagingLoc, pattern = "\\.tar.*", full.names=TRUE)), error=function(x) x)
+        out = tryCatch(file.remove(list.files(stagingLoc,
+                                              pattern = paste0("(PACKAGES|Rcheck|",
+                                                               builtPkgExt(regex=TRUE),
+                                                               ")"),
+                                              full.names=TRUE)), error=function(x) x)
 
         if(is(out, "error"))
         {
-            logfun(repo)("NA", c("Unable to remove tarballs from staging directory after deployment: ", out$message), type="both")
+            logfun(repo)("NA", c("Unable to remove tarballs, PACKAGES files, and Rcheck directories from staging directory after deployment: ", out$message), type="both")
         }
+
     }
     
     oldwd = getwd()
@@ -59,18 +67,40 @@ migrateToFinalRepo = function(repo)
 
 clearTmpRepoFailedPkgs = function(repo) {
 
+    remFailedPkgTballs(repo)
+    remOldPkgTballs(repo)
+    trim_PACKAGES(temp_repo(repo))
+}
+
+
+remFailedPkgTballs = function(repo) {
+
     res = repo_results(repo)
     failed = res$building & !isOkStatus(repo = repo)
     flpkgs = res$name[failed]
-    tarbls = file.path(temp_repo(repo), paste0(flpkgs, "_", res$version[failed], builtPkgExt()))
+    tarbls = file.path(temp_repo(repo),"src/contrib",  paste0(flpkgs, "_", res$version[failed], builtPkgExt()))
     tarbls = tarbls[file.exists(tarbls)]
-    if(length(tarbls)>0)
+    if(length(tarbls)>0) {
         logfun(repo)(NA, msg = paste("Removing", length(tarbls), "tarballs from temporary repo for packages which failed during the buidl process"))
-    file.remote(tarbls)
+        file.remote(tarbls)
+
+    }
+}
+
+remOldPkgTballs = function(repo) {
+
+    tballs = list.files(file.path(temp_repo(repo), "src/contrib"),
+                        pattern = paste0(".+_[[:digit:]]+\\.[[:digit:]]+(\\.|-)[[:digit:]]\\", builtPkgExt()),
+                        full.names=TRUE)
+    stuff = strsplit(basename(tballs), split="(\\.|-|_)")
+    stuffdf = do.call(rbind, lapply(stuff, as.data.frame))
+    stuffdf
 
 
 
 }
+
+
 
 ##' @importFrom tools package_dependencies
 markFailedRevDeps = function(repo) {
