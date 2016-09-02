@@ -66,7 +66,8 @@ installTest = function(repo, cores = 3L)
     granpkginds = grep("^GRAN", bres$name)
     
     granpkgs = bres[granpkginds,]
-    binds = binds[-granpkginds]
+    ## binds is alogical vector, in full results df space NOT in bres space!!!!
+    binds = binds[-grep("^GRAN", repo_results(repo)$name)]
     bres = bres[-granpkginds,]
     
 
