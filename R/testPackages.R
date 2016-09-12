@@ -121,7 +121,11 @@ cleanupInstOut = function(out, repo)
     ## beware and check ominous "on OSes that support directories being renamed"
     ## bit of documentation if this doesn't seem to be working properly.
     tomv = out[out!="ok"]
-    file.rename(tomv, file.path(install_result_dir(repo), basename(tomv)))
+    res = file.copy(tomv, file.path(install_result_dir(repo), basename(tomv)))
+    if(any(!res))
+        stop("failed to copy files durnig cleanupInstOut")
+    file.remove(tomv)
+    ## file.rename(tomv, file.path(install_result_dir(repo), basename(tomv)))
     #torem = out[out!="ok"]
     #file.remove(torem)
 }
