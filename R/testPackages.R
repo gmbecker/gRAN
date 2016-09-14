@@ -60,8 +60,9 @@ installTest = function(repo, cores = 3L)
     .libPaths2(loc, exclude.site=TRUE)
     on.exit(.libPaths(oldlp))
 
-    if(!file.exists(install_result_dir(repo)))
-        dir.create(install_result_dir(repo))
+    insttmplogs = file.path(install_result_dir(repo), ".tmplogs")
+    if(!file.exists(insttmplogs))
+        dir.create(insttmplogs, recursive=TRUE)
 
     granpkginds = grep("^GRAN", bres$name)
     
@@ -75,12 +76,11 @@ installTest = function(repo, cores = 3L)
         repos = reps,
         type = "source", dependencies=TRUE, ## Ncpus = cores, problems with installing deps?
         param = param(repo),
-                                        # outdir = install_result_dir(repo))
-        outdir = staging_logs(repo))
+        outdir = insttmplogs)
     success = processInstOut(names(res), res, repo)
     if(length(success) != nrow(bres) || length(success) != sum(binds))
         stop("length mismatch between Install test output and packages tested")
-    cleanupInstOut(res, repo)
+    cleanupInstOut(insttmplog, repo)
 
     logfun(repo)("NA", paste0("Installation successful for ", sum(success), " of ", length(success), " packages."), type = "full")
 
@@ -116,19 +116,13 @@ processInstOut = function(pkg, out, repo)
 }
 
 ## Make sure that old install logs aren't around to gum up the works.
-cleanupInstOut = function(out, repo)
+cleanupInstOut = function(outdir, repo)
 {
-    ## beware and check ominous "on OSes that support directories being renamed"
-    ## bit of documentation if this doesn't seem to be working properly.
-    tomv = out[out!="ok"]
-    res = file.copy(tomv, file.path(install_result_dir(repo), basename(tomv)),
-                    overwrite = TRUE)
-    if(any(!res))
-        stop("failed to copy files durnig cleanupInstOut")
-    file.remove(tomv)
-    ## file.rename(tomv, file.path(install_result_dir(repo), basename(tomv)))
-    #torem = out[out!="ok"]
-    #file.remove(torem)
+    dirs = list.dirs(outdir, recursive=FALSE)
+    res = file.rename(dirs, file.path(install_result_dir(repo), basename(dirs)))
+    if(!all(res))
+        stop("file renaming appears to have failed")
+    invisible(NULL)
 }
 
 
