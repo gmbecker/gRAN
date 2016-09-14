@@ -80,7 +80,7 @@ installTest = function(repo, cores = 3L)
     success = processInstOut(names(res), res, repo)
     if(length(success) != nrow(bres) || length(success) != sum(binds))
         stop("length mismatch between Install test output and packages tested")
-    cleanupInstOut(insttmplog, repo)
+    cleanupInstOut(insttmplogs, repo)
 
     logfun(repo)("NA", paste0("Installation successful for ", sum(success), " of ", length(success), " packages."), type = "full")
 
