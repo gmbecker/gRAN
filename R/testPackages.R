@@ -60,31 +60,47 @@ installTest = function(repo, cores = 3L)
     .libPaths2(loc, exclude.site=TRUE)
     on.exit(.libPaths(oldlp))
 
-    insttmplogs = file.path(install_result_dir(repo), ".tmplogs")
-    if(!file.exists(insttmplogs))
-        dir.create(insttmplogs, recursive=TRUE)
+    ## insttmplogs = staging_logs(repo)
+    ## if(!file.exists(insttmplogs))
+    ##     dir.create(insttmplogs, recursive=TRUE)
 
-    granpkginds = grep("^GRAN", bres$name)
-    
-    granpkgs = bres[granpkginds,]
-    ## binds is alogical vector, in full results df space NOT in bres space!!!!
-    binds = binds[-grep("^GRAN", repo_results(repo)$name)]
-    bres = bres[-granpkginds,]
+
+
+    ## we don't install any GRAN packages
+    ##binds is in repo_results row space!!! and it's a logical
+    ## so we need to set elements to false, NOT remove them!
+    rresgraninds = grep("^GRAN", repo_results(repo)$name)
+    binds[rresgraninds ] = FALSE
+    ##bres is in an entirely different space because the packages that failed
+    ## earlier steps (e.g., build fail, or were up to date) are excluded.
+    ## it's a data.frame, so we need to remove the rows we don't want, unlike above
+    bresgraninds = grep("^GRAN", bres$name)
+    bres = bres[-bresgraninds,]
+
+    ## protect ourselves here by asserting dimension conformity was preserved:
+    ## bres should contain 1 row for each TRUE in binds
+    stopifnot(nrow(bres) == sum(binds))
     
 
     res = install.packages2(bres$name, lib = loc,
         repos = reps,
         type = "source", dependencies=TRUE, ## Ncpus = cores, problems with installing deps?
         param = param(repo),
-        outdir = insttmplogs)
+        outdir = staging_logs(repo))
     success = processInstOut(names(res), res, repo)
     if(length(success) != nrow(bres) || length(success) != sum(binds))
         stop("length mismatch between Install test output and packages tested")
-    cleanupInstOut(insttmplogs, repo)
+    ## default is the staging_logs dir when repo specified, which is correct here
+    cleanupInstOut(repo= repo) 
+
+
+
+    ## if these dimensions don't conform the recycling rule screws us.
+    ## source of long-lived install results misreporting bug.
+    stopifnot(length(binds) == nrow(repo_results(repo)))
 
     logfun(repo)("NA", paste0("Installation successful for ", sum(success), " of ", length(success), " packages."), type = "full")
-
-    #update the packages in the manifest we tried to build with success/failure
+    ##update the packages in the manifest we tried to build with success/failure
     repo_results(repo)$status[binds][!success] = "install failed"
     repo
 
@@ -116,12 +132,18 @@ processInstOut = function(pkg, out, repo)
 }
 
 ## Make sure that old install logs aren't around to gum up the works.
-cleanupInstOut = function(outdir, repo)
+cleanupInstOut = function(outdir = staging_logs(repo), repo)
 {
-    dirs = list.dirs(outdir, recursive=FALSE)
-    res = file.rename(dirs, file.path(install_result_dir(repo), basename(dirs)))
+    ## dirs = list.dirs(outdir, recursive=FALSE)
+    ## res = file.rename(dirs, file.path(install_result_dir(repo), basename(dirs)))
+    ## if(!all(res))
+    ##     stop("file renaming appears to have failed")
+    ## invisible(NULL)
+    instlogs = list.files(outdir, pattern = ".*\\.out", full.names=TRUE)
+    res = file.copy(instlogs, install_result_dir(repo), overwrite=TRUE, copy.date=TRUE)
     if(!all(res))
-        stop("file renaming appears to have failed")
+        stop("install log copying failed.")
+    file.remove(instlogs)
     invisible(NULL)
 }
 
