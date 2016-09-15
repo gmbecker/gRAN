@@ -188,7 +188,7 @@ builtPkgExt = function(regex = FALSE) {
     else if (.Platform$OS.type == "windows")
         ret = ".zip"
     else
-        ret = "tar.gz"
+        ret = ".tar.gz"
 
     if(regex)
         ret = gsub(".", "\\.", fixed=TRUE, ret)
