@@ -66,8 +66,8 @@ GRANonGRAN = function(repo)
         pkgs = c("switchr", "GRANBase")
         repo = addPkg(repo,
                       name = pkgs,
-                      url = c("git://github.com/gmbecker/switchr",
-                              "git://github.com/gmbecker/gRAN"),
+                      url = c("https://github.com/gmbecker/switchr",
+                              "https://github.com/gmbecker/gRAN"),
                       type = "git", replace=TRUE)
         
         df = repo_results(repo)
