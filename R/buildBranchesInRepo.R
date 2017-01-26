@@ -75,20 +75,7 @@ buildBranchesInRepo <- function( repo, cores = 1, temp=FALSE,
 
     vers_restrict = subset(versions_df(repo), versions_df(repo)$name %in% manifest$name)
     
-    tofun = function(e,checkout, ...)  {
-        pkg = getPkgNames(checkout)
-        logfun(repo)(pkg,
-                     paste("Building package",
-                           pkg,
-                           "timed out after",
-                           build_timeout(repo),
-                           "seconds."),
-                     type = "both")
-        e
-        ##"build timed-out."
-    }
-
-    res <- mcmapply2(.innerBuild,
+    res <- mcmapply2(function(...) tryCatch(.innerBuild(...), error = function(e) c("0.0-0" = "failed")),
                      checkout = svnCheckoutsLoc,
                      repo = list(repo), opts = opts,
                      mc.cores=cores,
