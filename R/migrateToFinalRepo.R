@@ -82,7 +82,7 @@ remFailedPkgTballs = function(repo) {
     tarbls = tarbls[file.exists(tarbls)]
     if(length(tarbls)>0) {
         logfun(repo)(NA, msg = paste("Removing", length(tarbls), "tarballs from temporary repo for packages which failed during the buidl process"))
-        file.remote(tarbls)
+        file.remove(tarbls)
 
     }
 }

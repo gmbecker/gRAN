@@ -183,9 +183,10 @@ getBuildingResults = function(repo, results = repo_results(repo))
 }
 
 builtPkgExt = function(regex = FALSE) {
-    if(Sys.info()["sysname"] == "Darwin")
-        ret = ".tgz"
-    else if (.Platform$OS.type == "windows")
+##    if(Sys.info()["sysname"] == "Darwin")
+##        ret = ".tgz"
+    ##    else if (.Platform$OS.type == "windows")
+    if (.Platform$OS.type == "windows")
         ret = ".zip"
     else
         ret = ".tar.gz"
@@ -217,7 +218,7 @@ trim_PACKAGES = function(dir) {
     invisible(pkgs[missing, "Package"])
 }
 
-
+haveGit = function() nchar(Sys.which("git")) > 0
 
 ## update_PACKAGES = function (dir = ".", fields = NULL, type = c("source", "mac.binary", 
 ##     "win.binary"), verbose = FALSE, unpacked = FALSE, subdirs = FALSE, 
