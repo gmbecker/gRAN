@@ -12,9 +12,10 @@ manifestHTML = function(repo)
         hwrite(attmptab, page = doc)
         hwrite("<br/>", page = doc)
         
-        tmpman = repo_results(repo)[,c("name", "lastAttemptVersion",
-            "lastAttemptStatus", "lastAttempt",  "lastbuiltversion",
-            "lastbuiltstatus", "lastbuilt", "maintainer")]
+        cnames <- c("name", "lastAttemptVersion", "lastAttemptStatus", 
+                    "lastAttempt",  "lastbuiltversion", "lastbuiltstatus", 
+                    "lastbuilt", "maintainer", "CheckResults", "SinglePkgLogs")
+        tmpman = repo_results(repo)[, cnames]
         checkrep = file.path("..", "..", "CheckResults", paste0(tmpman$name,
             "_CHECK.log"))
         pkglog = file.path("..", "..", "SinglePkgLogs", paste0(tmpman$name,
@@ -25,6 +26,7 @@ manifestHTML = function(repo)
         tmpman$PackageLog =  paste0("<a href='", pkglog, "'>single package log</a>")
         tmpman$CheckResult[!file.exists(file.path(destination(repo), checkrep))] = ""
         tmpmanvec = as.character(as.matrix(tmpman))
-        hwrite(tmpmanvec, dim = dim(tmpman), page = doc)
+        colnames(tmpmanvec) <- cnames
+        hwrite(tmpmanvec, dim = dim(tmpman), page = doc, col.names = TRUE)
         closePage(doc, splash=FALSE)
     }
