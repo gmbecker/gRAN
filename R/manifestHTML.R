@@ -14,7 +14,7 @@ manifestHTML = function(repo)
         
         cnames <- c("name", "lastAttemptVersion", "lastAttemptStatus", 
                     "lastAttempt",  "lastbuiltversion", "lastbuiltstatus", 
-                    "lastbuilt", "maintainer")
+                    "lastbuilt", "maintainer") #, "CheckResults", "SinglePkgLogs")
         tmpman = repo_results(repo)[, cnames]
         checkrep = file.path("..", "..", "CheckResults", paste0(tmpman$name,
             "_CHECK.log"))
@@ -23,10 +23,11 @@ manifestHTML = function(repo)
 
         tmpman[is.na(tmpman)] = "NA"
         tmpman$CheckResult = paste0("<a href='", checkrep, "'>check log</a>")
-        tmpman$PackageLog =  paste0("<a href='", pkglog, "'>single package log</a>")
+        tmpman$SinglePkgLog =  paste0("<a href='", pkglog, "'>single package log</a>")
         tmpman$CheckResult[!file.exists(file.path(destination(repo), checkrep))] = ""
-        tmpmanvec = as.character(as.matrix(tmpman))
-        colnames(tmpmanvec) <- c(cnames, "CheckResults", "SinglePkgLog")
-        hwrite(tmpmanvec, dim = dim(tmpman), page = doc, col.names = TRUE)
+  #      tmpmanvec = as.character(as.matrix(tmpman))
+  #      colnames(tmpmanvec) <- c(cnames, "CheckResults", "SinglePkgLogs")
+       # hwrite(tmpmanvec, dim = dim(tmpman), page = doc, col.names = TRUE)
+        hwrite(tmpman, page = doc, col.names = TRUE)
         closePage(doc, splash=FALSE)
     }
