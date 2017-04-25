@@ -1,10 +1,13 @@
+# Create logger for storing delivery logs
+logger <- create.logger(logfile = "gRANEmailNotifs.log", level = "DEBUG")
+
 #' Send email notifications to maintainers whose builds failed
 #' @author Dinakar Kulkarni, \email{kulkarni.dinakar@@gene.com}
-#' @import sendmailR
+#' @importFrom sendmailR sendmail mime_part
 #' @import log4r
-#' @import htmlTable
-#' @import dplyr
-#' @param repo_name gRAN repo_name could be <blank>|devel|current|stable|test
+#' @importFrom htmlTable htmlTable
+#' @importFrom dplyr anti_join
+#' @param repo A gRAN repo object
 #' @param mailControl List object containing SMTP server info
 #' @param sender Sender's email ID as a string
 #' @param attachments Files with full paths, as an array
@@ -17,33 +20,27 @@
 #'          \code{\link{sendMail}} for sending emails,
 #'          \code{\link{deltaDF}} for difference between 2 dataframes,
 #'          \code{\link{notifyManifest}} for manifest-based emails
-#' @note This function is not intended for direct use by the end user.
-emailNotifier <- function (repo_name = "",
+emailNotifier <- function (repo,
                            mailControl = list(smtpServer = "localhost"),
-                           sender = "resgran@gene.com",
-                           attachments = NULL,
-                           logfile = "gRANfailureMail.log",
-                           log_level = "DEBUG") {
-  # Define the logger
-  logger <- create.logger(logfile = logfile, level = log_level)
-
-  # Load the library
-  # It is assumed that env-specifc GRAN has already been loaded
-  # library(paste0("GRAN", repo_name), character.only = TRUE)
+                           sender = paste0("resgran-d@",
+                                          system('hostname -d', intern = TRUE)),
+                           attachments = NULL) {
+  # Identify the repo_name
+  repo_name <- repo@param@repo_name
 
   # Create a manifest file to record changes
   manifestFile <- paste0(".", repo_name, "failedpkgs.csv")
 
   # If running for the first time, or if manifestFile has been removed
-  # Get the failure info from defaultGRAN()
+  # Get the failure info from the repo object
   if (!file.exists(manifestFile)) {
-    failedPkgManifest_old <- getFailureInfo(defaultGRAN())
+    failedPkgManifest_old <- getFailureInfo(repo)
     failedPkgManifest_old <- failedPkgManifest_old[0, ]
   } else {
     failedPkgManifest_old <- as.data.frame(read.csv(manifestFile, header=TRUE))
   }
 
-  failedPkgManifest_new <- getFailureInfo(defaultGRAN())
+  failedPkgManifest_new <- getFailureInfo(repo)
 
   # Find the differences/delta between the new and old manifests
   cnames <- c("name", "version", "lastAttemptStatus",
@@ -55,7 +52,7 @@ emailNotifier <- function (repo_name = "",
 
   # Send the notifications
   notifyManifest(notifiablePkgs,
-                 repo_name,
+                 repo,
                  mailControl = mailControl,
                  sender = sender,
                  attachments = attachments)
@@ -71,9 +68,7 @@ emailNotifier <- function (repo_name = "",
 #' @param ... Arguments that you want to pass to base::sort()
 #' @return String that is alphabetically sorted
 #' @note This function is not intended for direct use by the end user.
-sortDelimitedString <- function(string,
-                                delimiter = ",",
-                                ...) {
+sortDelimitedString <- function(string, delimiter = ",", ...) {
   trimws(toString(sort(unlist(strsplit(string, split=delimiter)), ...)))
 }
 
@@ -130,7 +125,7 @@ sendMail <- function(receiver,
                      subject,
                      body,
                      mailControl = list(smtpServer = "localhost"),
-                     sender = "my@example.com",
+                     sender = paste0("resgran-d@", system('hostname -d')),
                      attachments = NULL) {
   if (missing(receiver) || missing(subject) || missing(body)) {
     stop(paste("Missing mandatory arguments to", match.call()[[1]]))
@@ -168,17 +163,15 @@ sendMail <- function(receiver,
 
 #' Sends email notifications for a given manifest
 #' @param manifest A dataframe obtained from getFailureInfo
-#' @param repo_name gRAN repo_name could be <blank>|devel|current|stable|test
+#' @param repo A gRAN repo object
 #' @param ... Additonal arguments to GRANBase::sendMail()
 #' @return None
 #' @seealso \code{\link{sendMail}} for sending emails,
 #'          \code{\link{isValidEmail}} for validating email,
 #'          \code{\link[htmlTable]{htmlTable}} for creating HTML tables
 #' @note This function is not intended for direct use by the end user.
-notifyManifest <- function(manifest,
-                           repo_name = "",
-                           ...) {
-  if (missing(manifest)) {
+notifyManifest <- function(manifest, repo, ...) {
+  if (missing(manifest) || missing(repo)) {
     stop(paste("Missing mandatory arguments to", match.call()[[1]]))
   }
   for (emailID in unique(manifest$email)) {
@@ -191,8 +184,8 @@ notifyManifest <- function(manifest,
                              rnames = rep("",nrow(subDF)),
                              tfoot=paste("<br>To fix this, please checkin",
                              "fixes to the packages including a version bump, ",
-                             "and they will be rebuilt the following night.<br>",
-                             "Log info available here:", buildReportURL(repo_name)))
+                             "and they'll be rebuilt the following night.<br>",
+                             "Log info available here:", buildReportURL(repo)))
       sendMail(emailID, emailSubject, emailBody, ...)
     }
   }
@@ -200,12 +193,12 @@ notifyManifest <- function(manifest,
 
 
 #' Constructs the gRAN build report URL
-#' @param repo_name gRAN repo_name could be <blank>|devel|current|stable|test
-#' @param url_home Base URL for where build reports are hosted
-#' @return URL for the gRAN build report
+#' @param repo A gRAN repo object
 #' @note This function is not intended for direct use by the end user.
-buildReportURL <- function(repo_name, url_home = "http://restst.gene.com/gran/") {
-  paste0(url_home, repo_name, "/src/contrib/buildreport.html")
+buildReportURL <- function(repo) {
+  base_url <- param(repo)@dest_url
+  sub_url <- gsub("^.*\\//","", destination(repo))
+  paste0(base_url, sub_url, "/buildreport.html")
 }
 
 
@@ -215,8 +208,7 @@ buildReportURL <- function(repo_name, url_home = "http://restst.gene.com/gran/")
 #' @return Differences as a dataframe of the same structure
 #' @seealso \code{\link[dplyr]{anti_join}}
 #' @note This function is not intended for direct use by the end user.
-deltaDF <- function(new_df,
-                    old_df) {
+deltaDF <- function(new_df, old_df) {
   delta <- suppressMessages(anti_join(new_df, old_df))
   return(delta)
 }

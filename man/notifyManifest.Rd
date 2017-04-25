@@ -4,12 +4,12 @@
 \alias{notifyManifest}
 \title{Sends email notifications for a given manifest}
 \usage{
-notifyManifest(manifest, repo_name = "", ...)
+notifyManifest(manifest, repo, ...)
 }
 \arguments{
 \item{manifest}{A dataframe obtained from getFailureInfo}
 
-\item{repo_name}{gRAN repo_name could be <blank>|devel|current|stable|test}
+\item{repo}{A gRAN repo object}
 
 \item{...}{Additonal arguments to GRANBase::sendMail()}
 }

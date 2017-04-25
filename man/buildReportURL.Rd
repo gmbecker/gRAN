@@ -4,15 +4,10 @@
 \alias{buildReportURL}
 \title{Constructs the gRAN build report URL}
 \usage{
-buildReportURL(repo_name, url_home = "http://restst.gene.com/gran/")
+buildReportURL(repo)
 }
 \arguments{
-\item{repo_name}{gRAN repo_name could be <blank>|devel|current|stable|test}
-
-\item{url_home}{Base URL for where build reports are hosted}
-}
-\value{
-URL for the gRAN build report
+\item{repo}{A gRAN repo object}
 }
 \description{
 Constructs the gRAN build report URL

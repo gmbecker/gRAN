@@ -5,7 +5,8 @@
 \title{Wrapper for sendmail, allows for multiple attachments to be sent}
 \usage{
 sendMail(receiver, subject, body, mailControl = list(smtpServer =
-  "localhost"), sender = "my@example.com", attachments = NULL)
+  "localhost"), sender = paste0("resgran-d@", system("hostname -d")),
+  attachments = NULL)
 }
 \arguments{
 \item{receiver}{Receiver's email ID as a string. Vector if multiple email IDs}

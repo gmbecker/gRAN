@@ -4,12 +4,12 @@
 \alias{emailNotifier}
 \title{Send email notifications to maintainers whose builds failed}
 \usage{
-emailNotifier(repo_name = "", mailControl = list(smtpServer = "localhost"),
-  sender = "resgran@gene.com", attachments = NULL,
-  logfile = "gRANfailureMail.log", log_level = "DEBUG")
+emailNotifier(repo, mailControl = list(smtpServer = "localhost"),
+  sender = paste0("resgran-d@", system("hostname -d", intern = TRUE)),
+  attachments = NULL)
 }
 \arguments{
-\item{repo_name}{gRAN repo_name could be <blank>|devel|current|stable|test}
+\item{repo}{A gRAN repo object}
 
 \item{mailControl}{List object containing SMTP server info}
 
@@ -26,9 +26,6 @@ None
 }
 \description{
 Send email notifications to maintainers whose builds failed
-}
-\note{
-This function is not intended for direct use by the end user.
 }
 \seealso{
 \code{\link{getFailureInfo}} for creating failed pkg manifests,
