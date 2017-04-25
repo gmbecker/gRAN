@@ -29,4 +29,3 @@ The path to the repository specific directory
 staging
 Return the staging directory or the staging_logs to be used when building the repository. If the directory does not exist it will be created.
 }
-

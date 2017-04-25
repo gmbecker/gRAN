@@ -3,11 +3,11 @@
 \docType{methods}
 \name{repo_results}
 \alias{repo_results}
-\alias{repo_results,GRANRepository}
 \alias{repo_results,GRANRepository-method}
+\alias{repo_results,GRANRepository}
 \alias{repo_results<-}
-\alias{repo_results<-,GRANRepository}
 \alias{repo_results<-,GRANRepository-method}
+\alias{repo_results<-,GRANRepository}
 \title{Repository build results}
 \usage{
 repo_results(x)
@@ -29,4 +29,3 @@ A data.frame of build results
 \description{
 Repository build results
 }
-

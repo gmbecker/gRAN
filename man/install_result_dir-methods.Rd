@@ -24,4 +24,3 @@ install_result_dir
 Return the path where instal results for packages will be deployed for use in
 the build report.
 }
-

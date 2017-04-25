@@ -2,8 +2,8 @@
 % Please edit documentation in R/accessors.R
 \docType{methods}
 \name{location,GRANRepository-method}
-\alias{location,GRANREpository-method}
 \alias{location,GRANRepository-method}
+\alias{location,GRANREpository-method}
 \title{Retrieve the path to a GRAN (sub) repository}
 \usage{
 \S4method{location}{GRANRepository}(repo)
@@ -14,4 +14,3 @@
 \description{
 Retrieve the path to a GRAN (sub) repository
 }
-
