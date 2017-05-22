@@ -2,8 +2,8 @@
 % Please edit documentation in R/AllClasses.R
 \docType{class}
 \name{GRANRepository-class}
-\alias{GRANRepository}
 \alias{GRANRepository-class}
+\alias{GRANRepository}
 \title{GRANRepository}
 \usage{
 GRANRepository(manifest, results, param = RepoBuildParam(...), ...)
@@ -22,4 +22,3 @@ the repository being built}
 A constructor for the \code{GRANRepository} class of S4 objects representing
 individual repositories
 }
-

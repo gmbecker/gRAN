@@ -2,8 +2,8 @@
 % Please edit documentation in R/AllClasses.R
 \docType{class}
 \name{RepoBuildParam-class}
-\alias{RepoBuildParam}
 \alias{RepoBuildParam-class}
+\alias{RepoBuildParam}
 \title{RepoBuildParam}
 \usage{
 RepoBuildParam(basedir, repo_name = "current",
@@ -91,4 +91,3 @@ the check step for a single package. Defaults to 15 minutes.}
 Parameters for building a GRAN repository. Most behavior during the
 GRAN building process is specified via this object/constructor.
 }
-

@@ -4,8 +4,8 @@
 \name{repo_url}
 \alias{repo_url}
 \alias{repo_url,GRANRepository-method}
-\alias{repo_url,NULL}
 \alias{repo_url,NULL-method}
+\alias{repo_url,NULL}
 \title{repo_url
 Return the url that the repository will be served at. This is the web
 address corresponding to repository, suitable for calling contrib.url.  e.g
@@ -30,4 +30,3 @@ Return the url that the repository will be served at. This is the web
 address corresponding to repository, suitable for calling contrib.url.  e.g
 http://www.website.com/gran/current/
 }
-

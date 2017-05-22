@@ -3,11 +3,11 @@
 \docType{methods}
 \name{param}
 \alias{param}
-\alias{param,GRANRepository}
 \alias{param,GRANRepository-method}
+\alias{param,GRANRepository}
 \alias{param<-}
-\alias{param<-,GRANRepository}
 \alias{param<-,GRANRepository-method}
+\alias{param<-,GRANRepository}
 \title{Extract parameter object}
 \usage{
 param(x)
@@ -26,4 +26,3 @@ param(x) <- value
 \description{
 Extract parameter object
 }
-

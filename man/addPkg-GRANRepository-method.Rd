@@ -12,6 +12,8 @@
 \arguments{
 \item{x}{A GRANRepository object}
 
+\item{\dots}{passed to manifest method for addPkg}
+
 \item{rows}{data.frame or unspecified. passed to manifest method for addPkg}
 
 \item{versions}{data.frame passed to manifest method for addPkg}
@@ -19,8 +21,6 @@
 \item{replace}{logical. Should the information in \code{...}/\code{rows}
 replace existing rows for the same pacakge? Defaults to FALSE, in which case
 an error is thrown.}
-
-\item{\dots}{passed to manifest method for addPkg}
 }
 \value{
 \code{x} with the specified package(s) added to the associated manifest
@@ -28,4 +28,3 @@ an error is thrown.}
 \description{
 Add a package to the manifest for a GRANRepository
 }
-

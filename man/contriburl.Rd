@@ -3,8 +3,8 @@
 \docType{methods}
 \name{contrib.url}
 \alias{contrib.url}
-\alias{contrib.url,GRANRepository}
 \alias{contrib.url,GRANRepository-method}
+\alias{contrib.url,GRANRepository}
 \title{contrib.url
 A generic for contrib.url so that available.packages et al can
 interact with GRANRepository objects.}
@@ -23,4 +23,3 @@ contrib.url
 A generic for contrib.url so that available.packages et al can
 interact with GRANRepository objects.
 }
-
