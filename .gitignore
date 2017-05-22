@@ -3,3 +3,7 @@
 **/.\#*
 !**/*.R
 **/.Rhistory
+**/.Rbuildignore
+**/*.tar.gz
+**/build*.sh
+**/docs

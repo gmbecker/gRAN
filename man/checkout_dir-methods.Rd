@@ -4,8 +4,8 @@
 \name{checkout_dir}
 \alias{checkout_dir}
 \alias{checkout_dir,GRANRepository-method}
-\alias{checkout_dir,NULL}
 \alias{checkout_dir,NULL-method}
+\alias{checkout_dir,NULL}
 \title{checkout_dir
 Return the directory that package sources will be checked-out into
 for use in the build process}
@@ -28,4 +28,3 @@ checkout_dir
 Return the directory that package sources will be checked-out into
 for use in the build process
 }
-

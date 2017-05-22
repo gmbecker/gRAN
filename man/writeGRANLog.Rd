@@ -4,7 +4,7 @@
 \alias{writeGRANLog}
 \title{writeGRANLog}
 \usage{
-writeGRANLog(pkg, msg, type = "full", logfile, errfile, pkglog)
+writeGRANLog(pkg, msg, type = "full", logfile, errfile, pkglog = NULL)
 }
 \arguments{
 \item{pkg}{The name of the package the log is about}
@@ -27,4 +27,3 @@ Utility function which writes gran logs
 \note{
 This function is not intended for direct use by the end user.
 }
-
