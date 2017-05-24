@@ -23,4 +23,3 @@ dest_base
 Return the full path to the contrib directory for the final repository
 deployment.
 }
-

@@ -3,14 +3,14 @@
 \docType{methods}
 \name{makeRepo}
 \alias{makeRepo}
-\alias{makeRepo,GRANRepository}
-\alias{makeRepo,GRANRepository-method}
-\alias{makeRepo,PkgManifest}
 \alias{makeRepo,PkgManifest-method}
-\alias{makeRepo,SessionManifest}
+\alias{makeRepo,PkgManifest}
 \alias{makeRepo,SessionManifest-method}
-\alias{makeRepo,character}
+\alias{makeRepo,SessionManifest}
+\alias{makeRepo,GRANRepository-method}
+\alias{makeRepo,GRANRepository}
 \alias{makeRepo,character-method}
+\alias{makeRepo,character}
 \title{makeRepo}
 \usage{
 makeRepo(x, cores = 3L, build_pkgs = NULL,
@@ -51,4 +51,3 @@ A GRANRepository object which has used to create a repository.
 Make a package repository containing a specified set of packages from
 various sources
 }
-

@@ -3,9 +3,9 @@
 \docType{methods}
 \name{logfile}
 \alias{logfile}
+\alias{logfile-method,GRANRepository}
 \alias{logfile,GRANRepository-method}
 \alias{logfile,RepoBuildParam-method}
-\alias{logfile-method,GRANRepository}
 \title{Log file location of a GRAN (sub) repository}
 \usage{
 logfile(repo)
@@ -29,4 +29,3 @@ Retrieve the path to the full logfile for a GRAN repository
 \author{
 Gabriel Becker
 }
-

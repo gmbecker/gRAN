@@ -3,8 +3,8 @@
 \docType{methods}
 \name{temp_lib}
 \alias{temp_lib}
-\alias{temp_lib,GRANRepository}
 \alias{temp_lib,GRANRepository-method}
+\alias{temp_lib,GRANRepository}
 \title{temporary library}
 \usage{
 temp_lib(repo)
@@ -17,4 +17,3 @@ temp_lib(repo)
 \description{
 temporary library
 }
-

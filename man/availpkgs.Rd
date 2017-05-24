@@ -3,10 +3,10 @@
 \docType{methods}
 \name{available.packages}
 \alias{available.packages}
-\alias{available.packages,ANY}
 \alias{available.packages,ANY-method}
-\alias{available.packages,GRANRepository}
+\alias{available.packages,ANY}
 \alias{available.packages,GRANRepository-method}
+\alias{available.packages,GRANRepository}
 \title{available.packages
 A generic for available.packages and a method for GRANRepository objects}
 \usage{
@@ -38,4 +38,3 @@ objects should be passed to the contriburl argument.}
 available.packages
 A generic for available.packages and a method for GRANRepository objects
 }
-

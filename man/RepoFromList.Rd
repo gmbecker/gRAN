@@ -16,4 +16,3 @@ a GRANRepository object
 \description{
 Create a GRANRepository object from a list
 }
-
