@@ -24,4 +24,3 @@ check_result_dir
 Return the path where check results for packages will be deployed for use in
 the build report.
 }
-

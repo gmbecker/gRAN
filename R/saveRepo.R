@@ -9,7 +9,7 @@ saveRepoFiles = function(repo)
                     warning("repo.R is locked by another build process. Unable to save repo.")
                     return()
                 }
-                
+
             }
         #convert it to a list so we don't rely on GRANBase when loading in GRAN
         cat(format(Sys.time()), file = repolock)
@@ -23,9 +23,10 @@ finalizeRepo = function(repo)
     {
         manifestHTML(repo)
         saveRepoFiles(repo)
+        emailNotifier(repo)
         if(!file.exists(file.path(repobase(repo), "getGRAN.R")))
             file.copy(file.path(repobase(repo), "GRAN", "inst", "scripts", "getGRAN.R"), file.path(repobase(repo), "getGRAN.R"))
-        
+
         repo
-        
+
     }

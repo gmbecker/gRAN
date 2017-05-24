@@ -12,4 +12,3 @@ loadRepo(filename)
 \description{
 Load a repository serialized to an R code file
 }
-

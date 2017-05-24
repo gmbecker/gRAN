@@ -1,8 +1,12 @@
+Changes in version 1.3.0 (2017-04-24)
+API Changes
+  * Email notifications are sent to package authors whose builds failed
+
 Changes in version 1.2.1 (2017-02-09)
 API Changes
         * Add escape valve which immediately returns NULL from makeRepo if
 	  git is not available.
-	  
+
 Changes in version 1.1.12 (2016-05-17)
 Bugfixes
 	* Fix bug in loadRepo that called prepDirStructure with the wrong basedir and destination
@@ -46,7 +50,7 @@ API changes
 
 Changes in version 1.0.18 (2015-07-24)
 Bugfixes
-	* change in way tarballs are detected during check test to avoid  
+	* change in way tarballs are detected during check test to avoid
 	  missing tarball bug
 
 Changes in version 1.0.15 (2015-07-16)
@@ -68,7 +72,7 @@ Bugfixes
 	* Now import symbols from utils explicitly.
 
 Changes in version 1.0.11 (2015-06-30)
-Bugfixes   
+Bugfixes
 	* Fix code in repo-specific GRAN package generated during build process.
 New Features
     * added clear_repo and clear_temp_fils convenience function for clearing out files in order to build a fresh repo.

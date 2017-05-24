@@ -37,4 +37,3 @@ readPkgsNEWS
 Attempts to generate a per-package summary of risky-to-ignore changes for
 updatable packages.
 }
-
