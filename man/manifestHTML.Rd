@@ -12,4 +12,3 @@ manifestHTML(repo)
 \description{
 Create a build report for a repository reflecting the latest build
 }
-

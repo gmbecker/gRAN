@@ -26,4 +26,3 @@ Retrieve the path to the errors-only logfile for a GRAN repository
 \author{
 Gabriel Becker
 }
-

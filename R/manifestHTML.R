@@ -3,7 +3,7 @@
 ##' Create a build report for a repository reflecting the latest build
 ##' @param repo a GRANRepository object.
 ##' @importFrom hwriter hwrite
-##' 
+##'
 manifestHTML = function(repo)
     {
         doc = openPage("buildreport.html", dirname = destination(repo))
@@ -11,9 +11,9 @@ manifestHTML = function(repo)
         attmptab =  as.matrix(table(lastattempt))
         hwrite(attmptab, page = doc)
         hwrite("<br/>", page = doc)
-        
-        cnames <- c("name", "lastAttemptVersion", "lastAttemptStatus", 
-                    "lastAttempt",  "lastbuiltversion", "lastbuiltstatus", 
+
+        cnames <- c("name", "lastAttemptVersion", "lastAttemptStatus",
+                    "lastAttempt",  "lastbuiltversion", "lastbuiltstatus",
                     "lastbuilt", "maintainer") #, "CheckResults", "SinglePkgLogs")
         tmpman = repo_results(repo)[, cnames]
         checkrep = file.path("..", "..", "CheckResults", paste0(tmpman$name,
@@ -25,9 +25,6 @@ manifestHTML = function(repo)
         tmpman$CheckResult = paste0("<a href='", checkrep, "'>check log</a>")
         tmpman$SinglePkgLog =  paste0("<a href='", pkglog, "'>single package log</a>")
         tmpman$CheckResult[!file.exists(file.path(destination(repo), checkrep))] = ""
-  #      tmpmanvec = as.character(as.matrix(tmpman))
-  #      colnames(tmpmanvec) <- c(cnames, "CheckResults", "SinglePkgLogs")
-       # hwrite(tmpmanvec, dim = dim(tmpman), page = doc, col.names = TRUE)
         hwrite(tmpman, page = doc, col.names = TRUE)
         closePage(doc, splash=FALSE)
     }

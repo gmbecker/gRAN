@@ -1,7 +1,0 @@
-#!/bin/bash
-
-SESREPO=vignettes/mySessionRepo
-if [ -d "$SESRepo" ]; then
-    echo "Removing session repository created while building vignette"
-    rm -f -r $SESREPO
-fi
