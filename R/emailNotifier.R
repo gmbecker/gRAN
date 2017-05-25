@@ -198,7 +198,7 @@ notifyManifest <- function(manifest, repo, ...) {
 buildReportURL <- function(repo) {
   base_url <- param(repo)@dest_url
   sub_url <- gsub("^.*\\//","", destination(repo))
-  paste0(base_url, sub_url, "/buildreport.html")
+  paste0(base_url, "/", sub_url, "/buildreport.html")
 }
 
 
