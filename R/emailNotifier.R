@@ -89,6 +89,7 @@ getFailureInfo <- function(repo) {
               "lastbuiltstatus", "maintainer")
 
   RepoResultsDF <- repo_results(repo)[, cnames]
+  RepoResultsDF <- RepoResultsDF[! RepoResultsDF$name %in% suspended_pkgs(repo), ]
   failedPackages <- RepoResultsDF[grep("fail", RepoResultsDF$lastAttemptStatus),]
   failedPackages <- failedPackages[complete.cases(failedPackages[, "maintainer"]),]
   failedPackages$email <- regmatches(failedPackages$maintainer,
