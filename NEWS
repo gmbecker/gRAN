@@ -1,11 +1,13 @@
-Changes in version 1.3.0 (2017-05-24)
-API Changes
-    * Email notifications are sent to package authors whose builds failed
-    * Shallow clone while building new packages to improve efficiency
+Changes in version 1.3.3 (2017-06-12)
+Bugfixes
+  * Locate DESCRIPTION file inside the subdirectory of the package downloaded from any Git source
+
+New Features
+  * Email notifications are sent to package authors whose builds failed
 
 Changes in version 1.2.1 (2017-02-09)
 API Changes
-    * Add escape valve which immediately returns NULL from makeRepo if
+  * Add escape valve which immediately returns NULL from makeRepo if
 	  git is not available.
 
 Changes in version 1.1.12 (2016-05-17)
@@ -76,7 +78,7 @@ Changes in version 1.0.11 (2015-06-30)
 Bugfixes
 	* Fix code in repo-specific GRAN package generated during build process.
 New Features
-    * added clear_repo and clear_temp_fils convenience function for clearing out files in order to build a fresh repo.
+  * added clear_repo and clear_temp_fils convenience function for clearing out files in order to build a fresh repo.
 
 
 Changes in version 1.0.10 (2015-06-29)
