@@ -11,7 +11,7 @@ setMethod("makeRepo", "PkgManifest",
                   version = NA, stringsAsFactors = FALSE)
               sessMan = SessionManifest(manifest = x,
                   versions = vers)
-             
+
               makeRepo(sessMan, cores = cores, scm_auth = scm_auth,
                        build_pkgs = build_pkgs,
                        ...)
@@ -22,7 +22,7 @@ setMethod("makeRepo", "PkgManifest",
 ##' @aliases makeRepo,SessionManifest
 
 setMethod("makeRepo", "SessionManifest",
-          function(x, cores = 3L, build_pkgs = NULL, 
+          function(x, cores = 3L, build_pkgs = NULL,
                    scm_auth = list("bioconductor.org" =
                        c("readonly", "readonly")),
                    ...
@@ -39,7 +39,7 @@ setMethod("makeRepo", "SessionManifest",
 ##' @rdname makerepo
 ##' @aliases makeRepo,GRANRepository
 setMethod("makeRepo", "GRANRepository",
-          function(x, cores = 3L, build_pkgs = NULL,  
+          function(x, cores = 3L, build_pkgs = NULL,
                    scm_auth = list("bioconductor.org" =
                                        c("readonly", "readonly")),
                    ...) {
@@ -51,7 +51,7 @@ setMethod("makeRepo", "GRANRepository",
     if(file.exists(destination(repo)))
         repo2 = tryCatch(loadRepo(paste(destination(repo), "repo.R",
                                         sep="/")), error = function(x) NULL)
-    else 
+    else
         repo2 = suppressWarnings(tryCatch(loadRepo(paste(repo_url(repo), "repo.R", sep="/")),
                                           error = function(x) NULL))
     if(!is.null(repo2) ) {
@@ -71,8 +71,9 @@ setMethod("makeRepo", "GRANRepository",
                                        build_pkgs)
     } else {
         repo_results(repo)$building = !manifest_df(repo)$name %in% suspended_pkgs(repo)
+        repo_results(repo)$suspended <- manifest_df(repo)$name %in% suspended_pkgs(repo)
     }
-    
+
 
     message(paste("Building", sum(getBuilding(repo)), "packages"))
     ##package, build thine self!
@@ -98,7 +99,7 @@ setMethod("makeRepo", "GRANRepository",
     message(paste("starting migrateToFinalRepo", Sys.time()))
     message(paste("Built", sum(getBuilding(repo)), "packages"))
     repo = migrateToFinalRepo(repo)
-    
+
     finalizeRepo(repo)
     repo
 })
@@ -107,7 +108,7 @@ setMethod("makeRepo", "GRANRepository",
 ##' @aliases makeRepo,character
 
 setMethod("makeRepo", "character",
-          function(x, cores = 3L, build_pkgs = NULL,  
+          function(x, cores = 3L, build_pkgs = NULL,
                    scm_auth = list("bioconductor.org" =
                        c("readonly", "readonly")),
                    ...) {
@@ -125,4 +126,3 @@ setMethod("makeRepo", "character",
               makeRepo(repo, cores = cores, build_pkgs = build_pkgs,
                        scm_auth = scm_auth, ...)
           })
-
