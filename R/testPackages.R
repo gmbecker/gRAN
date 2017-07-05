@@ -80,7 +80,7 @@ installTest = function(repo, cores = 3L)
     ## protect ourselves here by asserting dimension conformity was preserved:
     ## bres should contain 1 row for each TRUE in binds
     stopifnot(nrow(bres) == sum(binds))
-    
+
 
     res = install.packages2(bres$name, lib = loc,
         repos = reps,
@@ -91,7 +91,7 @@ installTest = function(repo, cores = 3L)
     if(length(success) != nrow(bres) || length(success) != sum(binds))
         stop("length mismatch between Install test output and packages tested")
     ## default is the staging_logs dir when repo specified, which is correct here
-    cleanupInstOut(repo= repo) 
+    cleanupInstOut(repo= repo)
 
 
 
@@ -217,7 +217,7 @@ checkTest = function(repo, cores = 3L)
         stop("Fatal error. I didn't get check output for all checked packages.")
 
     success = mapply(function(nm, out, repo) {
-        if(errorOrNonZero(out) || any(grepl("ERROR", out, fixed=TRUE))) {
+        if(errorOrNonZero(out) || any(grepl("Status: [[:digit:]]+ ERROR", out, fixed=FALSE))) {
             logfun(repo)(nm, "R CMD check failed.", type = "both")
             outToErrLog = TRUE
 
