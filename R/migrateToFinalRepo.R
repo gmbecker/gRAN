@@ -10,26 +10,25 @@ migrateToFinalRepo = function(repo)
     ##  clearTmpRepoFailedPkgs(repo)
 
     ## if they aren't being tested at all, we don't build them twice.
-    
+
     if(all(getBuildingResults(repo)$status == "ok - not tested")) {
-        stagingLoc = file.path(temp_repo(repo), "src/contrib")
+        stagingLoc = file.path(temp_repo(repo), "src", "contrib")
         clearstage = FALSE
     }  else {
         stagingLoc = staging(repo)
         clearstage = TRUE
     }
-    
+
     repo = markFailedRevDeps(repo)
     logfun(repo)("NA", paste("Migrating", sum(getBuilding(repo)), "successfully built and tested packages to final repository at", repoLoc))
 
-    
+
     if(!nrow(bman))
         return(repo)
     tars = list.files(stagingLoc, pattern = "\\.tar.*")
     tars = tars[sapply(tars, function(tr)
         any(sapply(bman$name, function(nm) grepl(paste0("^",nm, "_"), tr))))]
 
-    
     #copy files
     out  = tryCatch(file.copy(from = file.path(stagingLoc, tars), to = file.path(repoLoc, tars), overwrite = TRUE), error=function(x) x)
     if(is(out, "error"))
@@ -43,11 +42,12 @@ migrateToFinalRepo = function(repo)
         return(repo)
     }
     if(clearstage) {
-        out = tryCatch(file.remove(list.files(stagingLoc,
+        out = tryCatch(unlink(list.files(stagingLoc,
                                               pattern = paste0("(PACKAGES|Rcheck|",
                                                                builtPkgExt(regex=TRUE),
-                                                               ")"),
-                                              full.names=TRUE)), error=function(x) x)
+                                                               ")"), full.names=TRUE),
+                                                               recursive = TRUE),
+                                              error = function(x) x)
 
         if(is(out, "error"))
         {
@@ -55,14 +55,13 @@ migrateToFinalRepo = function(repo)
         }
 
     }
-    
+
     oldwd = getwd()
     setwd(repoLoc)
     on.exit(setwd(oldwd))
-    write_PACKAGES( type="source")
+    write_PACKAGES(type="source")
     repo = updateResults(repo)
-
-    repo
+    return(repo)
 }
 
 clearTmpRepoFailedPkgs = function(repo) {
@@ -96,10 +95,7 @@ remOldPkgTballs = function(repo) {
     stuffdf = do.call(rbind, lapply(stuff, as.data.frame))
     stuffdf
 
-
-
 }
-
 
 
 ##' @importFrom tools package_dependencies
@@ -110,7 +106,7 @@ markFailedRevDeps = function(repo) {
     keep = sapply(rdpkgs, function(x, bman) {
         length(rdpkgs) == 0 || all(rdpkgs %in% bman$name)
     }, bman = bman)
-    
+
     rempkgs = bman[!keep, "package"]
     if(!all(keep)) {
         sapply(rempkgs, function(x) logfun(repo)(x, "One or more package dependencies failed to build. Not deploying package.", type = "both"))
@@ -118,8 +114,3 @@ markFailedRevDeps = function(repo) {
     }
     repo
 }
-    
-    
-
-
-   

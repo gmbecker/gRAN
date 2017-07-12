@@ -1,7 +1,7 @@
 Package: GRANBase
 Type: Package
 Title: Creating Continuously Integrated Package Repositories from Manifests
-Version: 1.3.3
+Version: 1.4.0
 Author: Gabriel Becker[aut,cre], Cory Barr [cre,ctb]
 Maintainer: Gabriel Becker <becker.gabriel@gene.com>
 Copyright: Genentech Inc
@@ -15,8 +15,8 @@ Imports:
     hwriter,
     htmlTable,
     dplyr,
-    log4r,
-    sendmailR
+    sendmailR,
+    covr
 Depends:
     switchr (>= 0.9.28),
     methods

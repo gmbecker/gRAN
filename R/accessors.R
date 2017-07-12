@@ -1,5 +1,5 @@
 ##' logfile
-##' 
+##'
 ##' Retrieve the path to the full logfile for a GRAN repository
 ##'
 ##' @docType methods
@@ -52,7 +52,7 @@ setMethod("errlogfile", "RepoBuildParam", function(repo) repo@errlog)
 ##' @aliases location,GRANREpository-method
 setMethod("location", "GRANRepository", function(repo) {
     ret = file.path(repobase(repo), "src", "contrib")
-    
+
     if(!file.exists(ret))
         dir.create(ret, recursive=TRUE)
     normalizePath2(ret)
@@ -193,6 +193,25 @@ setMethod("check_result_dir","GRANRepository",
                                    param(repo)@repo_name, "CheckResults" ))
 
 
+##' coverage_report_dir
+##' Return the path where test coverage reports for packages will be deployed
+##' for use in the build report.
+##'
+##' @rdname coverage_report_dir-methods
+##' @param repo a GRANRepository object
+##' @return The directory where test coverage results should be deployed for use
+##' in the build report
+##' @docType methods
+##' @export
+setGeneric("coverage_report_dir", function(repo) standardGeneric("coverage_report_dir"))
+##' @rdname coverage_report_dir-methods
+##' @aliases coverage_report_dir,GRANRepository-method
+##' @export
+setMethod("coverage_report_dir","GRANRepository",
+          function(repo) file.path(normalizePath2(param(repo)@dest_base),
+                                   param(repo)@repo_name, "CovrReports" ))
+
+
 ##' install_result_dir
 ##' Return the path where instal results for packages will be deployed for use in
 ##' the build report.
@@ -210,10 +229,6 @@ setGeneric("install_result_dir", function(repo) standardGeneric("install_result_
 setMethod("install_result_dir","GRANRepository",
           function(repo) file.path(normalizePath2(param(repo)@dest_base),
                                    param(repo)@repo_name, "InstallResults" ))
-
-
-
-
 
 
 ##' repo_url
@@ -262,7 +277,6 @@ setMethod("checkout_dir","GRANRepository",
 ##' @aliases checkout_dir,NULL
 ##' @export
 setMethod("checkout_dir","NULL", function(repo) NULL)
-
 
 
 setMethod("manifest<-", "GRANRepository",
@@ -396,9 +410,6 @@ setMethod("suspended_pkgs<-", "GRANRepository",
               })
 
 
-
-
-
 ##'@rdname GRANparams
 ##' @aliases sh_init_script,GRANRepository
 ##' @export
@@ -413,12 +424,6 @@ setMethod("sh_init_script<-", "GRANRepository",
               param(x)@shell_init= value
               x
               })
-
-
-
-
-
-
 
 
 ##' @rdname GRANparams
@@ -503,13 +508,6 @@ setMethod("addPkg", "GRANRepository",
 
 
 
-
-
-
-
-
-
-
 ##' @rdname GRANparams
 ##' @return logical indicating whether GRANBase should be installed
 ##' from CRAN during the repository build process. If FALSE, or if GRANBase
@@ -524,9 +522,6 @@ setGeneric("use_cran_granbase", function(x) stop("This object doesn't contain re
 ##' @docType methods
 ##' @export
 setGeneric("use_cran_granbase<-", function(x, value) stop("This object doesn't contain repository build parameters"))
-
-
-
 
 
 ##'@rdname GRANparams
@@ -558,8 +553,6 @@ setMethod("use_cran_granbase<-", "RepoBuildParam",
               x@use_cran_granbase= value
               x
               })
-
-
 
 
 ##' @rdname GRANparams
@@ -656,14 +649,13 @@ setMethod("pkg_log_dir", "RepoBuildParam", function(x) {
     file.path(normalizePath2(x@dest_base),
               x@repo_name,
               "SinglePkgLogs")
-       
+
 })
 
 ##' @rdname GRANparams
 ##' @aliases pkg_log_dir,GRANRepository
 ##' @export
 setMethod("pkg_log_dir", "GRANRepository", function(x) pkg_log_dir(param(x)))
-
 
 
 ##' @rdname GRANparams
