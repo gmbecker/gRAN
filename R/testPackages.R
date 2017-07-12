@@ -6,12 +6,8 @@ doPkgTests = function(repo, cores = 3L)
 
      logfun(repo)("NA", paste0("Performing 'extra' commands before installation. ", paste(manifest_df(repo)$name, collapse = " , ")), type = "full")
 
-    repo = doExtra(repo)
-
     if(is.null(repo_results(repo)$building))
         repo_results(repo)$building = TRUE
-
-
 
     if(install_test_on(repo)) {
         ##        repo = installTest(repo, cores = cores)
@@ -20,12 +16,15 @@ doPkgTests = function(repo, cores = 3L)
             incremental = TRUE, ## want to skip testing if pkg already passed
             cores = cores)
     }
-    if(check_test_on(repo))
-        repo = checkTest(repo, cores = cores)
-    else
-        repo_results(repo)$status[repo_results(repo)$status == "ok"] = "ok - not tested"
-    repo
 
+    if(check_test_on(repo))
+        repo <- checkTest(repo, cores = cores)
+    else
+        repo_results(repo)$status[repo_results(repo)$status == "ok"] <- "ok - not tested"
+
+    #repo <- testCoverage(repo)
+
+    repo
 }
 
 installTest = function(repo, cores = 3L)
@@ -64,8 +63,6 @@ installTest = function(repo, cores = 3L)
     ## if(!file.exists(insttmplogs))
     ##     dir.create(insttmplogs, recursive=TRUE)
 
-
-
     ## we don't install any GRAN packages
     ##binds is in repo_results row space!!! and it's a logical
     ## so we need to set elements to false, NOT remove them!
@@ -92,7 +89,6 @@ installTest = function(repo, cores = 3L)
         stop("length mismatch between Install test output and packages tested")
     ## default is the staging_logs dir when repo specified, which is correct here
     cleanupInstOut(repo= repo)
-
 
 
     ## if these dimensions don't conform the recycling rule screws us.
@@ -148,32 +144,28 @@ cleanupInstOut = function(outdir = staging_logs(repo), repo)
 }
 
 
-
-.innerCheck =  function(nm, tar, repo)
-        {
-            if(grepl("^GRAN", nm)) {
-                logfun(repo)(nm, paste("Not checking", nm, "package to avoid recursion problems"))
-                return(c(paste("*", nm, "not checked to prevent recursion"),
-                         "* DONE",
-                         "* Status: OK"))
-            }
-
-            logfun(repo)(nm, paste("Running R CMD check on ", tar))
-            ## We built the vignettes during this round of building, so if the pkg is going to
-            ##fail on building vignettes it will have already happened by this point
-            cmd = paste0('R_LIBS="', temp_lib(repo),  '" R_HOME="',
-                R.home(),'" R CMD check ', tar, " --no-build-vignettes")
-            env = c(paste0('R_LIBS="', temp_lib(repo), '"'),
-                    paste0('R_HOME="', R.home(), '"'))
-            args = c("check", tar, "--no-build-vignettes")
-            cmd = file.path(R.home("bin"), "Rcmd")
-
-            out = tryCatch(system_w_init(cmd, args = args, env = env,
-                                         intern=TRUE, param = param(repo)),
-                error=function(x) x)
-            out
-
+.innerCheck =  function(nm, tar, repo) {
+    if(grepl("^GRAN", nm)) {
+        logfun(repo)(nm, paste("Not checking", nm, "package to avoid recursion problems"))
+        return(c(paste("*", nm, "not checked to prevent recursion"),
+                 "* DONE",
+                 "* Status: OK"))
     }
+    logfun(repo)(nm, paste("Running R CMD check on ", tar))
+    ## We built the vignettes during this round of building, so if the pkg is going to
+    ##fail on building vignettes it will have already happened by this point
+    cmd = paste0('R_LIBS="', temp_lib(repo),  '" R_HOME="',
+        R.home(),'" R CMD check ', tar, " --no-build-vignettes")
+    env = c(paste0('R_LIBS="', temp_lib(repo), '"'),
+            paste0('R_HOME="', R.home(), '"'))
+    args = c("check", tar, "--no-build-vignettes")
+    cmd = file.path(R.home("bin"), "Rcmd")
+    out = tryCatch(system_w_init(cmd, args = args, env = env,
+                                 intern=TRUE, param = param(repo)),
+                                 error=function(x) x)
+    out
+}
+
 
 checkTest = function(repo, cores = 3L)
 {
@@ -217,7 +209,8 @@ checkTest = function(repo, cores = 3L)
         stop("Fatal error. I didn't get check output for all checked packages.")
 
     success = mapply(function(nm, out, repo) {
-        if(errorOrNonZero(out) || any(grepl("Status: [[:digit:]]+ ERROR", out, fixed=FALSE))) {
+        if(errorOrNonZero(out) || any(grepl("Status: [[:digit:]]+ ERROR",
+                                             out, fixed=FALSE))) {
             logfun(repo)(nm, "R CMD check failed.", type = "both")
             outToErrLog = TRUE
 
@@ -231,7 +224,6 @@ checkTest = function(repo, cores = 3L)
             licIsWarning = license && any(grepl("Standardizable: TRUE", out))
             ##non-standard license
             if(numwarns - licIsWarning > 0) {
-
                 logfun(repo)(nm, "R CMD check raised warnings.", type = "both")
                 outToErrLog = TRUE
                 ret = "check warning(s)"
@@ -268,8 +260,55 @@ checkTest = function(repo, cores = 3L)
 }
 
 
-doExtra = function(repo)
+#' Calculate and generate package code test coverage reports
+#' @importFrom covr package_coverage percent_coverage report
+#' @param repo A gRAN repo object
+#' @return repo A gRAN repo object with updated code coverage info
+testCoverage <- function(repo)
 {
-    ##TODO!!!
-    return(repo)
+    logfun(repo)("NA", paste0("Creating test coverage reports for ",
+                              sum(repo_results(repo)$building), " packages"),
+                              type = "full")
+
+    # Determine lib checkout location
+    loc <- checkout_dir(repo)
+    if(!file.exists(loc)) {
+        dir.create(loc, recursive = TRUE)
+    }
+
+    bres <- manifest_df(repo)
+    if(!nrow(bres)) {
+        logfun(repo)("NA", "No packages to check test coverage for",
+                     type = "full")
+        return(repo)
+    }
+
+    bres <- subset(bres, !(grepl("^GRAN", bres$name)))
+    coverageDir <- coverage_report_dir(repo)
+
+    # Begin test coverage calculations
+    coverage <- suppressWarnings(mapply(function(pkgName) {
+        pkgDir <- file.path(loc, pkgName)
+        if (file.exists(pkgDir)) {
+            pkgCovg <- tryCatch(package_coverage(path = pkgDir),
+                                error = function(e) NULL)
+            percentCovg <- tryCatch(percent_coverage(pkgCovg),
+                                    error = function(e) NULL)
+            cvgrptfile <- file.path(coverageDir, paste0(pkgName, "-covr-report.html"))
+            tryCatch(report(pkgCovg, file = cvgrptfile, browse = FALSE),
+                     error = function(e) NULL)
+
+            paste0(round(percentCovg, digits = 2), "%")
+        }
+    }, pkgName = bres$name))
+
+    logfun(repo)("NA", paste0("Completed test coverage reports for ",
+                 length(bres$name), " packages."), type = "full")
+    coverage <- as.data.frame(coverage)
+    coverage$name <- rownames(coverage)
+    #repo_results(repo)$coverage <- coverage$coverage[match(
+    #                                    repo_results(repo)$name, coverage$name)]
+
+    #return(repo)
+    return(coverage)
 }

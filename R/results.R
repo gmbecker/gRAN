@@ -32,14 +32,13 @@ init_results = function(repo) {
     else {
         df = repo_results(repo)
         missingcols = setdiff(names(ResultsRow()), names(df))
-        for(col in missingcols)
+        for(col in missingcols) {
             df[[col]] = ResultsRow()[[col]]
-
+        }
         df$status = ifelse(df$suspended, NA_character_, "ok")
         df = df[,names(ResultsRow())]
         repo_results(repo) = df
     }
-        
     repo
 }
 
@@ -61,8 +60,6 @@ updateResults = function(repo)
 
     repo_results(repo) = fullres
     repo
-    
-    
 }
 
 resetResults = function(repo) {
@@ -72,4 +69,3 @@ resetResults = function(repo) {
     repo_results(repo) = res2
     repo
 }
-        

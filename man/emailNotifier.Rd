@@ -16,10 +16,6 @@ emailNotifier(repo, mailControl = list(smtpServer = "localhost"),
 \item{sender}{Sender's email ID as a string}
 
 \item{attachments}{Files with full paths, as an array}
-
-\item{logfile}{Get or set the logfile for a logger object}
-
-\item{log_level}{Set or get the priority level for a logger object.}
 }
 \value{
 None
@@ -29,11 +25,7 @@ Send email notifications to maintainers whose builds failed
 }
 \seealso{
 \code{\link{getFailureInfo}} for creating failed pkg manifests,
-         \code{\link[log4r]{create.logger}} for logger objects,
          \code{\link{sendMail}} for sending emails,
          \code{\link{deltaDF}} for difference between 2 dataframes,
          \code{\link{notifyManifest}} for manifest-based emails
-}
-\author{
-Dinakar Kulkarni, \email{kulkarni.dinakar@gene.com}
 }

@@ -98,7 +98,7 @@ setMethod("makeRepo", "GRANRepository",
     ##copy successfully built tarballs to final repository
     message(paste("starting migrateToFinalRepo", Sys.time()))
     message(paste("Built", sum(getBuilding(repo)), "packages"))
-    repo = migrateToFinalRepo(repo)
+    repo = suppressWarnings(migrateToFinalRepo(repo))
 
     finalizeRepo(repo)
     repo
