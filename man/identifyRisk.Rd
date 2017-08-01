@@ -4,27 +4,34 @@
 \alias{identifyRisk}
 \title{identifyRisk}
 \usage{
-identifyRisk(to_update = old.packages(repos = repo_urls),
-  important_pkgs = installed.packages(lib.loc = liblocs)[, "Package"],
-  liblocs = .libPaths(), repo_urls = getOption("repos"), gran_repo_name)
+identifyRisk(repo, to_update = old.packages(repos = repo_urls),
+  liblocs = .libPaths(), important_pkgs = installed.packages(lib.loc =
+  liblocs)[, "Package"], repo_urls = getOption("repos"))
 }
 \arguments{
-\item{to_update}{vector of package names which may be updated, or a matrix output from \code{old.packages}. Defaults to all packages which are out of date}
+\item{repo}{The name of a GRAN repository to use. Assumes that a
+a package named GRAN<repo> is available to load.}
 
-\item{important_pkgs}{list of packages to check for risk of change cascades from updating the packages in \code{to_update}. Defaults to all installed packages}
+\item{to_update}{vector of package names which may be updated, or a matrix
+output from \code{old.packages}. Defaults to all packages which are out of date}
 
 \item{liblocs}{the library locations to look for installed packages}
 
-\item{repo_urls}{The repositories to check for new versions of packages}
+\item{important_pkgs}{list of packages to check for risk of change cascades
+from updating the packages in \code{to_update}. Defaults to all installed packages}
 
-\item{gran_repo_name}{Optional. The name of a GRAN repository to use. Assumes that a
-a package named GRAN<gran_repo_name> is available to load.}
+\item{repo_urls}{The repositories to check for new versions of packages}
 }
 \value{
-A list containing two named lists: splash_damage and in_danger. splash_damage lists the packages potentially affected by updating each package in \code{to_update}. in_danger lists the packages from \code{to_update} that affect each package in \code{important_pkgs} (packages which are unaffected are omitted).
+A list containing two named lists: splash_damage and in_danger.
+splash_damage lists the packages potentially affected by updating each
+package in \code{to_update}. in_danger lists the packages from
+\code{to_update} that affect each package in \code{important_pkgs}
+(packages which are unaffected are omitted).
 }
 \description{
-Identify packages which could possibly be effected by updating the specified list of packages to their latest versions.
+Identify packages which could possibly be effected by updating the specified
+list of packages to their latest versions.
 }
 \author{
 Gabriel Becker

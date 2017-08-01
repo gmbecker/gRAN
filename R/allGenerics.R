@@ -23,7 +23,7 @@
 
 
 
-setGeneric("makeRepo", function(x, cores = 3L,
+setGeneric("makeRepo", function(x, cores = (parallel:::detectCores() - 1),
                                 build_pkgs = NULL,
                                 scm_auth = list("bioconductor.org" =
                                     c("readonly", "readonly")),

@@ -8,7 +8,6 @@ NULL
 setClass("RepoBuildParam", representation(
     repo_name = "character",
     temp_repo = "character",
-    
     base_dir = "character",
     temp_checkout = "character",
     errlog = "character",
@@ -62,7 +61,6 @@ setClass("GRANRepositoryv0.9", representation(tempRepo = "character",
                                           ))
 
 
-
 updateGRANRepoObject = function(object, ...) {
               param = RepoBuildParam(basedir = object@baseDir,
                   temp_repo = object@tempRepo,
@@ -79,7 +77,7 @@ updateGRANRepoObject = function(object, ...) {
                   shell_init = object@shell_init,
                   auth = object@auth,
                   ...)
-              
+
               man = PkgManifest(manifest = object@manifest[,names(ManifestRow())])
               results = data.frame(name = manifest_df(man)$name,
                   object@manifest[,!names(object@manifest) %in% names(ManifestRow())],
@@ -115,22 +113,21 @@ GRANRepository = function(manifest,
             versions = data.frame(name = manifest_df(manifest)$name,
                 version = NA_character_,
                 stringsAsFactors = FALSE))
-    
+
     new("GRANRepository", manifest = manifest, results = results, param = param)
 }
-
 
 
 ##' RepoBuildParam
 ##'
 ##' Parameters for building a GRAN repository. Most behavior during the
 ##' GRAN building process is specified via this object/constructor.
-##' 
+##'
 ##' @param basedir The base directory. By default the temporary repository,
 ##' temporary install library, and package staging area will be located in
 ##' <basedir>/<subrepoName>/, while the  temporary source checkout will be in t
 ##' he basedir itself.
-##' 
+##'
 ##' @param repo_name The name of the repository, e.g. stable or devel
 ##' @param temp_repo Location to create the temporary repository
 ##' @param temp_checkout Location to create temporary checkouts/copies of package
@@ -201,10 +198,10 @@ RepoBuildParam = function(
     build_timeout = 10*60,
     check_timeout = 15*60)
 {
-    
+
     if(!file.exists(basedir))
         dir.create(basedir, recursive = TRUE)
-    
+
     basedir = normalizePath2(basedir)
 
     prepDirStructure(basedir, repo_name, temp_repo, temp_checkout, tempLibLoc,
@@ -213,7 +210,7 @@ RepoBuildParam = function(
 
     if(check_test && !install_test)
         stop("Cannot run check test without install test")
-    
+
     repo = new("RepoBuildParam", base_dir = basedir,
         repo_name = repo_name,
         temp_repo = normalizePath2(temp_repo),
@@ -266,7 +263,13 @@ prepDirStructure = function(basedir, subrepo, temprepo, tempcheckout,
     if(!file.exists(file.path(destination, subrepo, "SinglePkgLogs")))
         dir.create(file.path(destination, subrepo, "SinglePkgLogs"),
                    recursive = TRUE)
-  
+    if(!file.exists(file.path(destination, subrepo, "CovrReports")))
+        dir.create(file.path(destination, subrepo, "CovrReports"),
+                   recursive = TRUE)
+    if(!file.exists(file.path(destination, subrepo, "InstallResults")))
+        dir.create(file.path(destination, subrepo, "InstallResults"),
+                   recursive = TRUE)
+    if(!file.exists(file.path(destination, subrepo, "PkgDocumentation")))
+        dir.create(file.path(destination, subrepo, "PkgDocumentation"),
+                   recursive = TRUE)
 }
-
-

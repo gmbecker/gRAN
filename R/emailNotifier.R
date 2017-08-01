@@ -1,22 +1,16 @@
-# Create logger for storing delivery logs
-logger <- create.logger(logfile = "gRANEmailNotifs.log", level = "DEBUG")
-
 #' Send email notifications to maintainers whose builds failed
-#' @author Dinakar Kulkarni, \email{kulkarni.dinakar@@gene.com}
 #' @importFrom sendmailR sendmail mime_part
-#' @import log4r
 #' @importFrom htmlTable htmlTable
 #' @importFrom dplyr anti_join
+#' @importFrom stats complete.cases setNames
+#' @importFrom utils read.csv write.csv
 #' @param repo A gRAN repo object
 #' @param mailControl List object containing SMTP server info
 #' @param sender Sender's email ID as a string
 #' @param attachments Files with full paths, as an array
-#' @param logfile Get or set the logfile for a logger object
-#' @param log_level Set or get the priority level for a logger object.
 #' @return None
 #' @export
 #' @seealso \code{\link{getFailureInfo}} for creating failed pkg manifests,
-#'          \code{\link[log4r]{create.logger}} for logger objects,
 #'          \code{\link{sendMail}} for sending emails,
 #'          \code{\link{deltaDF}} for difference between 2 dataframes,
 #'          \code{\link{notifyManifest}} for manifest-based emails
@@ -48,7 +42,10 @@ emailNotifier <- function (repo,
   failedPkgManifest_old <- failedPkgManifest_old[, cnames]
   failedPkgManifest_new <- failedPkgManifest_new[, cnames]
   write.csv(failedPkgManifest_old, file = manifestFile)
-  notifiablePkgs <- deltaDF(failedPkgManifest_new, failedPkgManifest_old)
+  notifiablePkgs <- tryCatch(deltaDF(failedPkgManifest_new, failedPkgManifest_old),
+                    error = function(e) {
+                      setNames(data.frame(matrix(ncol = length(cnames), nrow = 0)), cnames)
+                    })
 
   # Send the notifications
   notifyManifest(notifiablePkgs,
@@ -106,7 +103,6 @@ getFailureInfo <- function(repo) {
 
   failedPackages <- failedPackages[, !(colnames(failedPackages) %in% c("maintainer"))]
   rownames(failedPackages) <- NULL
-  debug(logger, paste("Failure info: ", failedPackages))
 
   return(failedPackages)
 }
@@ -137,7 +133,6 @@ sendMail <- function(receiver,
 
   for (attachmentPath in attachments) {
     if (!file.exists(attachmentPath)) {
-      error(logger, paste("No such file:", attachmentPath))
       stop(paste("Halting execution. Please check that the file",
                  attachmentPath, "exists"))
     }
@@ -150,13 +145,7 @@ sendMail <- function(receiver,
   status <- sendmailV(from = sender, to = receiver, subject = subject,
                      msg = bodyWithAttachment, control = mailControl)
 
-  if (status[[1]] == 221) {
-    info(logger, paste("Successfully sent email to:", receiver,
-                       "with subject:", subject))
-  } else {
-    error(logger, paste("Failed to send email to", receiver,
-                        "with status code:", status[[1]],
-                        "and msg:", status[[2]]))
+  if (status[[1]] != 221) {
     stop(paste("Failed to send email to", receiver))
   }
 }
@@ -187,7 +176,13 @@ notifyManifest <- function(manifest, repo, ...) {
                              "fixes to the packages including a version bump, ",
                              "and they'll be rebuilt the following night.<br>",
                              "Log info available here:", buildReportURL(repo)))
-      sendMail(emailID, emailSubject, emailBody, ...)
+      gnesys <- system('hostname -d', intern = TRUE)
+      if(gnesys == "gene.com") {
+        domain <- substrRight(emailID, 9)
+        if(domain == "@gene.com" || domain == "roche.com") {
+          sendMail(emailID, emailSubject, emailBody, ...)
+        }
+      } else sendMail(emailID, emailSubject, emailBody, ...)
     }
   }
 }

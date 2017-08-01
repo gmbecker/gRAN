@@ -4,10 +4,21 @@
 \alias{manifestHTML}
 \title{manifestHTML}
 \usage{
-manifestHTML(repo)
+manifestHTML(repo, theme = "bootstrap",
+  reportfile = file.path(destination(repo), "buildreport.html"),
+  riskrpt = FALSE)
 }
 \arguments{
-\item{repo}{a GRANRepository object.}
+\item{repo}{A GRANRepository object}
+
+\item{theme}{CSS+JS theme. bootstrap, foundation, semanticui or jqueryui}
+
+\item{reportfile}{Where the report should be located}
+
+\item{riskrpt}{Whether to build the risk report}
+}
+\value{
+None
 }
 \description{
 Create a build report for a repository reflecting the latest build

@@ -13,20 +13,24 @@
 \alias{makeRepo,character}
 \title{makeRepo}
 \usage{
-makeRepo(x, cores = 3L, build_pkgs = NULL,
+makeRepo(x, cores = (parallel:::detectCores() - 1), build_pkgs = NULL,
   scm_auth = list(bioconductor.org = c("readonly", "readonly")), ...)
 
-\S4method{makeRepo}{PkgManifest}(x, cores = 3L, build_pkgs = NULL,
-  scm_auth = list(bioconductor.org = c("readonly", "readonly")), ...)
+\S4method{makeRepo}{PkgManifest}(x, cores = (parallel:::detectCores() - 1),
+  build_pkgs = NULL, scm_auth = list(bioconductor.org = c("readonly",
+  "readonly")), ...)
 
-\S4method{makeRepo}{SessionManifest}(x, cores = 3L, build_pkgs = NULL,
-  scm_auth = list(bioconductor.org = c("readonly", "readonly")), ...)
+\S4method{makeRepo}{SessionManifest}(x, cores = (parallel:::detectCores() -
+  1), build_pkgs = NULL, scm_auth = list(bioconductor.org = c("readonly",
+  "readonly")), ...)
 
-\S4method{makeRepo}{GRANRepository}(x, cores = 3L, build_pkgs = NULL,
-  scm_auth = list(bioconductor.org = c("readonly", "readonly")), ...)
+\S4method{makeRepo}{GRANRepository}(x, cores = (parallel:::detectCores() - 1),
+  build_pkgs = NULL, scm_auth = list(bioconductor.org = c("readonly",
+  "readonly")), ...)
 
-\S4method{makeRepo}{character}(x, cores = 3L, build_pkgs = NULL,
-  scm_auth = list(bioconductor.org = c("readonly", "readonly")), ...)
+\S4method{makeRepo}{character}(x, cores = (parallel:::detectCores() - 1),
+  build_pkgs = NULL, scm_auth = list(bioconductor.org = c("readonly",
+  "readonly")), ...)
 }
 \arguments{
 \item{x}{The object containing the information necessary to create the repository}
