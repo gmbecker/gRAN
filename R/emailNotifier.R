@@ -23,7 +23,8 @@ emailNotifier <- function (repo,
   repo_name <- repo@param@repo_name
 
   # Create a manifest file to record changes
-  manifestFile <- paste0(".", repo_name, "failedpkgs.csv")
+  manifestFile <- file.path(destination(repo),
+                            paste0(".", repo_name, "failedpkgs.csv"))
 
   # If running for the first time, or if manifestFile has been removed
   # Get the failure info from the repo object
@@ -195,26 +196,4 @@ buildReportURL <- function(repo) {
   base_url <- param(repo)@dest_url
   sub_url <- gsub("^.*\\//","", destination(repo))
   paste0(base_url, "/", sub_url, "/buildreport.html")
-}
-
-
-#' Returns the difference between 2 data frames
-#' @param new_df The new dataframe which you want to compare
-#' @param old_df An older dataframe of the same structure
-#' @return Differences as a dataframe of the same structure
-#' @seealso \code{\link[dplyr]{anti_join}}
-#' @note This function is not intended for direct use by the end user.
-deltaDF <- function(new_df, old_df) {
-  delta <- suppressMessages(anti_join(new_df, old_df))
-  return(delta)
-}
-
-
-#' Checks whether an email ID is valid
-#' @param email_id Email ID as a string
-#' @return Boolean
-#' @note This function is not intended for direct use by the end user.
-isValidEmail <- function(email_id) {
-	grepl("\\<[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\>",
-        as.character(email_id), ignore.case=TRUE)
 }

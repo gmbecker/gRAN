@@ -246,8 +246,11 @@ checkTest = function(repo, cores = (parallel:::detectCores() - 1))
 
 #' Calculate and generate package code test coverage reports
 #' @importFrom covr package_coverage percent_coverage report
+#' @importFrom utils write.table read.table
+#' @importFrom dplyr intersect
 #' @param repo A gRAN repo object
 #' @return repo A gRAN repo object with updated code coverage info
+#' @export
 testCoverage <- function(repo)
 {
     logfun(repo)("NA", paste0("Creating test coverage reports for ",
@@ -297,8 +300,24 @@ testCoverage <- function(repo)
 
     logfun(repo)("NA", paste0("Completed test coverage reports for ",
                  length(bres$name), " packages."), type = "full")
-    coverage <- as.data.frame(coverage)
-    coverage$name <- rownames(coverage)
+    covg <- as.data.frame(coverage)
+    covg$name <- rownames(covg)
 
-    return(coverage)
+    # Covr calulcation preservation
+    covr_hist <- file.path(destination(repo), ".prevcovr.df")
+    if(!file.exists(covr_hist)) {
+      write.table(covg, file = covr_hist, row.names = FALSE)
+    } else {
+      old_covg <- as.data.frame(read.table(covr_hist, header = TRUE))
+      combo <- rbind(old_covg, covg)
+      latest <- combo[!(combo$name %in% old_covg$name &
+                      combo$coverage %in% old_covg$coverage), ]
+      common <- suppressWarnings(intersect(old_covg, covg))
+      remnants <- old_covg[!(old_covg$name %in% covg$name), ]
+      combo <- rbind(latest, common, remnants)
+      covg <- combo
+      write.table(covg, file = covr_hist)
+    }
+
+    return(covg)
 }

@@ -1,8 +1,8 @@
-Changes in version 1.6.0 (2017-07-27)
+Changes in version 1.6.0 (2017-08-02)
 
 - New Features
   * Risk reports, build badges for covr reports & build status
-  * Intuitive build report built with DataTables & CSS themes
+  * Beautified build report
 
 - Bugfixes
   * GNE-specific email preferences added

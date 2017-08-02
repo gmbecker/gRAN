@@ -225,6 +225,27 @@ substrRight <- function(x, n){
   substr(x, nchar(x)-n+1, nchar(x))
 }
 
+#' Returns the difference between 2 data frames
+#' @param new_df The new dataframe which you want to compare
+#' @param old_df An older dataframe of the same structure
+#' @return Differences as a dataframe of the same structure
+#' @seealso \code{\link[dplyr]{anti_join}}
+#' @note This function is not intended for direct use by the end user.
+deltaDF <- function(new_df, old_df) {
+  delta <- suppressWarnings(suppressMessages(anti_join(new_df, old_df)))
+  return(delta)
+}
+
+
+#' Checks whether an email ID is valid
+#' @param email_id Email ID as a string
+#' @return Boolean
+#' @note This function is not intended for direct use by the end user.
+isValidEmail <- function(email_id) {
+	grepl("\\<[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\>",
+        as.character(email_id), ignore.case=TRUE)
+}
+
 ## update_PACKAGES = function (dir = ".", fields = NULL, type = c("source", "mac.binary",
 ##     "win.binary"), verbose = FALSE, unpacked = FALSE, subdirs = FALSE,
 ##     latestOnly = TRUE, addFiles = FALSE)
