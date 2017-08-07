@@ -109,10 +109,16 @@ pkgHTML <- function(repo, suffix = "-index.html", theme = "bootstrap") {
       reference_man <- file.path(check_dir, paste0(pkg_name, '-manual.pdf'))
       if (file.exists(reference_man)) {
         file.copy(reference_man, docdir)
-        manref_url <- createURL(file.path("..", "..", "PkgDocumentation",
-                                pkg_name, paste0(pkg_name, '-manual.pdf')),
-                                label = paste0(pkg_name, '-manual.pdf'))
-      } else manref_url <- ""
+        manref_url <- paste("<p>Reference Manual:",
+                            createURL(file.path("..", "..", "PkgDocumentation",
+                                      pkg_name, paste0(pkg_name, '-manual.pdf')),
+                                      label = paste0(pkg_name, '-manual.pdf')),
+                            "</p>")
+        doc_header <- "<br/><h4>Package Documentation</h4><hr>"
+      } else {
+        manref_url <- ""
+        doc_header <- ""
+      }
 
       check_docs <- file.path(check_dir, pkg_name, 'doc')
       if (file.exists(check_docs)) {
@@ -171,9 +177,9 @@ pkgHTML <- function(repo, suffix = "-index.html", theme = "bootstrap") {
       }
 
       # Create HTML snippet for documentation, NEWS, vignettes
-      doc_header <- "<br/><h4>Package Documentation</h4><hr>"
-      doc_content <- paste("<p>Reference Manual:", manref_url, "</p>",
-                            pdf_vign_header, html_vign_header, news_header)
+
+      doc_content <- paste(manref_url, pdf_vign_header,
+                           html_vign_header, news_header)
 
       # Construct final HTML
       final_html <- paste("<html><head>", "<title>", pkg_name, "on", repo_name(repo),
