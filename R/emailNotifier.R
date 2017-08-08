@@ -171,7 +171,7 @@ notifyManifest <- function(manifest, repo, ...) {
       emailSubject <- "GRAN packages that failed to build"
       emailBody <- htmlTable(subDF[, c("name", "version", "lastAttemptStatus")],
                              caption="The following packages failed to build in GRAN:",
-                             css.cell = ("padding-left: 1em; padding-left: 1em"),
+                             css.cell = ("padding-left: 1em; padding-right: 1em"),
                              rnames = rep("",nrow(subDF)),
                              tfoot=paste("<br>To fix this, please checkin",
                              "fixes to the packages including a version bump, ",

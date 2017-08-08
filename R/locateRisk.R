@@ -63,7 +63,7 @@ buildRiskReport = function(repo, to_update = old.packages(repos = repo_urls),
         "Repository Version", "Repository", "Bugfixes", "User-visible changes",
         "Deprecations", "Total listed changes", "Number of pkgs affected")
     update_html <- htmlTable(as.matrix(oldmat), header = table_headers,
-                          css.cell = ("padding-left: 1.5em; padding-left: 1.5em"),
+                          css.cell = ("padding-left: 0.5em; padding-right: 0.5em"),
                           css.class = "table table-striped table-hover",
                           css.table = "margin-left:10px;margin-right:10px;",
                           align="l", label = "updatedetails")
@@ -86,7 +86,7 @@ buildRiskReport = function(repo, to_update = old.packages(repos = repo_urls),
   danger_header <- "<hr><h2>Packages at risk:</h2>"
   danger_html <- suppressWarnings(htmlTable(danger_df,
               header = c("Package at risk:", "When these packages are updated:"),
-              css.cell = ("padding-left: 1.5em; padding-left: 1.5em"),
+              css.cell = ("padding-left: 0.5em; padding-right: 0.5em"),
               css.class = "table table-striped table-hover",
               css.table = "margin-left:10px;margin-right:10px;",
               align="l", label = "riskdetails"))

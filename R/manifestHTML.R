@@ -18,7 +18,7 @@ manifestHTML <- function(repo, theme = "bootstrap",
   lastattempt <- repo_results(repo)$lastAttemptStatus
   attmptab <- as.matrix(table(lastattempt))
   attmpthtml <- htmlTable(attmptab,
-                        css.cell = ("padding-left: 1.5em; padding-left: 1.5em"),
+                        css.cell = ("padding-left: 0.5em; padding-right: 0.5em"),
                         css.class = "table-hover table-bordered table-striped",
                         css.table = "margin-left:10px;margin-right:10px;",
                         align = "l")
@@ -113,7 +113,7 @@ manifestHTML <- function(repo, theme = "bootstrap",
                 "Last Built Date", "Maintianer", "Coverage", "Build History")
   build_html <- htmlTable(tmpman,
                         header = table_header,
-                        css.cell = "padding-left: 1.5em; padding-left: 1.5em",
+                        css.cell = ("padding-left: 0.5em; padding-right: 0.5em"),
                         css.class = "table-hover table-striped table-bordered",
                         css.table = "margin-left:10px; margin-right:10px;",
                         label = "builddetails",

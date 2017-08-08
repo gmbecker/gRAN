@@ -55,7 +55,7 @@ pkgHTML <- function(repo, suffix = "-index.html", theme = "bootstrap") {
         }
         desc_header <- "<br/><h4>Details</h4><hr>"
         desc_html <- htmlTable(t(descr_df),
-                        css.cell = ("padding-left: 1.5em; padding-left: 1.5em"),
+                        css.cell = ("padding-left: 0.5em; padding-right: 0.5em"),
                         css.class = "table table-striped table-hover",
                         css.table = "margin-left:10px;margin-right:10px;",
                         align="l", rnames = names(descr_df))
@@ -69,7 +69,7 @@ pkgHTML <- function(repo, suffix = "-index.html", theme = "bootstrap") {
       if (!(is.data.frame(revdeps) && ncol(revdeps)==0)) {
         revdeps_header <- "<br/><h4>Reverse Dependencies</h4><hr>"
         revdeps_html <- htmlTable(t(revdeps),
-                          css.cell = ("padding-left: 1.5em; padding-left: 1.5em"),
+                          css.cell = ("padding-left: 0.5em; padding-right: 0.5em"),
                           css.class = "table table-striped table-hover",
                           css.table = "margin-left:10px;margin-right:10px;",
                           align="l", rnames = names(revdeps))
