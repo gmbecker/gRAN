@@ -63,9 +63,9 @@ manifestHTML <- function(repo, theme = "bootstrap",
       lines <- readLines(y_loc, -1, warn = FALSE)
       lines <- gsub(log_closer, "", lines)
       lines <- gsub(log_header, "", lines)
-      lines[1] <- log_header
-      lines <- rev(lines)[1:400] # Retain only last 400 lines
+      lines <- rev(lines)[1:500] # Retain only last 500 lines
       lines <- rev(lines)
+      lines[1] <- log_header
       lines <- lines[!is.na(lines)]
       writeLines(lines, y_loc)
       cat(log_closer, file = y_loc, append = TRUE, sep = "\n")
