@@ -316,7 +316,7 @@ testCoverage <- function(repo)
       remnants <- old_covg[!(old_covg$name %in% covg$name), ]
       combo <- rbind(latest, common, remnants)
       covg <- combo
-      write.table(covg, file = covr_hist)
+      write.table(covg, file = covr_hist, row.names = FALSE)
     }
 
     return(covg)
