@@ -294,7 +294,7 @@ testCoverage <- function(repo)
                      error = function(e) NULL)
             logfun(repo)(pkgName, "Completed test coverage", type = "full")
             paste("<span class=\"label", label, "\">",
-                  paste0(round(percentCovg, digits = 2), "%"), "</span></a>")
+                  paste0(round(percentCovg, digits = 2), "%"), "</span>")
         }
     }, pkgName = bres$name))
 
