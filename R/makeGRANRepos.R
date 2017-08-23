@@ -1,5 +1,5 @@
-##' @rdname makerepo
-##' @aliases makeRepo,PkgManifest
+#' @rdname makerepo
+#' @aliases makeRepo,PkgManifest
 setMethod("makeRepo", "PkgManifest",
           function(x, cores = (parallel:::detectCores() - 1), build_pkgs = NULL,
                    scm_auth = list("bioconductor.org" =
@@ -18,8 +18,8 @@ setMethod("makeRepo", "PkgManifest",
           })
 
 
-##' @rdname makerepo
-##' @aliases makeRepo,SessionManifest
+#' @rdname makerepo
+#' @aliases makeRepo,SessionManifest
 
 setMethod("makeRepo", "SessionManifest",
           function(x, cores = (parallel:::detectCores() - 1), build_pkgs = NULL,
@@ -36,8 +36,8 @@ setMethod("makeRepo", "SessionManifest",
 
 
 
-##' @rdname makerepo
-##' @aliases makeRepo,GRANRepository
+#' @rdname makerepo
+#' @aliases makeRepo,GRANRepository
 setMethod("makeRepo", "GRANRepository",
           function(x, cores = (parallel:::detectCores() - 1), build_pkgs = NULL,
                    scm_auth = list("bioconductor.org" =
@@ -108,8 +108,8 @@ setMethod("makeRepo", "GRANRepository",
     return(repo)
 })
 
-##' @rdname makerepo
-##' @aliases makeRepo,character
+#' @rdname makerepo
+#' @aliases makeRepo,character
 
 setMethod("makeRepo", "character",
           function(x, cores = (parallel:::detectCores() - 1), build_pkgs = NULL,

@@ -1,5 +1,5 @@
 #Package, build thine self
-##'@importFrom utils install.packages
+#'@importFrom utils install.packages
 GRANonGRAN = function(repo)
 {
     logfun(repo)("GRAN", paste("Creating repository specific GRAN package and",
@@ -32,7 +32,7 @@ GRANonGRAN = function(repo)
     DESC[1] = paste0("Package: ", pkgname)
     writeLines(DESC, con = file.path(babyGRAN, "DESCRIPTION"))
     cat(paste0("pkgname = '", pkgname, "'"), file = file.path(babyGRAN, "R", "00packagename.R"))
-    
+
     ## if(pkgname %in% manifest_df(repo)$name) {
     ##     granInd = which(repo_results(repo)$name == pkgname)
     ##     repo_results(repo)[granInd,] = ResultsRow(name = pkgname)
@@ -61,7 +61,7 @@ GRANonGRAN = function(repo)
         if(is(res, "error"))
             cran_use_ok = FALSE
     }
-            
+
     if(!cran_use_ok) { ## force switchr and GRANBase into the manifest and make them build
         pkgs = c("switchr", "GRANBase")
         repo = addPkg(repo,
@@ -69,29 +69,29 @@ GRANonGRAN = function(repo)
                       url = c("https://github.com/gmbecker/switchr",
                               "https://github.com/gmbecker/gRAN"),
                       type = "git", replace=TRUE)
-        
+
         df = repo_results(repo)
         df[df$name %in% pkgs, "building"] = TRUE
         df[df$name %in% pkgs, "lastbuiltversion"] = "0.0-0"
-        
+
         repo_results(repo) = df
     }
 
-    
+
     repo
-    
-        
+
+
 }
 
-##'Transform a GRANRepository object into a list
-##'
-##' Utility to transform a GRANRepository object into a list
-##' so that repos saved using GRANBase can be loaded by GRAN
-##' without requiring GRANBase
-##'
-##' @param repo repository
-##' @return a list suitable for use with RepoFromList
-##' @export
+#'Transform a GRANRepository object into a list
+#'
+#' Utility to transform a GRANRepository object into a list
+#' so that repos saved using GRANBase can be loaded by GRAN
+#' without requiring GRANBase
+#'
+#' @param repo repository
+#' @return a list suitable for use with RepoFromList
+#' @export
 RepoToList = function(repo) {
 
     sl = names(getSlots(class(repo)))
@@ -100,22 +100,22 @@ RepoToList = function(repo) {
     l
 }
 
-##'Create a GRANRepository object from a list
-##'
-##' @param rlist A list with entries that are slot name-value
-##' pairs for a GRANRepository object
-##' @return a GRANRepository object
-##' @export
+#'Create a GRANRepository object from a list
+#'
+#' @param rlist A list with entries that are slot name-value
+#' pairs for a GRANRepository object
+#' @return a GRANRepository object
+#' @export
 RepoFromList = function(rlist) {
     do.call(new, c("GRANRepository", rlist))
 }
 
-##'Backwards compatible load utility
-##'
-##' Load a repository serialized to an R code file
-##'
-##' @param filename The file to load
-##' @export
+#'Backwards compatible load utility
+#'
+#' Load a repository serialized to an R code file
+#'
+#' @param filename The file to load
+#' @export
 loadRepo = function(filename) {
     res = tryCatch(dget(filename), error = function(e)e)
     if(is(res, "error")) {
@@ -131,25 +131,24 @@ loadRepo = function(filename) {
                      checkout_dir(res),
                      temp_lib(res),
                      dest_base(res))
-    
+
     ##refresh closure for log function
     logfun(res) = function(pkg, msg, type = "full") writeGRANLog(pkg, msg, type,
               logfile = logfile(res), errfile = errlogfile(res),
               pkglog = pkg_log_file(pkg, res))
     res
 }
-            
-        
-##'Backwards compatible save utility
-##'
-##' serialize a repository to a file so that it does not require GRANBase
-##' to load
-##'
-##' @param repo The GRANRepository object to save
-##' @param filename The destination file
-##' @return NULL
-##' @export
+
+
+#'Backwards compatible save utility
+#'
+#' serialize a repository to a file so that it does not require GRANBase
+#' to load
+#'
+#' @param repo The GRANRepository object to save
+#' @param filename The destination file
+#' @return NULL
+#' @export
 saveRepo = function(repo, filename) {
    dput(repo, filename)
 }
-    

@@ -293,8 +293,12 @@ testCoverage <- function(repo)
             tryCatch(report(pkgCovg, file = cvgrptfile, browse = FALSE),
                      error = function(e) NULL)
             logfun(repo)(pkgName, "Completed test coverage", type = "full")
-            paste("<span class=\"label", label, "\">",
-                  paste0(round(percentCovg, digits = 2), "%"), "</span>")
+            if (is.numeric(percentCovg) && !is.nan(percentCovg)) {
+              paste("<span class=\"label", label, "\">",
+                    paste0(round(percentCovg, digits = 2), "%"), "</span>")
+            } else {
+              "<span class=\"label label-default \">Details</span>"
+            }
         }
     }, pkgName = bres$name))
 

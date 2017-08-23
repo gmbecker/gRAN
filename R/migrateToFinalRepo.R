@@ -97,7 +97,7 @@ remOldPkgTballs = function(repo) {
 }
 
 
-##' @importFrom tools package_dependencies
+#' @importFrom tools package_dependencies
 markFailedRevDeps = function(repo) {
     bman = getBuildingManifest(repo)
     rdpkgs = package_dependencies(bman$name, which = c("Depends", "Imports", "LinkingTo"),

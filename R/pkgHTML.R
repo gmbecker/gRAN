@@ -80,6 +80,9 @@ pkgHTML <- function(repo, suffix = "-index.html", theme = "bootstrap") {
         logfun(repo)(pkg_name, "No revdep info available", type = "full")
       }
 
+      # Create sticker for the package
+      createSticker(pkg_name, destination = docdir)
+
       # Create package intro
       status <- bres$lastAttemptStatus[bres$name == pkg_name]
       description <- as.character(descr_df$Description)
@@ -88,9 +91,10 @@ pkgHTML <- function(repo, suffix = "-index.html", theme = "bootstrap") {
       title <- as.character(descr_df$Title)
       intro <- paste0("<h2>", pkg_name, ": ",title, "</h2><hr> ",
                       "<strong><p>", description, "</p></strong> ",
+                      "<img src=\"", pkg_name, ".png\" height=\"160\" align=\"right\">",
                       "<p>GRAN Release: ",
                       "<a href=\"../../src/contrib/buildreport.html\">",
-                      "<span class=\"label label-primary\">",
+                      "<span class=\"label label-primary\">GRAN",
                               repo_name(repo), "</span></a>", "</p> ",
                       "<p>Build status: ", buildBadge(status, pkg_name), "</p>",
                       "<tcplaceholder/>",
@@ -182,10 +186,11 @@ pkgHTML <- function(repo, suffix = "-index.html", theme = "bootstrap") {
                            html_vign_header, news_header)
 
       # Construct final HTML
-      final_html <- paste("<html><head>", "<title>", pkg_name, "on", repo_name(repo),
-                          "</title>", stylesheet, "</head>", intro, installn,
-                          desc_header, desc_html, revdeps_header, revdeps_html,
-                          doc_header, doc_content, "</html>")
+      final_html <- paste0("<html><head>", "<title>", pkg_name, " on GRAN",
+                          repo_name(repo), "</title>", stylesheet,
+                          "<body style=\"padding: 20px;\"> </head>", intro,
+                          installn, desc_header, desc_html, revdeps_header,
+                          revdeps_html, doc_header, doc_content, "</body></html>")
 
       # Create the HTML spash page
       logfun(repo)(pkg_name, "Writing final pkg HTML info", type = "full")

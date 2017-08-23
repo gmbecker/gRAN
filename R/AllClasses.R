@@ -1,10 +1,10 @@
-##' @import switchr
-##' @import methods
+#' @import switchr
+#' @import methods
 NULL
 
 
-##' @rdname repobuildparam
-##' @export
+#' @rdname repobuildparam
+#' @export
 setClass("RepoBuildParam", representation(
     repo_name = "character",
     temp_repo = "character",
@@ -32,8 +32,8 @@ setClass("RepoBuildParam", representation(
          contains = "SwitchrParam")
 
 
-##' @rdname GRANRepository
-##' @export
+#' @rdname GRANRepository
+#' @export
 setClass("GRANRepository", representation(
     results = "data.frame",
 #    manifest = "PkgManifest",
@@ -89,18 +89,18 @@ updateGRANRepoObject = function(object, ...) {
 
 
 
-##' GRANRepository
-##'
-##' A constructor for the \code{GRANRepository} class of S4 objects representing
-##' individual repositories
-##'
-##' @param manifest A PkgManifest object
-##' @param results A data.frame containing previous build results
-##' @param param A RepoBuildParam object controlling the location and behavior of
-##' the repository being built
-##' @param ... Passed through to the default value of \code{param}
-##' @rdname GRANRepository
-##' @export
+#' GRANRepository
+#'
+#' A constructor for the \code{GRANRepository} class of S4 objects representing
+#' individual repositories
+#'
+#' @param manifest A PkgManifest object
+#' @param results A data.frame containing previous build results
+#' @param param A RepoBuildParam object controlling the location and behavior of
+#' the repository being built
+#' @param ... Passed through to the default value of \code{param}
+#' @rdname GRANRepository
+#' @export
 GRANRepository = function(manifest,
     results,
     param = RepoBuildParam(...),
@@ -118,57 +118,57 @@ GRANRepository = function(manifest,
 }
 
 
-##' RepoBuildParam
-##'
-##' Parameters for building a GRAN repository. Most behavior during the
-##' GRAN building process is specified via this object/constructor.
-##'
-##' @param basedir The base directory. By default the temporary repository,
-##' temporary install library, and package staging area will be located in
-##' <basedir>/<subrepoName>/, while the  temporary source checkout will be in t
-##' he basedir itself.
-##'
-##' @param repo_name The name of the repository, e.g. stable or devel
-##' @param temp_repo Location to create the temporary repository
-##' @param temp_checkout Location to create temporary checkouts/copies of package
-##'   source code
-##' @param errlog The file to append error output to during the building and
-##'   testing processes
-##' @param logfile The file to append summary log information to during building
-##'   and testing
-##' @param check_note_ok logical. Whether packages that raise notes during
-##'   R CMD check should be considered to have passed
-##' @param check_warn_ok logical. Whether packages that raise warnings during
-##'   R CMD check should be considered to have passed
-##' @param tempLibLoc Location to create the temporary installed package library
-##'   for use during the testing process
-##' @param extra_fun currently ignored
-##' @param destination Base location (not including repository name) of the
-##'   final repository to be built
-##' @param auth character. Authentication information required to add packages
-##'   to the manifest.
-##' @param dest_url The base URL the destination directory corresponds to. The
-##' subrepository name will be appended to this to generate the URL used when
-##' installing from the repository.
-##' @param shell_init An optional shell script to source before invoking system
-##' commands, e.g. a bashrc file. Ignored if "" or not specified.
-##' @param loginnerfun The function to use to write log messages during the repository
-##' build process. It will be passed pkg, ..., errfile, logfile, and pkglog based on
-##' the other arguments to this function. Defaults to writeGRANLog
-##' specified as the full and error log locations, respectively.
-##' @param install_test logical. Should the install test be performed? Required
-##' to build packages with vignettes, and for the check test
-##' @param check_test logical. Should R CMD check be run on the packages as a
-##' cohort. Requires install test.
-##' @param use_cran_granbase logical. Currently ignored.
-##' @param archive_timing numeric. Number of seconds to wait between attempts to pull a package from the CRAN archive
-##' @param archive_retries numeric. Number of times to retry pulling a package from the CRAN archive.
-##' @param build_timeout numeric. Number of seconds before timeout during
-##' the build step for a single package. Defaults to 10 minutes.
-##' @param check_timeout numeric. Number of seconds before timeout during
-##' the check step for a single package. Defaults to 15 minutes.
-##' @rdname repobuildparam
-##' @export
+#' RepoBuildParam
+#'
+#' Parameters for building a GRAN repository. Most behavior during the
+#' GRAN building process is specified via this object/constructor.
+#'
+#' @param basedir The base directory. By default the temporary repository,
+#' temporary install library, and package staging area will be located in
+#' <basedir>/<subrepoName>/, while the  temporary source checkout will be in t
+#' he basedir itself.
+#'
+#' @param repo_name The name of the repository, e.g. stable or devel
+#' @param temp_repo Location to create the temporary repository
+#' @param temp_checkout Location to create temporary checkouts/copies of package
+#'   source code
+#' @param errlog The file to append error output to during the building and
+#'   testing processes
+#' @param logfile The file to append summary log information to during building
+#'   and testing
+#' @param check_note_ok logical. Whether packages that raise notes during
+#'   R CMD check should be considered to have passed
+#' @param check_warn_ok logical. Whether packages that raise warnings during
+#'   R CMD check should be considered to have passed
+#' @param tempLibLoc Location to create the temporary installed package library
+#'   for use during the testing process
+#' @param extra_fun currently ignored
+#' @param destination Base location (not including repository name) of the
+#'   final repository to be built
+#' @param auth character. Authentication information required to add packages
+#'   to the manifest.
+#' @param dest_url The base URL the destination directory corresponds to. The
+#' subrepository name will be appended to this to generate the URL used when
+#' installing from the repository.
+#' @param shell_init An optional shell script to source before invoking system
+#' commands, e.g. a bashrc file. Ignored if "" or not specified.
+#' @param loginnerfun The function to use to write log messages during the repository
+#' build process. It will be passed pkg, ..., errfile, logfile, and pkglog based on
+#' the other arguments to this function. Defaults to writeGRANLog
+#' specified as the full and error log locations, respectively.
+#' @param install_test logical. Should the install test be performed? Required
+#' to build packages with vignettes, and for the check test
+#' @param check_test logical. Should R CMD check be run on the packages as a
+#' cohort. Requires install test.
+#' @param use_cran_granbase logical. Currently ignored.
+#' @param archive_timing numeric. Number of seconds to wait between attempts to pull a package from the CRAN archive
+#' @param archive_retries numeric. Number of times to retry pulling a package from the CRAN archive.
+#' @param build_timeout numeric. Number of seconds before timeout during
+#' the build step for a single package. Defaults to 10 minutes.
+#' @param check_timeout numeric. Number of seconds before timeout during
+#' the check step for a single package. Defaults to 15 minutes.
+#' @rdname repobuildparam
+#' @export
 
 
 

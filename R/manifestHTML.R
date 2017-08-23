@@ -14,7 +14,8 @@ manifestHTML <- function(repo, theme = "bootstrap",
 
   # Overall Build Stats
   title <- paste0("<title>GRAN", repo_name(repo), " Build Report</title>")
-  summary_header <- "<h2>Overall Build Stats</h2>"
+  summary_header <- paste0("<h2>Overall Build Stats for GRAN",
+                          repo_name(repo), "</h2>")
   lastattempt <- repo_results(repo)$lastAttemptStatus
   attmptab <- as.matrix(table(lastattempt))
   attmpthtml <- htmlTable(attmptab,
@@ -40,7 +41,9 @@ manifestHTML <- function(repo, theme = "bootstrap",
   # Assign badges and log links to the latest build status
   # Also make logs human-readable
   tmpman$Chronicles <- ""
-  log_header <- paste0("<html><meta charset=\"UTF-8\"><link rel=\"stylesheet\" type=\"text/css\" href=\"../src/contrib/assets/css/", theme, ".min.css\"><pre><code>")
+  log_header <- paste0("<html><meta charset=\"UTF-8\"><link rel=\"stylesheet\"",
+                       "type=\"text/css\" href=\"../src/contrib/assets/css/",
+                       theme, ".min.css\"><pre><code>")
   log_closer <- "</code></pre></html>"
   for (i in 1:length(tmpman$lastAttemptStatus)) {
     # Prettify the logs
@@ -155,8 +158,9 @@ manifestHTML <- function(repo, theme = "bootstrap",
   # Construct final HTML
   final_html <- paste("<!doctype html>
                       <html> <head>", title, css_tag, js_tag, ds_script,
-                      "</head>", summary_header, attmpthtml, "<br/>",
-                      build_header, build_html, risk_rpt_html, "</html>")
+                      "<body style=\"padding: 20px;\"></head>",
+                      summary_header, attmpthtml, "<br/>", build_header,
+                      build_html, risk_rpt_html, "</body></html>")
   write(final_html, reportfile)
   NULL
 }

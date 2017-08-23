@@ -1,17 +1,17 @@
-##' create the tarballs in the new repo from the svn branch locs
-##'
-##'
-##' @title Build SVN Checkouts Into Repository Directory
-##' @param repo a GRANRepository object
-##' @param cores number of cores to use during build process. defaults to (parallel:::detectCores() - 1)
-##' @param temp logical. whether we are building the temp or final version of the repository
-##' @param incremental logical. whether packages should only be rebuilt if the version number has increased. Default is TRUE
-##' @param manifest data.frame containing a GRAN manifest of pkgs to build. Defaults to the full manifest associated with repo
-##' @return a list with success and fail elements containing the directories which succeeded and failed the build
-##' @author Cory Barr, Gabriel Becker
-##' @importFrom tools write_PACKAGES
-##' @importFrom utils compareVersion
-##'
+#' create the tarballs in the new repo from the svn branch locs
+#'
+#'
+#' @title Build SVN Checkouts Into Repository Directory
+#' @param repo a GRANRepository object
+#' @param cores number of cores to use during build process. defaults to (parallel:::detectCores() - 1)
+#' @param temp logical. whether we are building the temp or final version of the repository
+#' @param incremental logical. whether packages should only be rebuilt if the version number has increased. Default is TRUE
+#' @param manifest data.frame containing a GRAN manifest of pkgs to build. Defaults to the full manifest associated with repo
+#' @return a list with success and fail elements containing the directories which succeeded and failed the build
+#' @author Cory Barr, Gabriel Becker
+#' @importFrom tools write_PACKAGES
+#' @importFrom utils compareVersion
+#'
 buildBranchesInRepo <- function( repo, cores = (parallel:::detectCores() - 1), temp=FALSE,
                                 incremental = TRUE, manifest = manifest_df(repo)) {
 
