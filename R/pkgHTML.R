@@ -90,8 +90,8 @@ pkgHTML <- function(repo, suffix = "-index.html", theme = "bootstrap") {
       authors <- emailTag(as.character(descr_df$Author))
       title <- as.character(descr_df$Title)
       intro <- paste0("<h2>", pkg_name, ": ",title, "</h2><hr> ",
+              "<img src=\"", pkg_name, ".png\" height=\"160\" align=\"right\">",
                       "<strong><p>", description, "</p></strong> ",
-                      "<img src=\"", pkg_name, ".png\" height=\"160\" align=\"right\">",
                       "<p>GRAN Release: ",
                       "<a href=\"../../src/contrib/buildreport.html\">",
                       "<span class=\"label label-primary\">GRAN",
