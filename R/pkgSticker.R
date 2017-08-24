@@ -27,7 +27,7 @@ createSticker <- function(pkgName, destination) {
             package = pkgName,
             filename = file.path(destination, paste0(pkgName, ".png")),
             p_size = max(5.5, 18 - 0.4*nchar(pkgName)), #For other 'nix
-            #p_size = max(2, (39-nchar(pkgName))/5), #For Max
+            #p_size = max(2, (39-nchar(pkgName))/5), #For Mac
             s_x = 1, s_y = 0.6,
             s_width = 0.9, s_height = 0.9,
             p_color = as.character(pkgFontColor[as.character(x)]),
