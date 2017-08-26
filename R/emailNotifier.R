@@ -1,26 +1,26 @@
 #' Send email notifications to maintainers whose builds failed
+#' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @importFrom sendmailR sendmail mime_part
 #' @importFrom htmlTable htmlTable
-#' @importFrom dplyr anti_join
 #' @importFrom stats complete.cases setNames
 #' @importFrom utils read.csv write.csv
 #' @param repo A gRAN repo object
-#' @param mailControl List object containing SMTP server info
-#' @param sender Sender's email ID as a string
+#' @param mailopts Email options as a list
 #' @param attachments Files with full paths, as an array
 #' @return None
 #' @export
 #' @seealso \code{\link{getFailureInfo}} for creating failed pkg manifests,
-#'          \code{\link{sendMail}} for sending emails,
-#'          \code{\link{deltaDF}} for difference between 2 dataframes,
-#'          \code{\link{notifyManifest}} for manifest-based emails
+#'          \code{\link{sendMail}} for sending emails
 emailNotifier <- function (repo,
-                           mailControl = list(smtpServer = "localhost"),
-                           sender = paste0("resgran-d@",
-                                          system('hostname -d', intern = TRUE)),
+                           mailopts = email_options(repo),
                            attachments = NULL) {
   # Identify the repo_name
   repo_name <- repo@param@repo_name
+
+  # Get email options:
+  mailControl <- list(smtpServer = paste(mailopts["smtp_server"]),
+                      smtpPort = paste(mailopts["smtp_port"]))
+  sender <- mailopts["sender_email"]
 
   # Create a manifest file to record changes
   manifestFile <- file.path(destination(repo),
@@ -51,8 +51,7 @@ emailNotifier <- function (repo,
   # Send the notifications
   notifyManifest(notifiablePkgs,
                  repo,
-                 mailControl = mailControl,
-                 sender = sender,
+                 mailopts = mailopts,
                  attachments = attachments)
 
   # Write the new failure manifest to the manifest file
@@ -113,8 +112,8 @@ getFailureInfo <- function(repo) {
 #' @param receiver Receiver's email ID as a string. Vector if multiple email IDs
 #' @param subject Email subject as a string
 #' @param body Email message body as a string
-#' @param mailControl List object containing SMTP server info
-#' @param sender Sender's email ID as a string
+#' @param repo A gRAN repo object
+#' @param mailopts Email options as a list
 #' @param attachments Files with full paths as an array
 #' @return None
 #' @seealso \code{\link[sendmailR]{sendmail}} for sending simple emails
@@ -122,12 +121,18 @@ getFailureInfo <- function(repo) {
 sendMail <- function(receiver,
                      subject,
                      body,
-                     mailControl = list(smtpServer = "localhost"),
-                     sender = paste0("resgran-d@", system('hostname -d')),
+                     repo,
+                     mailopts = email_options(repo),
                      attachments = NULL) {
-  if (missing(receiver) || missing(subject) || missing(body)) {
+  if (missing(receiver) || missing(subject) || missing(body) || missing(repo)) {
     stop(paste("Missing mandatory arguments to", match.call()[[1]]))
   }
+
+  # Get email options:
+  mailControl <- list(smtpServer = paste(mailopts["smtp_server"]),
+                      smtpPort = paste(mailopts["smtp_port"]))
+  sender <- mailopts["sender_email"]
+
   body <- mime_part(body)
   body[["headers"]][["Content-Type"]] <- "text/html"
   bodyWithAttachment <- list(body)
@@ -165,25 +170,24 @@ notifyManifest <- function(manifest, repo, ...) {
   if (missing(manifest) || missing(repo)) {
     stop(paste("Missing mandatory arguments to", match.call()[[1]]))
   }
+  unsubscribe_list <- email_options(repo)["unsubscribers"]
   for (emailID in unique(manifest$email)) {
     if (isValidEmail(emailID)) {
       subDF <- manifest[manifest[, "email"] == emailID, ]
-      emailSubject <- "GRAN packages that failed to build"
+      emailSubject <- paste0("Packages that failed to build on GRAN",
+                              repo@param@repo_name, ": ", Sys.time())
       emailBody <- htmlTable(subDF[, c("name", "version", "lastAttemptStatus")],
-                             caption="The following packages failed to build in GRAN:",
+                             caption = "The following packages failed to build in GRAN:",
                              css.cell = ("padding-left: 1em; padding-right: 1em"),
                              rnames = rep("",nrow(subDF)),
-                             tfoot=paste("<br>To fix this, please checkin",
+                             tfoot = paste("<br>To fix this, please checkin",
                              "fixes to the packages including a version bump, ",
                              "and they'll be rebuilt the following night.<br>",
                              "Log info available here:", buildReportURL(repo)))
-      gnesys <- system('hostname -d', intern = TRUE)
-      if(gnesys == "gene.com") {
-        domain <- substrRight(emailID, 9)
-        if(domain == "@gene.com" || domain == "roche.com") {
-          sendMail(emailID, emailSubject, emailBody, ...)
-        }
-      } else sendMail(emailID, emailSubject, emailBody, ...)
+      is_unsubscriber <- grepl(paste(unsubscribe_list, collapse="|"), emailID)
+      if (!is_unsubscriber) {
+        sendMail(emailID, emailSubject, emailBody, repo, ...)
+      }
     }
   }
 }

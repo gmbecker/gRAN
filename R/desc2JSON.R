@@ -3,6 +3,7 @@
 #' Create a JSON version of the package's DESCRIPTION file. Useful for
 #' interfacing with other applications.
 #'
+#' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @importFrom jsonlite toJSON
 #' @param repo A GRAN repo object
 #' @param suffix String that is appended to the end of the JSON file
@@ -23,8 +24,4 @@ desc2JSON <- function(repo, suffix = "-description.json") {
     }
   }
   NULL
-}
-
-encode_string <- function(x) {
-  tolower(paste(strtoi(charToRaw(as.character(x)), 16L), collapse = ""))
 }

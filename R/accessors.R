@@ -59,6 +59,38 @@ setMethod("location", "GRANRepository", function(repo) {
 })
 
 
+#' email_options
+#' Email options for sending build failure notifications
+#'
+#' @rdname email_options-methods
+#' @param repo a GRANRepository object
+#' @return A list containing the email options
+#' @docType methods
+#' @export
+setGeneric("email_options", function(repo) standardGeneric("email_options"))
+#' @rdname email_options-methods
+#' @aliases email_options,GRANRepository-method
+#' @export
+setMethod("email_options", "GRANRepository",
+          function(repo) param(repo)@email_opts)
+
+
+#' email_notify
+#' Should emails be sent for build failure notifications?
+#'
+#' @rdname email_notify-methods
+#' @param repo a GRANRepository object
+#' @return logical
+#' @docType methods
+#' @export
+setGeneric("email_notify", function(repo) standardGeneric("email_notify"))
+#' @rdname email_notify-methods
+#' @aliases email_notify,GRANRepository-method
+#' @export
+setMethod("email_notify", "GRANRepository",
+          function(repo) param(repo)@email_notifications)
+
+
 #'repobase
 #' Generic accessor function to retreive the repo specific subdirectory within the base directory
 #'

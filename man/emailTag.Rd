@@ -15,3 +15,6 @@ href tag
 \description{
 Create a mailto tag for email IDs
 }
+\author{
+Dinakar Kulkarni <kulkard2@gene.com>
+}

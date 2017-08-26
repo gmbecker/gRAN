@@ -15,3 +15,6 @@ repo A gRAN repo object with updated code coverage info
 \description{
 Calculate and generate package code test coverage reports
 }
+\author{
+Dinakar Kulkarni <kulkard2@gene.com>
+}

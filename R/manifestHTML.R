@@ -1,6 +1,7 @@
 #' manifestHTML
 #'
 #' Create a build report for a repository reflecting the latest build
+#' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @importFrom htmlTable htmlTable
 #' @param repo A GRANRepository object
 #' @param theme CSS+JS theme. bootstrap, foundation, semanticui or jqueryui

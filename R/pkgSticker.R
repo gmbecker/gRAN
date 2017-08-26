@@ -1,4 +1,5 @@
 #' Create hex stickers for packages
+#' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @importFrom hexSticker sticker
 #' @param pkgName Name of the package
 #' @param destination Directory where the sticker will be saved
@@ -23,11 +24,20 @@ createSticker <- function(pkgName, destination) {
     z <- as.numeric(substr(pkgcrypt, 1,
                            ceiling(nchar(pkgcrypt)/2))) %% length(pkgOutlineColor)
 
+    #Determine font size for package name on sticker
+    if (getOS() == "osx") {
+      fontsize <- max(2, (39-nchar(pkgName))/5)
+    } else if (getOS() == "linux") {
+      fontsize <- max(5.5, 18 - 0.4*nchar(pkgName))
+    } else {
+      fontsize <- 8
+    }
+
+    # Create the sticker
     sticker(system.file2("assets", "images", "pkg.png"),
             package = pkgName,
             filename = file.path(destination, paste0(pkgName, ".png")),
-            p_size = max(5.5, 18 - 0.4*nchar(pkgName)), #For other 'nix
-            #p_size = max(2, (39-nchar(pkgName))/5), #For Mac
+            p_size = fontsize,
             s_x = 1, s_y = 0.6,
             s_width = 0.9, s_height = 0.9,
             p_color = as.character(pkgFontColor[as.character(x)]),

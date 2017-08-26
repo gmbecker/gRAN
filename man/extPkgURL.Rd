@@ -17,3 +17,6 @@ Package external URL
 \description{
 Wrapper for determinePkgURL
 }
+\author{
+Dinakar Kulkarni <kulkard2@gene.com>
+}

@@ -1,4 +1,5 @@
 #' Create HTML splash pages for packages
+#' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @importFrom htmlTable htmlTable
 #' @importFrom tools file_path_sans_ext
 #' @param repo A gRAN repo object
@@ -104,9 +105,13 @@ pkgHTML <- function(repo, suffix = "-index.html", theme = "bootstrap") {
 
       # Installation instructions
       installn <- paste0("<br/><h4>Installation</h4><hr>",
-      "<p>To install this package, start R and enter:</p>",
-      "<pre><code><p>library(GRAN", repo_name(repo),")</p>",
-      "<p>install_packages(\"", pkg_name, "\", type=\"source\")</p></code></pre>")
+                         "<p>To install this package, start R and enter:</p>",
+                         "<pre><code><p>source(\"", param(repo)@dest_url,
+                         "/getGRAN-", repo_name(repo),
+                         ".R\")</p>", "<p>library(GRAN", repo_name(repo),")</p>",
+                         "<p>install_packages(\"", pkg_name, "\"",
+                         "type=\"source\")</p></code></pre>")
+
       logfun(repo)(pkg_name, "Created installation info", type = "full")
 
       # Copy reference manual, vignettes and NEWS into destination
@@ -204,6 +209,7 @@ pkgHTML <- function(repo, suffix = "-index.html", theme = "bootstrap") {
 }
 
 #' Converts a DESCRIPTION file to a data.frame
+#' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @param pkg_path The path preceding the location of the DESCRIPTION file
 #' @param encoding If there is an Encoding field, to what encoding should
 #'     re-encoding be attempted? The other values are as used by iconv, so the
@@ -239,6 +245,7 @@ generateDescInfo <- function(pkg_path, encoding = "") {
 }
 
 #' Generate reverse dependency info as data.frame
+#' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @param pkg_name The name of the package (string)
 #' @return data.frame containing package reverse dependency info
 reversals <- function(pkg_name) {
@@ -254,6 +261,7 @@ reversals <- function(pkg_name) {
 }
 
 #' Generate package's external URL after validation info as data.frame
+#' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @importFrom RCurl url.exists
 #' @param pkg_name The name of the package (string)
 #' @return Package external URL
@@ -278,6 +286,7 @@ determinePkgURL <- function(pkg_name) {
 }
 
 #' Wrapper for determinePkgURL. Deprecate due to performance issues.
+#' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @param desc_field The DESCRIPTION field which has mutiple package names
 #' @param as_string Return as string
 #' @return Package external URL
@@ -296,6 +305,7 @@ extPkgURL_old <- function(desc_field, as_string = TRUE) {
 }
 
 #' Wrapper for determinePkgURL
+#' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @param desc_field The DESCRIPTION field which has mutiple package names
 #' @param as_string Return as string
 #' @return Package external URL
@@ -314,6 +324,7 @@ extPkgURL <- function(desc_field, as_string = TRUE) {
 }
 
 #' Wrapper for dependsOnPkgs
+#' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @importFrom tools dependsOnPkgs
 #' @param pkg_name The name of the package (string)
 #' @param relation What type of reverse dependency?
@@ -325,6 +336,7 @@ relatedPkgs <- function(pkg_name, relation = "LinkingTo") {
 }
 
 #' Converts delimited string to list
+#' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @importFrom stringi stri_replace_all_charclass
 #' @param string Input string
 #' @param separator The delimiter
@@ -335,6 +347,7 @@ string2list <- function(string, separator = ",") {
 }
 
 #' Creates a href tag
+#' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @param string URL string
 #' @param label Label for href
 #' @return href tag
@@ -346,6 +359,7 @@ createURL <- function(string, label = "") {
 }
 
 #' Create a mailto tag for email IDs
+#' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @param item A string with the email ID
 #' @return href tag
 emailTag <- function(item) {
@@ -360,6 +374,7 @@ emailTag <- function(item) {
 }
 
 #' Create Badges for build status
+#' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @param status The build status for the package
 #' @param pkg_name Name of the package
 #' @return Badge href tag

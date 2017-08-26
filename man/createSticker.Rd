@@ -17,3 +17,6 @@ None
 \description{
 Create hex stickers for packages
 }
+\author{
+Dinakar Kulkarni <kulkard2@gene.com>
+}

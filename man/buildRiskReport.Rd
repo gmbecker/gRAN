@@ -39,3 +39,6 @@ Generates an HTML report identifying which packages have updates available,
 and which of the specified important packages may be effected by
 installing those new versions.
 }
+\author{
+Dinakar Kulkarni <kulkard2@gene.com>
+}

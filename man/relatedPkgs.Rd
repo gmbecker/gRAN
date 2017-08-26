@@ -17,3 +17,6 @@ String of reverse dependencies
 \description{
 Wrapper for dependsOnPkgs
 }
+\author{
+Dinakar Kulkarni <kulkard2@gene.com>
+}

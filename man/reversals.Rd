@@ -15,3 +15,6 @@ data.frame containing package reverse dependency info
 \description{
 Generate reverse dependency info as data.frame
 }
+\author{
+Dinakar Kulkarni <kulkard2@gene.com>
+}

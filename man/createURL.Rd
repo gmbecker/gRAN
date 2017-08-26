@@ -17,3 +17,6 @@ href tag
 \description{
 Creates a href tag
 }
+\author{
+Dinakar Kulkarni <kulkard2@gene.com>
+}

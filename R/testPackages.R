@@ -245,6 +245,7 @@ checkTest = function(repo, cores = (parallel:::detectCores() - 1))
 
 
 #' Calculate and generate package code test coverage reports
+#' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @importFrom covr package_coverage percent_coverage report
 #' @importFrom utils write.table read.table
 #' @importFrom dplyr intersect

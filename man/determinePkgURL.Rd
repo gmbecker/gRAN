@@ -15,3 +15,6 @@ Package external URL
 \description{
 Generate package's external URL after validation info as data.frame
 }
+\author{
+Dinakar Kulkarni <kulkard2@gene.com>
+}

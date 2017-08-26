@@ -226,6 +226,8 @@ substrRight <- function(x, n){
 }
 
 #' Returns the difference between 2 data frames
+#' @author Dinakar Kulkarni <kulkard2@gene.com>
+#' @importFrom dplyr anti_join
 #' @param new_df The new dataframe which you want to compare
 #' @param old_df An older dataframe of the same structure
 #' @return Differences as a dataframe of the same structure
@@ -238,12 +240,41 @@ deltaDF <- function(new_df, old_df) {
 
 
 #' Checks whether an email ID is valid
+#' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @param email_id Email ID as a string
 #' @return Boolean
 #' @note This function is not intended for direct use by the end user.
 isValidEmail <- function(email_id) {
 	grepl("\\<[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\>",
         as.character(email_id), ignore.case=TRUE)
+}
+
+#' Get the OS Type
+#' @author Dinakar Kulkarni <kulkard2@gene.com>
+#' @return OS Type
+#' @note This function is not intended for direct use by the end user.
+getOS <- function(){
+  sysinf <- Sys.info()
+  if (!is.null(sysinf)){
+    os <- sysinf['sysname']
+    if (os == 'Darwin')
+      os <- "osx"
+  } else { ## mystery machine
+    os <- .Platform$OS.type
+    if (grepl("^darwin", R.version$os))
+      os <- "osx"
+    if (grepl("linux-gnu", R.version$os))
+      os <- "linux"
+  }
+  tolower(os)
+}
+
+#' Convert string to numeric representation
+#' @param x String
+#' @return Numeric representation of string
+#' @note This function is not intended for direct use by the end user.
+encode_string <- function(x) {
+  tolower(paste(strtoi(charToRaw(as.character(x)), 16L), collapse = ""))
 }
 
 ## update_PACKAGES = function (dir = ".", fields = NULL, type = c("source", "mac.binary",

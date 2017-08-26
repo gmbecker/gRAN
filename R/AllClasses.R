@@ -5,30 +5,36 @@ NULL
 
 #' @rdname repobuildparam
 #' @export
-setClass("RepoBuildParam", representation(
-    repo_name = "character",
-    temp_repo = "character",
-    base_dir = "character",
-    temp_checkout = "character",
-    errlog = "character",
-    logfile = "character",
-    tempLibLoc = "character",
-    check_warn_ok = "logical",
-    check_note_ok = "logical",
-    extra_fun = "function",
-    auth = "character",
-    dest_base = "character",
-    dest_url = "character",
-    install_test = "logical",
-    check_test = "logical",
-    suspended = "character",
-    use_cran_granbase = "logical",
-    build_timeout = "numeric",
-    check_timeout = "numeric"
-    ),
+setClass("RepoBuildParam",
+         representation(repo_name = "character",
+                        temp_repo = "character",
+                        base_dir = "character",
+                        temp_checkout = "character",
+                        errlog = "character",
+                        logfile = "character",
+                        tempLibLoc = "character",
+                        check_warn_ok = "logical",
+                        check_note_ok = "logical",
+                        extra_fun = "function",
+                        auth = "character",
+                        dest_base = "character",
+                        dest_url = "character",
+                        install_test = "logical",
+                        check_test = "logical",
+                        suspended = "character",
+                        use_cran_granbase = "logical",
+                        build_timeout = "numeric",
+                        check_timeout = "numeric",
+                        email_notifications = "logical",
+                        email_opts = "list"),
          prototype = prototype(use_cran_granbase = TRUE,
                                build_timeout = 10*60,
-                               check_timeout = 15*60),
+                               check_timeout = 15*60,
+                               email_notifications = FALSE,
+                               email_opts = list(smtp_server = "localhost",
+                                                 smtp_port = 25,
+                                                 sender_email = "gran@localhost",
+                                                 unsubscribers = NULL)),
          contains = "SwitchrParam")
 
 
@@ -42,50 +48,54 @@ setClass("GRANRepository", representation(
 ))
 
 
-setClass("GRANRepositoryv0.9", representation(tempRepo = "character",
-                                          baseDir = "character",
-                                          tempCheckout = "character",
-                                          errlog = "character",
-                                          logfile = "character",
-                                          rversion = "character",
-                                          subrepoName="character",
-                                          tempLibLoc = "character",
-                                          manifest = "data.frame",
-                                          checkWarnOk = "logical",
-                                          checkNoteOk = "logical",
-                                          extraFun = "function",
-                                          auth = "character",
-                                          dest_base = "character",
-                                          dest_url = "character",
-                                          shell_init = "character"
-                                          ))
+setClass("GRANRepositoryv0.9",
+         representation(tempRepo = "character",
+                        baseDir = "character",
+                        tempCheckout = "character",
+                        errlog = "character",
+                        logfile = "character",
+                        rversion = "character",
+                        subrepoName="character",
+                        tempLibLoc = "character",
+                        manifest = "data.frame",
+                        checkWarnOk = "logical",
+                        checkNoteOk = "logical",
+                        extraFun = "function",
+                        auth = "character",
+                        dest_base = "character",
+                        dest_url = "character",
+                        shell_init = "character"))
 
 
-updateGRANRepoObject = function(object, ...) {
-              param = RepoBuildParam(basedir = object@baseDir,
-                  temp_repo = object@tempRepo,
-                  repo_name = object@subrepoName,
-                  errlog = object@errlog,
-                  logfile = object@logfile,
-                  temp_checkout = object@tempCheckout,
-                  check_note_ok = object@checkNoteOk,
-                  check_warn_ok = object@checkWarnOk,
-                  tempLibLoc = object@tempLibLoc,
-                  extra_fun = object@extraFun,
-                  destination = object@dest_base,
-                  dest_url = object@dest_url,
-                  shell_init = object@shell_init,
-                  auth = object@auth,
-                  ...)
+updateGRANRepoObject <- function(object, ...) {
+    param = RepoBuildParam(basedir = object@baseDir,
+                           temp_repo = object@tempRepo,
+                           repo_name = object@subrepoName,
+                           errlog = object@errlog,
+                           logfile = object@logfile,
+                           temp_checkout = object@tempCheckout,
+                           check_note_ok = object@checkNoteOk,
+                           check_warn_ok = object@checkWarnOk,
+                           tempLibLoc = object@tempLibLoc,
+                           extra_fun = object@extraFun,
+                           destination = object@dest_base,
+                           dest_url = object@dest_url,
+                           shell_init = object@shell_init,
+                           auth = object@auth,
+                           email_notifications = object@email_notifications,
+                           email_opts = object@email_opts,
+                           ...)
 
-              man = PkgManifest(manifest = object@manifest[,names(ManifestRow())])
-              results = data.frame(name = manifest_df(man)$name,
-                  object@manifest[,!names(object@manifest) %in% names(ManifestRow())],
-                  stringsAsFactors = FALSE)
-              vers = data.frame(name = manifest_df(man)$name, version = NA_character_,
-                  stringsAsFactors = FALSE)
-              GRANRepository(manifest = SessionManifest(manifest =man, versions = vers), results = results, param = param)
-          }
+    man = PkgManifest(manifest = object@manifest[,names(ManifestRow())])
+    results = data.frame(name = manifest_df(man)$name,
+            object@manifest[,!names(object@manifest) %in% names(ManifestRow())],
+            stringsAsFactors = FALSE)
+    vers = data.frame(name = manifest_df(man)$name, version = NA_character_,
+                      stringsAsFactors = FALSE)
+    GRANRepository(manifest = SessionManifest(manifest =man, versions = vers),
+                   results = results,
+                   param = param)
+}
 
 
 
@@ -167,20 +177,28 @@ GRANRepository = function(manifest,
 #' the build step for a single package. Defaults to 10 minutes.
 #' @param check_timeout numeric. Number of seconds before timeout during
 #' the check step for a single package. Defaults to 15 minutes.
+#' @param email_notifications logical. Should email notifications be sent
+#' regarding packages that fail to build on GRAN? Defaults to FALSE
+#' @param email_opts List. Email options for sending emails regarding packages
+#' that fail to build on GRAN. The list contains 4 elements: \code{smtp_server}:
+#' the SMTP server - defaults to "localhost", \code{smtp_port}: SMTP port
+#' number - defaults to 25, \code{sender_email}: Whom should the emails
+#' be sent as? Defaults to "gran<repo_name>@localhost", \code{unsubscribers}:
+#' Vector of regexes for unsubscribers - defaults to NULL.
 #' @rdname repobuildparam
 #' @export
 
 
 
-RepoBuildParam = function(
+RepoBuildParam <- function(
     basedir,
     repo_name = "current",
     temp_repo = file.path(basedir, repo_name, "tmprepo"),
     temp_checkout = file.path(basedir, "tmpcheckout"),
     errlog = file.path(basedir, repo_name, paste0("GRAN-errors-", repo_name,
-        "-", Sys.Date(), ".log")),
+                       "-", Sys.Date(), ".log")),
     logfile = file.path(basedir, repo_name, paste0("GRAN-log-", repo_name,
-        "-", Sys.Date(), ".log")),
+                        "-", Sys.Date(), ".log")),
     check_note_ok = TRUE,
     check_warn_ok = TRUE,
     tempLibLoc = file.path(basedir, repo_name, "LibLoc"),
@@ -196,22 +214,24 @@ RepoBuildParam = function(
     archive_timing = 2,
     archive_retries = 2,
     build_timeout = 10*60,
-    check_timeout = 15*60)
-{
-
+    check_timeout = 15*60,
+    email_notifications = FALSE,
+    email_opts = list(smtp_server = "localhost",
+                      smtp_port = 25,
+                      sender_email = paste0("gran", repo_name, "@localhost"),
+                      unsubscribers = NULL)) {
     if(!file.exists(basedir))
         dir.create(basedir, recursive = TRUE)
 
-    basedir = normalizePath2(basedir)
+    basedir <- normalizePath2(basedir)
 
     prepDirStructure(basedir, repo_name, temp_repo, temp_checkout, tempLibLoc,
                      destination)
 
-
     if(check_test && !install_test)
         stop("Cannot run check test without install test")
 
-    repo = new("RepoBuildParam", base_dir = basedir,
+    repo <- new("RepoBuildParam", base_dir = basedir,
         repo_name = repo_name,
         temp_repo = normalizePath2(temp_repo),
         temp_checkout = normalizePath2(temp_checkout),
@@ -232,14 +252,19 @@ RepoBuildParam = function(
         archive_timing = archive_timing,
         archive_retries = archive_retries,
         build_timeout = build_timeout,
-        check_timeout = check_timeout)
-    logfun(repo) = function(pkg, ...) loginnerfun(pkg, ..., errfile = errlogfile(repo),
-                                              logfile = logfile(repo),
-                                              pkglog = pkg_log_file(pkg, repo))
+        check_timeout = check_timeout,
+        email_notifications = email_notifications,
+        email_opts = email_opts)
+
+    logfun(repo) <- function(pkg, ...) {
+      loginnerfun(pkg, ..., errfile = errlogfile(repo),
+                  logfile = logfile(repo),
+                  pkglog = pkg_log_file(pkg, repo))
+    }
     repo
 }
 
-prepDirStructure = function(basedir, subrepo, temprepo, tempcheckout,
+prepDirStructure <- function(basedir, subrepo, temprepo, tempcheckout,
     templibloc, destination) {
     if(!file.exists(file.path(basedir, subrepo, "src", "contrib")))
         dir.create(file.path(basedir, subrepo, "src", "contrib"),

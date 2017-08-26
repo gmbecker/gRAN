@@ -1,11 +1,17 @@
+Changes in version 1.6.2 (2017-08-25)
+
+- New Features
+  * hexStickers for packages in splash pages
+  * Email preferences, settings and options. Unsubscribe list, specify SMTP
+
+- Bugfixes
+  * Build reports, splash pages have margins and padding
+
 Changes in version 1.6.0 (2017-08-02)
 
 - New Features
   * Risk reports, build badges for covr reports & build status
   * Beautified build report
-
-- Bugfixes
-  * GNE-specific email preferences added
 
 Changes in version 1.5.0 (2017-07-18)
 

@@ -19,3 +19,6 @@ None
 \description{
 Create HTML splash pages for packages
 }
+\author{
+Dinakar Kulkarni <kulkard2@gene.com>
+}

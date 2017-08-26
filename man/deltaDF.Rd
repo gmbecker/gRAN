@@ -23,3 +23,6 @@ This function is not intended for direct use by the end user.
 \seealso{
 \code{\link[dplyr]{anti_join}}
 }
+\author{
+Dinakar Kulkarni <kulkard2@gene.com>
+}

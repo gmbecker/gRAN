@@ -17,3 +17,6 @@ Processed list
 \description{
 Converts delimited string to list
 }
+\author{
+Dinakar Kulkarni <kulkard2@gene.com>
+}

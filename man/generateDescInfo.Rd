@@ -21,3 +21,6 @@ If a DESCRIPTION file for the given package is found and can
 \description{
 Converts a DESCRIPTION file to a data.frame
 }
+\author{
+Dinakar Kulkarni <kulkard2@gene.com>
+}

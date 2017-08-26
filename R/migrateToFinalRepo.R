@@ -42,11 +42,11 @@ migrateToFinalRepo = function(repo)
         return(repo)
     }
 
-    oldwd = getwd()
+    oldwd <- getwd()
     setwd(repoLoc)
     on.exit(setwd(oldwd))
     write_PACKAGES(type="source")
-    repo = updateResults(repo)
+    repo <- updateResults(repo)
     dummy <- pkgHTML(repo)
     dummy <- desc2JSON(repo)
     if(clearstage) {

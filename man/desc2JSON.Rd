@@ -18,3 +18,6 @@ None
 Create a JSON version of the package's DESCRIPTION file. Useful for
 interfacing with other applications.
 }
+\author{
+Dinakar Kulkarni <kulkard2@gene.com>
+}

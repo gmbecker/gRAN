@@ -17,3 +17,6 @@ Badge href tag
 \description{
 Create Badges for build status
 }
+\author{
+Dinakar Kulkarni <kulkard2@gene.com>
+}

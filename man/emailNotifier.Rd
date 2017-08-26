@@ -4,16 +4,12 @@
 \alias{emailNotifier}
 \title{Send email notifications to maintainers whose builds failed}
 \usage{
-emailNotifier(repo, mailControl = list(smtpServer = "localhost"),
-  sender = paste0("resgran-d@", system("hostname -d", intern = TRUE)),
-  attachments = NULL)
+emailNotifier(repo, mailopts = email_options(repo), attachments = NULL)
 }
 \arguments{
 \item{repo}{A gRAN repo object}
 
-\item{mailControl}{List object containing SMTP server info}
-
-\item{sender}{Sender's email ID as a string}
+\item{mailopts}{Email options as a list}
 
 \item{attachments}{Files with full paths, as an array}
 }
@@ -25,7 +21,8 @@ Send email notifications to maintainers whose builds failed
 }
 \seealso{
 \code{\link{getFailureInfo}} for creating failed pkg manifests,
-         \code{\link{sendMail}} for sending emails,
-         \code{\link{deltaDF}} for difference between 2 dataframes,
-         \code{\link{notifyManifest}} for manifest-based emails
+         \code{\link{sendMail}} for sending emails
+}
+\author{
+Dinakar Kulkarni <kulkard2@gene.com>
 }

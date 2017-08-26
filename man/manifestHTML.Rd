@@ -23,3 +23,6 @@ None
 \description{
 Create a build report for a repository reflecting the latest build
 }
+\author{
+Dinakar Kulkarni <kulkard2@gene.com>
+}
