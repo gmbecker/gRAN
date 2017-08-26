@@ -21,12 +21,14 @@ saveRepoFiles = function(repo) {
 finalizeRepo = function(repo) {
   manifestHTML(repo)
   saveRepoFiles(repo)
-  if (email_notify(repo)) {
-      emailNotifier(repo)
-  }
   if (!file.exists(file.path(repobase(repo), "getGRAN.R"))) {
     file.copy(file.path(repobase(repo), paste0("GRAN", repo_name(repo)), "inst",
       "scripts", "getGRAN.R"), file.path(repobase(repo), "getGRAN.R"))
+  }
+  if (email_notify(repo)) {
+      logfun(repo)("NA", "Sending email notifications...", type = "full")
+      emailNotifier(repo)
+      logfun(repo)("NA", "Completed email delivery", type = "full")
   }
   repo
 }
