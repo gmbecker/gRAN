@@ -110,7 +110,7 @@ pkgHTML <- function(repo, suffix = "-index.html", theme = "bootstrap") {
                          "/getGRAN-", repo_name(repo),
                          ".R\")</p>", "<p>library(GRAN", repo_name(repo),")</p>",
                          "<p>install_packages(\"", pkg_name, "\"",
-                         "type=\"source\")</p></code></pre>")
+                         ", type=\"source\")</p></code></pre>")
 
       logfun(repo)(pkg_name, "Created installation info", type = "full")
 
