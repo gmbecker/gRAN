@@ -184,7 +184,7 @@ GRANRepository = function(manifest,
 #' the SMTP server - defaults to "localhost", \code{smtp_port}: SMTP port
 #' number - defaults to 25, \code{sender_email}: Whom should the emails
 #' be sent as? Defaults to "gran<repo_name>@localhost", \code{unsubscribers}:
-#' Vector of regexes for unsubscribers - defaults to NULL.
+#' Vector of Perl-style regexes for unsubscribers - defaults to NULL.
 #' @rdname repobuildparam
 #' @export
 

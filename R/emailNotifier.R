@@ -184,7 +184,8 @@ notifyManifest <- function(manifest, repo, ...) {
                              "fixes to the packages including a version bump, ",
                              "and they'll be rebuilt the following night.<br>",
                              "Log info available here:", buildReportURL(repo)))
-      is_unsubscriber <- grepl(paste(unsubscribe_list, collapse="|"), emailID)
+      is_unsubscriber <- grepl(paste(unsubscribe_list, collapse="|"), emailID,
+                               perl = TRUE)
       if (!is_unsubscriber) {
         sendMail(emailID, emailSubject, emailBody, repo, ...)
       }
