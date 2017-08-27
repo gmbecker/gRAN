@@ -20,7 +20,7 @@ emailNotifier <- function (repo,
   # Get email options:
   mailControl <- list(smtpServer = paste(mailopts["smtp_server"]),
                       smtpPort = paste(mailopts["smtp_port"]))
-  sender <- mailopts["sender_email"]
+  sender <- paste(mailopts["sender_email"])
 
   # Create a manifest file to record changes
   manifestFile <- file.path(destination(repo),
@@ -131,7 +131,7 @@ sendMail <- function(receiver,
   # Get email options:
   mailControl <- list(smtpServer = paste(mailopts["smtp_server"]),
                       smtpPort = paste(mailopts["smtp_port"]))
-  sender <- mailopts["sender_email"]
+  sender <- paste(mailopts["sender_email"])
 
   body <- mime_part(body)
   body[["headers"]][["Content-Type"]] <- "text/html"

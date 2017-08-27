@@ -1,8 +1,8 @@
-Changes in version 1.6.2 (2017-08-25)
+Changes in version 1.6.3 (2017-08-26)
 
 - New Features
   * hexStickers for packages in splash pages
-  * Email preferences, settings and options. Unsubscribe list, specify SMTP
+  * Email preferences, settings and options. Unsubscribe list, specify SMTP server options
 
 - Bugfixes
   * Build reports, splash pages have margins and padding
