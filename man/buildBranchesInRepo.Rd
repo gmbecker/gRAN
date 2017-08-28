@@ -4,13 +4,13 @@
 \alias{buildBranchesInRepo}
 \title{Build SVN Checkouts Into Repository Directory}
 \usage{
-buildBranchesInRepo(repo, cores = 1, temp = FALSE, incremental = TRUE,
-  manifest = manifest_df(repo))
+buildBranchesInRepo(repo, cores = (parallel:::detectCores() - 1),
+  temp = FALSE, incremental = TRUE, manifest = manifest_df(repo))
 }
 \arguments{
 \item{repo}{a GRANRepository object}
 
-\item{cores}{number of cores to use during build process. defaults to 1}
+\item{cores}{number of cores to use during build process. defaults to (parallel:::detectCores() - 1)}
 
 \item{temp}{logical. whether we are building the temp or final version of the repository}
 

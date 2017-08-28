@@ -1,35 +1,30 @@
-# Create logger for storing delivery logs
-logger <- create.logger(logfile = "gRANEmailNotifs.log", level = "DEBUG")
-
 #' Send email notifications to maintainers whose builds failed
-#' @author Dinakar Kulkarni, \email{kulkarni.dinakar@@gene.com}
+#' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @importFrom sendmailR sendmail mime_part
-#' @import log4r
 #' @importFrom htmlTable htmlTable
-#' @importFrom dplyr anti_join
+#' @importFrom stats complete.cases setNames
+#' @importFrom utils read.csv write.csv
 #' @param repo A gRAN repo object
-#' @param mailControl List object containing SMTP server info
-#' @param sender Sender's email ID as a string
+#' @param mailopts Email options as a list
 #' @param attachments Files with full paths, as an array
-#' @param logfile Get or set the logfile for a logger object
-#' @param log_level Set or get the priority level for a logger object.
 #' @return None
 #' @export
 #' @seealso \code{\link{getFailureInfo}} for creating failed pkg manifests,
-#'          \code{\link[log4r]{create.logger}} for logger objects,
-#'          \code{\link{sendMail}} for sending emails,
-#'          \code{\link{deltaDF}} for difference between 2 dataframes,
-#'          \code{\link{notifyManifest}} for manifest-based emails
+#'          \code{\link{sendMail}} for sending emails
 emailNotifier <- function (repo,
-                           mailControl = list(smtpServer = "localhost"),
-                           sender = paste0("resgran-d@",
-                                          system('hostname -d', intern = TRUE)),
+                           mailopts = email_options(repo),
                            attachments = NULL) {
   # Identify the repo_name
   repo_name <- repo@param@repo_name
 
+  # Get email options:
+  mailControl <- list(smtpServer = paste(mailopts["smtp_server"]),
+                      smtpPort = paste(mailopts["smtp_port"]))
+  sender <- paste(mailopts["sender_email"])
+
   # Create a manifest file to record changes
-  manifestFile <- paste0(".", repo_name, "failedpkgs.csv")
+  manifestFile <- file.path(destination(repo),
+                            paste0(".", repo_name, "failedpkgs.csv"))
 
   # If running for the first time, or if manifestFile has been removed
   # Get the failure info from the repo object
@@ -48,13 +43,15 @@ emailNotifier <- function (repo,
   failedPkgManifest_old <- failedPkgManifest_old[, cnames]
   failedPkgManifest_new <- failedPkgManifest_new[, cnames]
   write.csv(failedPkgManifest_old, file = manifestFile)
-  notifiablePkgs <- deltaDF(failedPkgManifest_new, failedPkgManifest_old)
+  notifiablePkgs <- tryCatch(deltaDF(failedPkgManifest_new, failedPkgManifest_old),
+                    error = function(e) {
+                      setNames(data.frame(matrix(ncol = length(cnames), nrow = 0)), cnames)
+                    })
 
   # Send the notifications
   notifyManifest(notifiablePkgs,
                  repo,
-                 mailControl = mailControl,
-                 sender = sender,
+                 mailopts = mailopts,
                  attachments = attachments)
 
   # Write the new failure manifest to the manifest file
@@ -106,7 +103,6 @@ getFailureInfo <- function(repo) {
 
   failedPackages <- failedPackages[, !(colnames(failedPackages) %in% c("maintainer"))]
   rownames(failedPackages) <- NULL
-  debug(logger, paste("Failure info: ", failedPackages))
 
   return(failedPackages)
 }
@@ -116,8 +112,8 @@ getFailureInfo <- function(repo) {
 #' @param receiver Receiver's email ID as a string. Vector if multiple email IDs
 #' @param subject Email subject as a string
 #' @param body Email message body as a string
-#' @param mailControl List object containing SMTP server info
-#' @param sender Sender's email ID as a string
+#' @param repo A gRAN repo object
+#' @param mailopts Email options as a list
 #' @param attachments Files with full paths as an array
 #' @return None
 #' @seealso \code{\link[sendmailR]{sendmail}} for sending simple emails
@@ -125,19 +121,24 @@ getFailureInfo <- function(repo) {
 sendMail <- function(receiver,
                      subject,
                      body,
-                     mailControl = list(smtpServer = "localhost"),
-                     sender = paste0("resgran-d@", system('hostname -d')),
+                     repo,
+                     mailopts = email_options(repo),
                      attachments = NULL) {
-  if (missing(receiver) || missing(subject) || missing(body)) {
+  if (missing(receiver) || missing(subject) || missing(body) || missing(repo)) {
     stop(paste("Missing mandatory arguments to", match.call()[[1]]))
   }
+
+  # Get email options:
+  mailControl <- list(smtpServer = paste(mailopts["smtp_server"]),
+                      smtpPort = paste(mailopts["smtp_port"]))
+  sender <- paste(mailopts["sender_email"])
+
   body <- mime_part(body)
   body[["headers"]][["Content-Type"]] <- "text/html"
   bodyWithAttachment <- list(body)
 
   for (attachmentPath in attachments) {
     if (!file.exists(attachmentPath)) {
-      error(logger, paste("No such file:", attachmentPath))
       stop(paste("Halting execution. Please check that the file",
                  attachmentPath, "exists"))
     }
@@ -150,13 +151,7 @@ sendMail <- function(receiver,
   status <- sendmailV(from = sender, to = receiver, subject = subject,
                      msg = bodyWithAttachment, control = mailControl)
 
-  if (status[[1]] == 221) {
-    info(logger, paste("Successfully sent email to:", receiver,
-                       "with subject:", subject))
-  } else {
-    error(logger, paste("Failed to send email to", receiver,
-                        "with status code:", status[[1]],
-                        "and msg:", status[[2]]))
+  if (status[[1]] != 221) {
     stop(paste("Failed to send email to", receiver))
   }
 }
@@ -175,19 +170,25 @@ notifyManifest <- function(manifest, repo, ...) {
   if (missing(manifest) || missing(repo)) {
     stop(paste("Missing mandatory arguments to", match.call()[[1]]))
   }
+  unsubscribe_list <- email_options(repo)["unsubscribers"]
   for (emailID in unique(manifest$email)) {
     if (isValidEmail(emailID)) {
       subDF <- manifest[manifest[, "email"] == emailID, ]
-      emailSubject <- "GRAN packages that failed to build"
+      emailSubject <- paste0("Packages that failed to build on GRAN",
+                              repo@param@repo_name, ": ", Sys.time())
       emailBody <- htmlTable(subDF[, c("name", "version", "lastAttemptStatus")],
-                             caption="The following packages failed to build in GRAN:",
-                             css.cell = ("padding-left: 1em; padding-left: 1em"),
+                             caption = "The following packages failed to build in GRAN:",
+                             css.cell = ("padding-left: 1em; padding-right: 1em"),
                              rnames = rep("",nrow(subDF)),
-                             tfoot=paste("<br>To fix this, please checkin",
+                             tfoot = paste("<br>To fix this, please checkin",
                              "fixes to the packages including a version bump, ",
                              "and they'll be rebuilt the following night.<br>",
                              "Log info available here:", buildReportURL(repo)))
-      sendMail(emailID, emailSubject, emailBody, ...)
+      is_unsubscriber <- grepl(paste(unsubscribe_list, collapse="|"), emailID,
+                               perl = TRUE)
+      if (!is_unsubscriber) {
+        sendMail(emailID, emailSubject, emailBody, repo, ...)
+      }
     }
   }
 }
@@ -200,26 +201,4 @@ buildReportURL <- function(repo) {
   base_url <- param(repo)@dest_url
   sub_url <- gsub("^.*\\//","", destination(repo))
   paste0(base_url, "/", sub_url, "/buildreport.html")
-}
-
-
-#' Returns the difference between 2 data frames
-#' @param new_df The new dataframe which you want to compare
-#' @param old_df An older dataframe of the same structure
-#' @return Differences as a dataframe of the same structure
-#' @seealso \code{\link[dplyr]{anti_join}}
-#' @note This function is not intended for direct use by the end user.
-deltaDF <- function(new_df, old_df) {
-  delta <- suppressMessages(anti_join(new_df, old_df))
-  return(delta)
-}
-
-
-#' Checks whether an email ID is valid
-#' @param email_id Email ID as a string
-#' @return Boolean
-#' @note This function is not intended for direct use by the end user.
-isValidEmail <- function(email_id) {
-	grepl("\\<[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\>",
-        as.character(email_id), ignore.case=TRUE)
 }

@@ -19,7 +19,9 @@ RepoBuildParam(basedir, repo_name = "current",
   shell_init = character(), loginnerfun = writeGRANLog,
   install_test = TRUE, check_test = TRUE, use_cran_granbase = TRUE,
   archive_timing = 2, archive_retries = 2, build_timeout = 10 * 60,
-  check_timeout = 15 * 60)
+  check_timeout = 15 * 60, email_notifications = FALSE,
+  email_opts = list(smtp_server = "localhost", smtp_port = 25, sender_email =
+  paste0("gran", repo_name, "@localhost"), unsubscribers = NULL))
 }
 \arguments{
 \item{basedir}{The base directory. By default the temporary repository,
@@ -86,6 +88,16 @@ the build step for a single package. Defaults to 10 minutes.}
 
 \item{check_timeout}{numeric. Number of seconds before timeout during
 the check step for a single package. Defaults to 15 minutes.}
+
+\item{email_notifications}{logical. Should email notifications be sent
+regarding packages that fail to build on GRAN? Defaults to FALSE}
+
+\item{email_opts}{List. Email options for sending emails regarding packages
+that fail to build on GRAN. The list contains 4 elements: \code{smtp_server}:
+the SMTP server - defaults to "localhost", \code{smtp_port}: SMTP port
+number - defaults to 25, \code{sender_email}: Whom should the emails
+be sent as? Defaults to "gran<repo_name>@localhost", \code{unsubscribers}:
+Vector of Perl-style regexes for unsubscribers - defaults to NULL.}
 }
 \description{
 Parameters for building a GRAN repository. Most behavior during the

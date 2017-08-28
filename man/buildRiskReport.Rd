@@ -4,28 +4,41 @@
 \alias{buildRiskReport}
 \title{Build risk-assessment for proposed package updates}
 \usage{
-buildRiskReport(to_update = old.packages(repos = repo_urls),
+buildRiskReport(repo, to_update = old.packages(repos = repo_urls),
   important_pkgs = installed.packages(lib.loc = liblocs)[, "Package"],
   liblocs = .libPaths(), repo_urls = getOption("repos"),
-  file = "update-risk.html")
+  file = file.path(destination(repo), "update-risk.html"),
+  theme = "bootstrap")
 }
 \arguments{
-\item{to_update}{vector of package names which may be updated, or a matrix output from \code{old.packages}. Defaults to all packages which are out of date}
+\item{repo}{The name of a GRAN repository to use. Assumes that a
+a package named GRAN<repo> is available to load.}
 
-\item{important_pkgs}{list of packages to check for risk of change cascades from updating the packages in \code{to_update}. Defaults to all installed packages}
+\item{to_update}{vector of package names which may be updated, or a matrix
+output from \code{old.packages}. Defaults to all packages which are out of date}
+
+\item{important_pkgs}{list of packages to check for risk of change cascades
+from updating the packages in \code{to_update}. Defaults to all installed packages}
 
 \item{liblocs}{the library locations to look for installed packages}
 
 \item{repo_urls}{The repositories to check for new versions of packages}
 
-\item{file}{file to write the resulting HTML report into.}
+\item{file}{File to write the resulting HTML report into.}
+
+\item{theme}{CSS theme. bootstrap, foundation, semanticui or jqueryui}
 }
 \value{
-the
+none. Writes HTML report with risk assessment
 }
 \description{
 buildRiskReport
 }
 \details{
-Generates an HTML report identifying which packages have updates available, and which of the specified important packages may be effected by installing those new versions.
+Generates an HTML report identifying which packages have updates available,
+and which of the specified important packages may be effected by
+installing those new versions.
+}
+\author{
+Dinakar Kulkarni <kulkard2@gene.com>
 }

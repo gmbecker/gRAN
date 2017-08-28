@@ -16,25 +16,25 @@ system.file2 = function(..., package = "GRANBase") {
 }
 
 
-##' writeGRANLog
-##'
-##' Utility function which writes gran logs
-##' @param pkg The name of the package the log is about
-##' @param msg The log message, collapsed if length>1
-##' @param type "full", "error", or "both" indicating which log(s) the message
-##' should be written to
-##' @param logfile The location of the full log file to write/append to
-##' @param errfile the location of the error log file to write/append to
-##' @param pkglog character. The package-specific log file to write to if
-##' applicable.
-##' @note This function is not intended for direct use by the end user.
-##' @export
+#' writeGRANLog
+#'
+#' Utility function which writes gran logs
+#' @param pkg The name of the package the log is about
+#' @param msg The log message, collapsed if length>1
+#' @param type "full", "error", or "both" indicating which log(s) the message
+#' should be written to
+#' @param logfile The location of the full log file to write/append to
+#' @param errfile the location of the error log file to write/append to
+#' @param pkglog character. The package-specific log file to write to if
+#' applicable.
+#' @note This function is not intended for direct use by the end user.
+#' @export
 writeGRANLog = function(pkg, msg, type = "full", logfile,
                       errfile, pkglog = NULL)
 {
-    
+
     dt = date()
-    
+
     if(type == "error")
     {
         targ = errfile
@@ -48,7 +48,7 @@ writeGRANLog = function(pkg, msg, type = "full", logfile,
     }
     if(!is.null(pkg) && !is.na(pkg))
         targ = c(targ, pkglog)
-    
+
     fullmsg = paste("\n",err, "pkg:", pkg, "(", dt, ") - ",
         paste(paste0("\t",msg), collapse="\n\t"))
     sapply(targ, function(x) cat(fullmsg, append=TRUE, file=x))
@@ -93,13 +93,14 @@ getCOedVersions = function(codir, manifest = manifest_df(repo),
         branch = branch, repo = repo)
 
     vers = lapply(unname(locs), function(x) {
-                      dsc = tryCatch(readLines(file.path(x, "DESCRIPTION")), error= function(e) e)
+                      dsc = tryCatch(readLines(file.path(x, "DESCRIPTION"),
+                                            warn = FALSE), error= function(e) e)
                       if(is(dsc, "error")) {
                           v = NA_character_
                           names(v) = basename(x)
                           return(v)
                       }
-                          
+
                       vline = grep("^[V|v]ersion:.*", dsc, value = TRUE)
                       v = gsub("^[V|v]ersion: (.*)$", "\\1", vline)
                       pline = grep("^[P|p]ackage:.*", dsc, value = TRUE)
@@ -131,11 +132,11 @@ install.packages2 = function(pkgs, repos, lib,  ..., param = SwitchrParam(),
     ## the keep_outputs=dir logic doesn't work, the files just
     ##end up in both locations!
     ##install.packages(pkgs, ..., keep_outputs=outdir)
-     avail = available.packages(contrib.url(repos, type = "source"))
+    avail = available.packages(contrib.url(repos, type = "source"))
     ## args = list(pkgs = pkgs, repos = repos, lib = lib, ...,
     ##     INSTALL_opts = sprintf("-l %s", lib),
     ##     keep_outputs = outdir)
-    
+
 
     ## tmpfile = tempfile(fileext=".rda")
     ## save(args, outdir, file =tmpfile)
@@ -144,7 +145,7 @@ install.packages2 = function(pkgs, repos, lib,  ..., param = SwitchrParam(),
     ## cat(code, file= codefile)
     ## cmd = paste0("R_LIBS_SITE=", lib, " R_LIBS_USER=",lib, " R", " --no-save <", codefile)
     ## system_w_init(cmd, param = param)
-        install.packages(pkgs = pkgs, repos = repos,
+    install.packages(pkgs = pkgs, repos = repos,
                          INSTALL_opts = sprintf("-l %s", lib), lib = lib,
                          ..., keep_outputs=TRUE)
     ret = sapply(pkgs, function(p)
@@ -205,7 +206,7 @@ trim_PACKAGES = function(dir) {
     if("File" %in% names(pkgsdf))
         fils = pkgsdf$Files
     else
-        
+
         fils = file.path(dir, paste0(pkgsdf$Package, "_", pkgsdf$Version, builtPkgExt()))
     missing = !file.exists(fils)
     pkgsdf = pkgsdf[!missing,]
@@ -220,9 +221,65 @@ trim_PACKAGES = function(dir) {
 
 haveGit = function() nchar(Sys.which("git")) > 0
 
-## update_PACKAGES = function (dir = ".", fields = NULL, type = c("source", "mac.binary", 
-##     "win.binary"), verbose = FALSE, unpacked = FALSE, subdirs = FALSE, 
-##     latestOnly = TRUE, addFiles = FALSE) 
+substrRight <- function(x, n){
+  substr(x, nchar(x)-n+1, nchar(x))
+}
+
+#' Returns the difference between 2 data frames
+#' @author Dinakar Kulkarni <kulkard2@gene.com>
+#' @importFrom dplyr anti_join
+#' @param new_df The new dataframe which you want to compare
+#' @param old_df An older dataframe of the same structure
+#' @return Differences as a dataframe of the same structure
+#' @seealso \code{\link[dplyr]{anti_join}}
+#' @note This function is not intended for direct use by the end user.
+deltaDF <- function(new_df, old_df) {
+  delta <- suppressWarnings(suppressMessages(anti_join(new_df, old_df)))
+  return(delta)
+}
+
+
+#' Checks whether an email ID is valid
+#' @author Dinakar Kulkarni <kulkard2@gene.com>
+#' @param email_id Email ID as a string
+#' @return Boolean
+#' @note This function is not intended for direct use by the end user.
+isValidEmail <- function(email_id) {
+	grepl("\\<[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\>",
+        as.character(email_id), ignore.case=TRUE)
+}
+
+#' Get the OS Type
+#' @author Dinakar Kulkarni <kulkard2@gene.com>
+#' @return OS Type
+#' @note This function is not intended for direct use by the end user.
+getOS <- function(){
+  sysinf <- Sys.info()
+  if (!is.null(sysinf)){
+    os <- sysinf['sysname']
+    if (os == 'Darwin')
+      os <- "osx"
+  } else { ## mystery machine
+    os <- .Platform$OS.type
+    if (grepl("^darwin", R.version$os))
+      os <- "osx"
+    if (grepl("linux-gnu", R.version$os))
+      os <- "linux"
+  }
+  tolower(os)
+}
+
+#' Convert string to numeric representation
+#' @param x String
+#' @return Numeric representation of string
+#' @note This function is not intended for direct use by the end user.
+encode_string <- function(x) {
+  tolower(paste(strtoi(charToRaw(as.character(x)), 16L), collapse = ""))
+}
+
+## update_PACKAGES = function (dir = ".", fields = NULL, type = c("source", "mac.binary",
+##     "win.binary"), verbose = FALSE, unpacked = FALSE, subdirs = FALSE,
+##     latestOnly = TRUE, addFiles = FALSE)
 ## {
 ##     if(!file.exists(file.path(dir, "PACKAGES"))) {
 ##         ret = write_PACKAGES(dir = dir, fields = fields, type = type, verbose = verbose,
@@ -232,8 +289,8 @@ haveGit = function() nchar(Sys.which("git")) > 0
 ##     }
 ##     exst = read.dcf(file.path(dir, "PACKAGES"))
 ##     allfields = colnames(exst)
-    
-##     if (missing(type) && .Platform$OS.type == "windows") 
+
+##     if (missing(type) && .Platform$OS.type == "windows")
 ##         type <- "win.binary"
 ##     type <- match.arg(type)
 ##     nfields <- 0
@@ -246,36 +303,36 @@ haveGit = function() nchar(Sys.which("git")) > 0
 ##         setwd(owd)
 ##         paths <- c("", paths[paths != "."])
 ##     }
-##     else if (is.character(subdirs)) 
+##     else if (is.character(subdirs))
 ##         paths <- c("", subdirs)
 ##     for (path in paths) {
-##         this <- if (nzchar(path)) 
+##         this <- if (nzchar(path))
 ##             file.path(dir, path)
 ##         else dir
-##         desc <- dodbstuff(this, type, 
+##         desc <- dodbstuff(this, type,
 ##             verbose, unpacked, existing = exst)
 ##         if (length(desc)) {
 ##             Files <- names(desc)
 ##             fields <- names(desc[[1L]])
-##             desc <- matrix(unlist(desc), ncol = length(fields), 
+##             desc <- matrix(unlist(desc), ncol = length(fields),
 ##                 byrow = TRUE)
 ##             colnames(desc) <- fields
-##             if (addFiles) 
+##             if (addFiles)
 ##                 desc <- cbind(desc, File = Files)
-##             if (latestOnly) 
+##             if (latestOnly)
 ##                 desc <- .remove_stale_dups(desc)
 ##             license_info <- analyze_licenses(desc[, "License"])
-##             desc[, "License"] <- ifelse(license_info$is_standardizable, 
+##             desc[, "License"] <- ifelse(license_info$is_standardizable,
 ##                 license_info$standardization, NA)
 ##             for (i in seq_len(nrow(desc))) {
-##                 desci <- desc[i, !(is.na(desc[i, ]) | (desc[i, 
+##                 desci <- desc[i, !(is.na(desc[i, ]) | (desc[i,
 ##                   ] == "")), drop = FALSE]
 ##                 write.dcf(desci, file = out)
-##                 if (nzchar(path)) 
+##                 if (nzchar(path))
 ##                   cat("Path: ", path, "\n", sep = "", file = out)
 ##                 cat("\n", file = out)
 ##                 write.dcf(desci, file = outgz)
-##                 if (nzchar(path)) 
+##                 if (nzchar(path))
 ##                   cat("Path: ", path, "\n", sep = "", file = outgz)
 ##                 cat("\n", file = outgz)
 ##             }
@@ -288,10 +345,10 @@ haveGit = function() nchar(Sys.which("git")) > 0
 ## }
 
 
-## dodbupdate = function (dir, type = c("source", "mac.binary", 
+## dodbupdate = function (dir, type = c("source", "mac.binary",
 ##     "win.binary"), verbose = getOption("verbose"), unpacked = FALSE, existing)  {
 ##     type <- match.arg(type)
-##     package_pattern <- switch(type, source = ".*_.*(\\.tar\\..*)$", 
+##     package_pattern <- switch(type, source = ".*_.*(\\.tar\\..*)$",
 ##         mac.binary = ".*_.*(\\.tgz)$", win.binary = ".*_.*(\\.zip)$")
 ##     files <- list.files(dir, pattern = package_pattern)
 ##     fileext = gsub(package_pattern, "\\1", files[1])
@@ -300,25 +357,25 @@ haveGit = function() nchar(Sys.which("git")) > 0
 ##                           x %in% paste0(existing$Package, "_",
 ##                                          existing$Version,
 ##                                          fileext))]
-                                                    
-##     if (!length(files)) 
+
+##     if (!length(files))
 ##         return(list())
 ##     fields <- colnames(existing)
-##     packages <- sapply(strsplit(files, "_", fixed = TRUE), "[", 
+##     packages <- sapply(strsplit(files, "_", fixed = TRUE), "[",
 ##         1L)
 ##     db <- vector(length(files), mode = "list")
 ##     names(db) <- files
 ##     op <- options(warn = -1)
 ##     on.exit(options(op))
-##     if (verbose) 
+##     if (verbose)
 ##         message("Processing packages:")
 ##     if (type == "win.binary") {
 ##         files <- file.path(dir, files)
 ##         for (i in seq_along(files)) {
-##             if (verbose) 
+##             if (verbose)
 ##                 message(paste(" ", files[i]))
 ##             con <- unz(files[i], file.path(packages[i], "DESCRIPTION"))
-##             temp <- tryCatch(read.dcf(con, fields = fields)[1L, 
+##             temp <- tryCatch(read.dcf(con, fields = fields)[1L,
 ##                 ], error = identity)
 ##             if (inherits(temp, "error")) {
 ##                 close(con)
@@ -332,26 +389,26 @@ haveGit = function() nchar(Sys.which("git")) > 0
 ##         dir <- file_path_as_absolute(dir)
 ##         files <- file.path(dir, files)
 ##         cwd <- getwd()
-##         if (is.null(cwd)) 
+##         if (is.null(cwd))
 ##             stop("current working directory cannot be ascertained")
 ##         td <- tempfile("PACKAGES")
-##         if (!dir.create(td)) 
+##         if (!dir.create(td))
 ##             stop("unable to create ", td)
 ##         on.exit(unlink(td, recursive = TRUE), add = TRUE)
 ##         setwd(td)
 ##         for (i in seq_along(files)) {
-##             if (verbose) 
+##             if (verbose)
 ##                 message(paste(" ", files[i]))
 ##             p <- file.path(packages[i], "DESCRIPTION")
 ##             temp <- try(utils::untar(files[i], files = p))
 ##             if (!inherits(temp, "try-error")) {
-##                 temp <- tryCatch(read.dcf(p, fields = fields)[1L, 
+##                 temp <- tryCatch(read.dcf(p, fields = fields)[1L,
 ##                   ], error = identity)
 ##                 if (!inherits(temp, "error")) {
 ##                   if ("NeedsCompilation" %in% fields && is.na(temp["NeedsCompilation"])) {
 ##                     l <- utils::untar(files[i], list = TRUE)
-##                     temp["NeedsCompilation"] <- if (any(l == 
-##                       file.path(packages[i], "src/"))) 
+##                     temp["NeedsCompilation"] <- if (any(l ==
+##                       file.path(packages[i], "src/")))
 ##                       "yes"
 ##                     else "no"
 ##                   }
@@ -363,7 +420,7 @@ haveGit = function() nchar(Sys.which("git")) > 0
 ##         }
 ##         setwd(cwd)
 ##     }
-##     if (verbose) 
+##     if (verbose)
 ##         message("done")
 ##     db = cbind(db, as.matrix(existing))
 ##     db = db[order(db[,"Package"]),]

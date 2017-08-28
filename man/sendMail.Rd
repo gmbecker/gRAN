@@ -4,8 +4,7 @@
 \alias{sendMail}
 \title{Wrapper for sendmail, allows for multiple attachments to be sent}
 \usage{
-sendMail(receiver, subject, body, mailControl = list(smtpServer =
-  "localhost"), sender = paste0("resgran-d@", system("hostname -d")),
+sendMail(receiver, subject, body, repo, mailopts = email_options(repo),
   attachments = NULL)
 }
 \arguments{
@@ -15,9 +14,9 @@ sendMail(receiver, subject, body, mailControl = list(smtpServer =
 
 \item{body}{Email message body as a string}
 
-\item{mailControl}{List object containing SMTP server info}
+\item{repo}{A gRAN repo object}
 
-\item{sender}{Sender's email ID as a string}
+\item{mailopts}{Email options as a list}
 
 \item{attachments}{Files with full paths as an array}
 }
