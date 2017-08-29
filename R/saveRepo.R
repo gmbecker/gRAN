@@ -11,9 +11,11 @@ saveRepoFiles = function(repo) {
   }
   # convert it to a list so we don't rely on GRANBase when loading in GRAN
   cat(format(Sys.time()), file = repolock)
-  saveRepo(repo = repo, filename = normalizePath2(file.path(repobase(repo), "repo.R")))
+  saveRepo(repo = repo, filename = normalizePath2(file.path(repobase(repo), "repo.R"),
+                                                  mustWork = FALSE))
   saveRepo(repo = repo, filename = normalizePath2(file.path(destination(repo),
-    "repo.R")))
+                                                            "repo.R"),
+                                                  mustWork = FALSE))
   file.remove(repolock)
   NULL
 }

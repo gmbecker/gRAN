@@ -278,7 +278,7 @@ setGeneric("install_result_dir", function(repo) standardGeneric("install_result_
 #' @export
 setMethod("install_result_dir","GRANRepository",
           function(repo) file.path(normalizePath2(param(repo)@dest_base),
-                                   param(repo)@repo_name, "InstallResults" ))
+                                   param(repo)@repo_name, "InstallResults/" ))
 
 
 #' repo_url
