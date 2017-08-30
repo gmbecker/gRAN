@@ -1,3 +1,8 @@
+Changes in version 1.6.4 (2017-08-30)
+
+- Bugfixes
+  * Retain first line of log in the output logs instead of replacing it
+
 Changes in version 1.6.3 (2017-08-26)
 
 - New Features
