@@ -7,7 +7,8 @@
 \usage{
 clear_temp_fils(repo, checkout = FALSE)
 
-clear_repo(repo, all = TRUE, checkout = FALSE, archivedir = NULL)
+clear_repo(repo, all = TRUE, checkout = FALSE,
+  archivedir = file.path(repobase(repo), "Archive"))
 }
 \arguments{
 \item{repo}{GRANRepository - The repository to clean}
@@ -20,7 +21,7 @@ Generally this is not necessary (default: FALSE)}
 
 \item{archivedir}{character - Optional. A directory where build packages
 deployed to the repository will be archived. Package versions already in
-the archive will not be overwritten. Defaults to NULL (no archiving).}
+the archive will not be overwritten. Defaults to repobase(repo)/"Archive".}
 }
 \value{
 The GRANRepository object, ready to be rebuilt.

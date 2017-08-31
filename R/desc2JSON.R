@@ -17,6 +17,7 @@ desc2JSON <- function(repo, suffix = "-description.json") {
     if (file.exists(file.path(check_dir, "DESCRIPTION"))) {
       descr_df <- generateDescInfo(file.path(check_dir, pkg))
       descr_df$id <- encode_string(descr_df$Package)
+      descr_df$granrepo <- subrepo
       desc_json <- toJSON(descr_df, pretty = TRUE)
       outfile <- file.path(destination, subrepo, "PkgDocumentation", pkg,
                            paste0(descr_df$Package, suffix))

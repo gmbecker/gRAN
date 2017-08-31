@@ -99,7 +99,10 @@ buildBranchesInRepo <- function( repo, cores = (parallel:::detectCores() - 1), t
     ## this is safe
     sameversion = res == "up-to-date"
     ##this may need to be more sophisticated later if we are building binaries for mac/win?
-    write_PACKAGES(".", type="source")
+    if(!temp)
+        write_PACKAGES(".", type="source", latestOnly = FALSE)
+    else
+        write_PACKAGES(".", type="source", latestOnly = TRUE)
     if(any(res %in% c("failed", "build timed-out"))) {
         warning("Warning: not all packages were succesfully built")
     }
@@ -155,15 +158,18 @@ buildBranchesInRepo <- function( repo, cores = (parallel:::detectCores() - 1), t
     if((temp || grepl("^GRAN", pkg)) && !grepl("--no-build-vignettes", opts))
         opts = c(opts, "--no-build-vignettes")
     evars = c(evars, "R_TESTS=''")
-    ## command <- paste("R CMD build", checkout)
-    command <- paste("R")
+    ## make sure that we hit the actual R that we're currently in, even if
+    ## it's not the default/system R installation
+    command <- file.path(R.home("bin"), "R")
     opts = c(paste("CMD build", checkout), opts)
-    ## if(!temp)
-    ##  #   evars = c(evars, R_LIBS_USER=temp_lib(repo))
+
     evars = c(evars, paste0("R_LIBS=", temp_lib(repo)))
     out = tryCatch(system_w_init(command, args = opts, env = evars, intern = TRUE,
         param = param(repo)), error = function(x) x)
-    if(is(out, "error") || ("status" %in% attributes(out) && attr(out, "status") > 0) || !file.exists(paste0(pkg, "_", vnum, builtPkgExt()))) {
+    ## all the ways we can know it didn't work...
+    if(is(out, "error") ||
+       ("status" %in% attributes(out) && attr(out, "status") > 0) ||
+       !file.exists(paste0(pkg, "_", vnum, builtPkgExt()))) {
         type = if(temp) "Temporary" else "Final"
         logfun(repo)(pkg, paste(type,"Package build failed. R CMD build returned non-zero status"), type ="both")
         logfun(repo)(pkg, c("R CMD build output for failed package build:", out), type="error")

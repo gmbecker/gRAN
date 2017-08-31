@@ -29,6 +29,8 @@ manifestHTML <- function(repo, theme = "bootstrap",
   cnames <- c("name", "lastAttemptVersion", "lastAttemptStatus", "lastAttempt",
               "lastbuiltversion", "lastbuiltstatus", "lastbuilt", "maintainer")
   tmpman <- repo_results(repo)[, cnames]
+  #Don't show suspended pkgs in result
+  tmpman <- tmpman[!(tmpman$name %in% suspended_pkgs(repo)), ]
   tmpman[is.na(tmpman)] = "NA"
 
   # Calculate test Coverage

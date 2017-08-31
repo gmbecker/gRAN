@@ -129,7 +129,11 @@ cleanupInstOut = function(outdir = staging_logs(repo), repo)
     ##     stop("file renaming appears to have failed")
     ## invisible(NULL)
     instlogs = list.files(outdir, pattern = ".*\\.out", full.names=TRUE)
-    res = file.copy(instlogs, install_result_dir(repo), overwrite=TRUE, copy.date=TRUE)
+    if(!file.exists(install_result_dir(repo)))
+        dir.create(install_result_dir(repo), recursive=TRUE)
+    
+    res = file.copy(normalizePath(instlogs),
+                    install_result_dir(repo), overwrite = TRUE, copy.date = TRUE)
     if(!all(res))
         stop("install log copying failed.")
     file.remove(instlogs)

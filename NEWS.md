@@ -1,6 +1,14 @@
-Changes in version 1.6.4 (2017-08-30)
+Changes in version 1.6.4 (2017-08-31)
+
+- New Features
+  * Default to archiving packages when repo is cleared
+  * Do not display suspended packages in the build report
+  * Package JSON has a "granrepo" field which indicates which GRAN repo the package is in
 
 - Bugfixes
+  * Do not build splash pages for packages that are not successfully building
+  * Get rid of spurious warnings
+  * Ensure correct R is invoked when building pkgs.
   * Retain first line of log in the output logs instead of replacing it
 
 Changes in version 1.6.3 (2017-08-26)

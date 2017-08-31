@@ -12,9 +12,11 @@ pkgHTML <- function(repo, suffix = "-index.html", theme = "bootstrap") {
                             sum(repo_results(repo)$building), " packages"),
                             type = "full")
 
+  # Build splash pages only for building packages
   bres <- subset(repo_results(repo), repo_results(repo)$building == TRUE
-                                    & !is.na(repo_results(repo)$buildReason)
-                                    & repo_results(repo)$status != "up-to-date")
+                                  & !is.na(repo_results(repo)$buildReason)
+                                  & repo_results(repo)$status != "up-to-date"
+                                  & !is.na(repo_results(repo)$lastbuiltversion))
   if(nrow(bres) == 0) {
       logfun(repo)("NA", "No packages to create HTML splash pages for",
                    type = "full")
