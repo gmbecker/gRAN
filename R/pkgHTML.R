@@ -2,6 +2,7 @@
 #' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @importFrom htmlTable htmlTable
 #' @importFrom tools file_path_sans_ext
+#' @importFrom jsonlite toJSON
 #' @param repo A gRAN repo object
 #' @param suffix Append a suffix to the HTML splash page
 #' @param theme CSS theme. bootstrap, foundation, semanticui or jqueryui
@@ -43,7 +44,17 @@ pkgHTML <- function(repo, suffix = "-index.html", theme = "bootstrap") {
                                 check_dir), type = "full")
       if (file.exists(file.path(check_dir, pkg_name, "DESCRIPTION"))) {
         descr_df <- generateDescInfo(file.path(check_dir, pkg_name))
-        descr_df <- descr_df[ , !(names(descr_df) %in% c("Authors@R","Collate"))]
+
+        # Create JSON of the DESCRIPTION file
+        descr_df$id <- encode_string(descr_df$Package)
+        descr_df$GranRepo <- paste0("GRAN", repo_name(repo))
+        desc_json <- toJSON(descr_df, pretty = TRUE)
+        json_outfile <- file.path(docdir, paste0(descr_df$Package, "-desc.json"))
+        write(desc_json, json_outfile)
+
+        # Exclude these fields from the splash page
+        descr_df <- descr_df[ , !(names(descr_df) %in%
+                                  c("Authors@R","Collate", "id", "GranRepo"))]
         if("URL" %in% colnames(descr_df)) {
           descr_df$URL <- createURL(descr_df$URL)
         }

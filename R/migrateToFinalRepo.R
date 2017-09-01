@@ -48,7 +48,6 @@ migrateToFinalRepo = function(repo)
     write_PACKAGES(type="source")
     repo <- updateResults(repo)
     dummy <- pkgHTML(repo)
-    dummy <- desc2JSON(repo)
     if(clearstage) {
         out = tryCatch(unlink(list.files(stagingLoc,
                                           pattern = paste0("(PACKAGES|Rcheck|",
