@@ -46,15 +46,16 @@ pkgHTML <- function(repo, suffix = "-index.html", theme = "bootstrap") {
         descr_df <- generateDescInfo(file.path(check_dir, pkg_name))
 
         # Create JSON of the DESCRIPTION file
-        descr_df$id <- encode_string(descr_df$Package)
-        descr_df$GranRepo <- paste0("GRAN", repo_name(repo))
+        reponame <- paste0("GRAN", repo_name(repo))
+        descr_df$id <- encode_string(paste0(reponame, descr_df$Package))
+        descr_df$GranRepo <- reponame
         desc_json <- toJSON(descr_df, pretty = TRUE)
         json_outfile <- file.path(docdir, paste0(descr_df$Package, "-desc.json"))
         write(desc_json, json_outfile)
 
         # Exclude these fields from the splash page
         descr_df <- descr_df[ , !(names(descr_df) %in%
-                                  c("Authors@R","Collate", "id", "GranRepo"))]
+                                  c("Authors@R", "Collate", "id", "GranRepo"))]
         if("URL" %in% colnames(descr_df)) {
           descr_df$URL <- createURL(descr_df$URL)
         }
