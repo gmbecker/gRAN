@@ -2,6 +2,7 @@
 #' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @importFrom htmlTable htmlTable
 #' @importFrom tools file_path_sans_ext
+#' @importFrom jsonlite toJSON
 #' @param repo A gRAN repo object
 #' @param suffix Append a suffix to the HTML splash page
 #' @param theme CSS theme. bootstrap, foundation, semanticui or jqueryui
@@ -12,9 +13,11 @@ pkgHTML <- function(repo, suffix = "-index.html", theme = "bootstrap") {
                             sum(repo_results(repo)$building), " packages"),
                             type = "full")
 
+  # Build splash pages only for building packages
   bres <- subset(repo_results(repo), repo_results(repo)$building == TRUE
-                                    & !is.na(repo_results(repo)$buildReason)
-                                    & repo_results(repo)$status != "up-to-date")
+                                  & !is.na(repo_results(repo)$buildReason)
+                                  & repo_results(repo)$status != "up-to-date"
+                                  & !is.na(repo_results(repo)$lastbuiltversion))
   if(nrow(bres) == 0) {
       logfun(repo)("NA", "No packages to create HTML splash pages for",
                    type = "full")
@@ -41,7 +44,18 @@ pkgHTML <- function(repo, suffix = "-index.html", theme = "bootstrap") {
                                 check_dir), type = "full")
       if (file.exists(file.path(check_dir, pkg_name, "DESCRIPTION"))) {
         descr_df <- generateDescInfo(file.path(check_dir, pkg_name))
-        descr_df <- descr_df[ , !(names(descr_df) %in% c("Authors@R","Collate"))]
+
+        # Create JSON of the DESCRIPTION file
+        reponame <- paste0("GRAN", repo_name(repo))
+        descr_df$id <- encode_string(paste0(reponame, descr_df$Package))
+        descr_df$GranRepo <- reponame
+        desc_json <- toJSON(descr_df, pretty = TRUE)
+        json_outfile <- file.path(docdir, paste0(descr_df$Package, "-desc.json"))
+        write(desc_json, json_outfile)
+
+        # Exclude these fields from the splash page
+        descr_df <- descr_df[ , !(names(descr_df) %in%
+                                  c("Authors@R", "Collate", "id", "GranRepo"))]
         if("URL" %in% colnames(descr_df)) {
           descr_df$URL <- createURL(descr_df$URL)
         }

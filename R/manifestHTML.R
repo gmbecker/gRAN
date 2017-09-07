@@ -29,6 +29,8 @@ manifestHTML <- function(repo, theme = "bootstrap",
   cnames <- c("name", "lastAttemptVersion", "lastAttemptStatus", "lastAttempt",
               "lastbuiltversion", "lastbuiltstatus", "lastbuilt", "maintainer")
   tmpman <- repo_results(repo)[, cnames]
+  #Don't show suspended pkgs in result
+  tmpman <- tmpman[!(tmpman$name %in% suspended_pkgs(repo)), ]
   tmpman[is.na(tmpman)] = "NA"
 
   # Calculate test Coverage
@@ -59,7 +61,7 @@ manifestHTML <- function(repo, theme = "bootstrap",
                                     readChar(x_loc, file.info(x_loc)$size))) {
       cat(log_closer, file = x_loc, append = TRUE, sep = "\n")
       lines <- readLines(x_loc, -1, warn = FALSE)
-      lines[1] <- log_header
+      lines[1] <- paste(log_header, lines[1], sep = "\n")
       writeLines(lines, x_loc)
     }
     y_loc <- file.path(destination(repo), pkglog)
@@ -69,7 +71,7 @@ manifestHTML <- function(repo, theme = "bootstrap",
       lines <- gsub(log_header, "", lines)
       lines <- rev(lines)[1:500] # Retain only last 500 lines
       lines <- rev(lines)
-      lines[1] <- log_header
+      lines[1] <- paste(log_header, lines[1], sep = "\n")
       lines <- lines[!is.na(lines)]
       writeLines(lines, y_loc)
       cat(log_closer, file = y_loc, append = TRUE, sep = "\n")
@@ -79,7 +81,7 @@ manifestHTML <- function(repo, theme = "bootstrap",
                                     readChar(z_loc, file.info(z_loc)$size))) {
       cat(log_closer, file = z_loc, append = TRUE, sep = "\n")
       lines <- readLines(z_loc, -1, warn = FALSE)
-      lines[1] <- log_header
+      lines[1] <- paste(log_header, lines[1], sep = "\n")
       writeLines(lines, z_loc)
     }
 
