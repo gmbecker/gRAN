@@ -23,6 +23,7 @@ Imports:
     hexSticker,
     stats
 Depends:
+    R (>= 3.1.0),
     switchr (>= 0.9.28),
     methods
 Suggests:
