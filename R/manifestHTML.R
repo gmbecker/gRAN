@@ -34,8 +34,12 @@ manifestHTML <- function(repo, theme = "bootstrap",
   tmpman[is.na(tmpman)] = "NA"
 
   # Calculate test Coverage
-  covr <- testCoverage(repo)
-  tmpman$coverage <- covr$coverage[match(tmpman$name, covr$name)]
+  if(check_test_on(repo)) {
+    covr <- testCoverage(repo)
+    tmpman$coverage <- covr$coverage[match(tmpman$name, covr$name)]
+  } else {
+    tmpman$coverage <- NULL
+  }
   covg_report <- file.path("..", "..", "CovrReports", paste0(tmpman$name,
                             "-covr-report.html"))
   tmpman$coverage <- paste0("<a href='", covg_report, "'>", tmpman$coverage, "</a>")

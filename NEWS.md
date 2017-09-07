@@ -1,3 +1,11 @@
+Changes in version 1.6.5 (2017-09-07)
+
+- New Features
+  * Parallelize creation of covr reports
+
+- Bugfixes
+  * Don't create covr reports if check_test is off
+
 Changes in version 1.6.4 (2017-09-01)
 
 - New Features

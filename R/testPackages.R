@@ -131,7 +131,7 @@ cleanupInstOut = function(outdir = staging_logs(repo), repo)
     instlogs = list.files(outdir, pattern = ".*\\.out", full.names=TRUE)
     if(!file.exists(install_result_dir(repo)))
         dir.create(install_result_dir(repo), recursive=TRUE)
-    
+
     res = file.copy(normalizePath(instlogs),
                     install_result_dir(repo), overwrite = TRUE, copy.date = TRUE)
     if(!all(res))
@@ -254,9 +254,10 @@ checkTest = function(repo, cores = (parallel:::detectCores() - 1))
 #' @importFrom utils write.table read.table
 #' @importFrom dplyr intersect
 #' @param repo A gRAN repo object
+#' @param cores How many CPU cores to use?
 #' @return repo A gRAN repo object with updated code coverage info
 #' @export
-testCoverage <- function(repo)
+testCoverage <- function(repo, cores = (parallel:::detectCores() - 1))
 {
     logfun(repo)("NA", paste0("Creating test coverage reports for ",
                               sum(repo_results(repo)$building), " packages"),
@@ -279,7 +280,7 @@ testCoverage <- function(repo)
     coverageDir <- coverage_report_dir(repo)
 
     # Begin test coverage calculations
-    coverage <- suppressWarnings(mapply(function(pkgName) {
+    coverage <- suppressWarnings(mcmapply2(function(pkgName) {
         pkgDir <- file.path(loc, pkgName)
         if (file.exists(pkgDir)) {
             logfun(repo)(pkgName, "Calculating test coverage", type = "full")
@@ -305,7 +306,7 @@ testCoverage <- function(repo)
               "<span class=\"label label-default \">Details</span>"
             }
         }
-    }, pkgName = bres$name))
+    }, pkgName = bres$name, mc.cores = cores))
 
     logfun(repo)("NA", paste0("Completed test coverage reports for ",
                  length(bres$name), " packages."), type = "full")
