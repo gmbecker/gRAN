@@ -173,7 +173,7 @@ pkgHTML <- function(repo, suffix = "-index.html", theme = "bootstrap") {
                                    label = basename(html_file))
             vign_vec2 <- append(vign_vec2, vign_url2)
           }
-          html_vign_header <- paste("<p>PDF Vignettes:", paste(vign_vec2,
+          html_vign_header <- paste("<p>HTML Vignettes:", paste(vign_vec2,
                                                       collapse = ", "), "</p>")
           logfun(repo)(pkg_name, "Created HTML Vignette info", type = "full")
         } else html_vign_header <- ""
@@ -189,7 +189,7 @@ pkgHTML <- function(repo, suffix = "-index.html", theme = "bootstrap") {
                                    label = basename(news_file))
             news_vec <- append(news_vec, news_url)
           }
-          news_header <- paste("<p>PDF Vignettes:", paste(news_vec,
+          news_header <- paste("<p>NEWS files:", paste(news_vec,
                                                       collapse = ", "), "</p>")
           logfun(repo)(pkg_name, "Created NEWS info", type = "full")
         } else news_header <- ""
