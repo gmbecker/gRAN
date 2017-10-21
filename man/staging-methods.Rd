@@ -7,7 +7,8 @@
 \alias{staging_logs}
 \alias{staging_logs,GRANRepository-method}
 \title{staging
-Return the staging directory or the staging_logs to be used when building the repository. If the directory does not exist it will be created.}
+Return the staging directory or the staging_logs to be used when building
+the repository. If the directory does not exist it will be created.}
 \usage{
 staging(repo)
 
@@ -27,5 +28,6 @@ The path to the repository specific directory
 }
 \description{
 staging
-Return the staging directory or the staging_logs to be used when building the repository. If the directory does not exist it will be created.
+Return the staging directory or the staging_logs to be used when building
+the repository. If the directory does not exist it will be created.
 }

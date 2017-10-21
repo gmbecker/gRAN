@@ -1,5 +1,3 @@
-
-
 #'makeRepo
 #'
 #' Make a package repository containing a specified set of packages from
@@ -20,8 +18,6 @@
 #' @docType methods
 #' @rdname makerepo
 #' @export
-
-
 
 setGeneric("makeRepo", function(x, cores = (parallel:::detectCores() - 1),
                                 build_pkgs = NULL,

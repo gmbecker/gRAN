@@ -1,4 +1,3 @@
-
 saveRepoFiles = function(repo) {
   repolock = file.path(repobase(repo), "repo.R.LOCK")
   if (file.exists(repolock)) {

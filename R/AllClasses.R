@@ -266,35 +266,49 @@ RepoBuildParam <- function(
 
 prepDirStructure <- function(basedir, subrepo, temprepo, tempcheckout,
     templibloc, destination) {
-    if(!file.exists(file.path(basedir, subrepo, "src", "contrib")))
+    if (!file.exists(file.path(basedir, subrepo, "src", "contrib")))
         dir.create(file.path(basedir, subrepo, "src", "contrib"),
                    recursive=TRUE)
-    if(!file.exists(file.path(temprepo, "src", "contrib")))
+    if (!file.exists(file.path(basedir, subrepo, "src", "contrib", "Archive")))
+        dir.create(file.path(basedir, subrepo, "src", "contrib", "Archive"),
+                   recursive=TRUE)
+    if (!file.exists(file.path(temprepo, "src", "contrib")))
         dir.create(file.path(temprepo, "src", "contrib"),
                    recursive = TRUE)
-    if(!file.exists(tempcheckout))
+    if (!file.exists(file.path(temprepo, "src", "contrib", "Archive")))
+        dir.create(file.path(temprepo, "src", "contrib", "Archive"),
+                   recursive = TRUE)
+    if (!file.exists(tempcheckout))
         dir.create(tempcheckout, recursive = TRUE)
-    if(!file.exists(templibloc))
+    if (!file.exists(templibloc))
         dir.create(templibloc, recursive = TRUE)
-    if(!file.exists(file.path(basedir, subrepo, "staging")))
+    if (!file.exists(file.path(basedir, subrepo, "staging")))
         dir.create(file.path(basedir, subrepo, "staging"),
                    recursive = TRUE)
-    if(!file.exists(file.path(destination, subrepo, "src", "contrib")))
+    if (!file.exists(file.path(destination, subrepo, "src", "contrib")))
         dir.create(file.path(destination, subrepo, "src", "contrib"),
                    recursive = TRUE)
-    if(!file.exists(file.path(destination, subrepo, "CheckResults")))
+    if (!file.exists(file.path(destination, subrepo, "src", "contrib", "Archive")))
+        dir.create(file.path(destination, subrepo, "src", "contrib", "Archive"),
+                   recursive = TRUE)
+    if (!file.exists(file.path(destination, subrepo, "CheckResults")))
         dir.create(file.path(destination, subrepo, "CheckResults"),
                    recursive = TRUE)
-    if(!file.exists(file.path(destination, subrepo, "SinglePkgLogs")))
+    if (!file.exists(file.path(destination, subrepo, "SinglePkgLogs")))
         dir.create(file.path(destination, subrepo, "SinglePkgLogs"),
                    recursive = TRUE)
-    if(!file.exists(file.path(destination, subrepo, "CovrReports")))
+    # If you're running an Apache HTTP server for your repo, this is handy
+    logs_as_html <- file.path(destination, subrepo, "SinglePkgLogs", ".htaccess")
+    if (!file.exists(logs_as_html)) {
+      cat("AddType text/html .log", file = logs_as_html)
+    }
+    if (!file.exists(file.path(destination, subrepo, "CovrReports")))
         dir.create(file.path(destination, subrepo, "CovrReports"),
                    recursive = TRUE)
-    if(!file.exists(file.path(destination, subrepo, "InstallResults")))
+    if (!file.exists(file.path(destination, subrepo, "InstallResults")))
         dir.create(file.path(destination, subrepo, "InstallResults"),
                    recursive = TRUE)
-    if(!file.exists(file.path(destination, subrepo, "PkgDocumentation")))
+    if (!file.exists(file.path(destination, subrepo, "PkgDocumentation")))
         dir.create(file.path(destination, subrepo, "PkgDocumentation"),
                    recursive = TRUE)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/buildBranchesInRepo.R
 \name{buildBranchesInRepo}
 \alias{buildBranchesInRepo}
-\title{Build SVN Checkouts Into Repository Directory}
+\title{Build SCM Checkouts Into Repository Directory}
 \usage{
 buildBranchesInRepo(repo, cores = (parallel:::detectCores() - 1),
   temp = FALSE, incremental = TRUE, manifest = manifest_df(repo))
@@ -22,7 +22,7 @@ buildBranchesInRepo(repo, cores = (parallel:::detectCores() - 1),
 a list with success and fail elements containing the directories which succeeded and failed the build
 }
 \description{
-create the tarballs in the new repo from the svn branch locs
+Create the tarballs in the new repo from the SCM branch locs
 }
 \author{
 Cory Barr, Gabriel Becker

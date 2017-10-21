@@ -1,4 +1,3 @@
-
 system.file2 = function(..., package = "GRANBase") {
     ret = tryCatch(system.file(..., package = package), error = function(e) e)
 
@@ -133,18 +132,6 @@ install.packages2 = function(pkgs, repos, lib,  ..., param = SwitchrParam(),
     ##end up in both locations!
     ##install.packages(pkgs, ..., keep_outputs=outdir)
     avail = available.packages(contrib.url(repos, type = "source"))
-    ## args = list(pkgs = pkgs, repos = repos, lib = lib, ...,
-    ##     INSTALL_opts = sprintf("-l %s", lib),
-    ##     keep_outputs = outdir)
-
-
-    ## tmpfile = tempfile(fileext=".rda")
-    ## save(args, outdir, file =tmpfile)
-    ## code = sprintf("load('%s'); wd = setwd(outdir);on.exit(setwd(wd)); .libPaths(args$lib); do.call(install.packages, args)", tmpfile)
-    ## codefile = tempfile(pattern="instcode", fileext=".R")
-    ## cat(code, file= codefile)
-    ## cmd = paste0("R_LIBS_SITE=", lib, " R_LIBS_USER=",lib, " R", " --no-save <", codefile)
-    ## system_w_init(cmd, param = param)
     install.packages(pkgs = pkgs, repos = repos,
                          INSTALL_opts = sprintf("-l %s", lib), lib = lib,
                          ..., keep_outputs=TRUE)
@@ -205,9 +192,10 @@ trim_PACKAGES = function(dir) {
     pkgsdf = as.data.frame(pkgs)
     if("File" %in% names(pkgsdf))
         fils = pkgsdf$Files
-    else
-
-        fils = file.path(dir, paste0(pkgsdf$Package, "_", pkgsdf$Version, builtPkgExt()))
+    else {
+        fils = file.path(dir, paste0(pkgsdf$Package, "_",
+                                     pkgsdf$Version, builtPkgExt()))
+    }
     missing = !file.exists(fils)
     pkgsdf = pkgsdf[!missing,]
     out <- file(file.path(dir, "PACKAGES"), "wt")

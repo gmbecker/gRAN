@@ -3,15 +3,19 @@
 #' Create a build report for a repository reflecting the latest build
 #' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @importFrom htmlTable htmlTable
+#' @importFrom jsonlite toJSON
+#' @importFrom tools file_path_sans_ext
 #' @param repo A GRANRepository object
 #' @param theme CSS+JS theme. bootstrap, foundation, semanticui or jqueryui
 #' @param reportfile Where the report should be located
 #' @param riskrpt Whether to build the risk report
+#' @param jsonrpt Whether to create a JSON version of the build report
 #' @return None
 #' @export
 manifestHTML <- function(repo, theme = "bootstrap",
                 reportfile = file.path(destination(repo), "buildreport.html"),
-                riskrpt = FALSE) {
+                riskrpt = FALSE,
+                jsonrpt = FALSE) {
 
   # Overall Build Stats
   title <- paste0("<title>GRAN", repo_name(repo), " Build Report</title>")
@@ -29,9 +33,20 @@ manifestHTML <- function(repo, theme = "bootstrap",
   cnames <- c("name", "lastAttemptVersion", "lastAttemptStatus", "lastAttempt",
               "lastbuiltversion", "lastbuiltstatus", "lastbuilt", "maintainer")
   tmpman <- repo_results(repo)[, cnames]
-  #Don't show suspended pkgs in result
+
+  # Don't show suspended pkgs in result
   tmpman <- tmpman[!(tmpman$name %in% suspended_pkgs(repo)), ]
   tmpman[is.na(tmpman)] = "NA"
+
+  # Create a JSON version of the report if specified
+  if (jsonrpt) {
+    json_outfile <- paste0(file_path_sans_ext(reportfile), ".json")
+    write(toJSON(tmpman, pretty = TRUE), json_outfile)
+    dl_json_link <- paste0("<p><a href=\"", json_outfile,
+                                  "\">View build report as JSON</a><p>")
+  } else {
+    dl_json_link <- ""
+  }
 
   # Calculate test Coverage
   if(check_test_on(repo)) {
@@ -102,8 +117,8 @@ manifestHTML <- function(repo, theme = "bootstrap",
     tmpman$Chronicles[i] <- createURL(pkglog, "Build log")
 
     # Package documentation
-    pkg_doc <- file.path("..", "..", "PkgDocumentation", tmpman$name[i],
-                          paste0(tmpman$name[i], "-index.html"))
+    pkg_doc <- file.path("..", "..", "PkgDocumentation",
+                         tmpman$name[i], "index.html")
     if (file.exists(file.path(destination(repo), pkg_doc))) {
       tmpman$name[i] <- createURL(pkg_doc, tmpman$name[i])
       # Add test coverage badge to spash page
@@ -167,7 +182,7 @@ manifestHTML <- function(repo, theme = "bootstrap",
                       <html> <head>", title, css_tag, js_tag, ds_script,
                       "<body style=\"padding: 20px;\"></head>",
                       summary_header, attmpthtml, "<br/>", build_header,
-                      build_html, risk_rpt_html, "</body></html>")
+                      build_html, risk_rpt_html, dl_json_link, "</body></html>")
   write(final_html, reportfile)
   NULL
 }

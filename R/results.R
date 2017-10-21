@@ -1,4 +1,3 @@
-
 ResultsRow = function(name = NA_character_,
     building = TRUE,
     status = "ok",
@@ -43,7 +42,6 @@ init_results = function(repo) {
 }
 
 
-
 updateResults = function(repo)
 {
     fullres = repo_results(repo)
@@ -61,6 +59,7 @@ updateResults = function(repo)
     repo_results(repo) = fullres
     repo
 }
+
 
 resetResults = function(repo) {
     res = repo_results(repo)

@@ -58,9 +58,9 @@ clear_temp_fils = function(repo, checkout = FALSE) {
 #' (via automatically calling clear_temp_fils). Defaults to TRUE
 #' @param archivedir character - Optional. A directory where build packages
 #' deployed to the repository will be archived. Package versions already in
-#' the archive will not be overwritten. Defaults to repobase(repo)/"Archive".
+#' the archive will not be overwritten. Defaults to archivedir(repo).
 #' @export
-clear_repo = function(repo, all = TRUE, checkout = FALSE, archivedir = file.path(repobase(repo), "Archive")) {
+clear_repo = function(repo, all = TRUE, checkout = FALSE, archivedir = archivedir(repo)) {
     if(all)
         res = clear_temp_fils(repo = repo, checkout = checkout)
     else
