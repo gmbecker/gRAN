@@ -1,8 +1,10 @@
 GRANBase
 ========
 <img src="inst/assets/images/pkg.png" width="150" align="right" />
+
 [![CRAN Release Version and Date](http://www.r-pkg.org/badges/version-last-release/GRANBase)](https://cran.rstudio.com/web/packages/GRANBase/index.html)
-![Downloads from CRAN](http://cranlogs.r-pkg.org/badges/grand-total/GRANBase)
+[![Downloads from CRAN](http://cranlogs.r-pkg.org/badges/grand-total/GRANBase)](https://cran.r-project.org/web/packages/GRANBase/GRANBase.pdf)
+
 
 ## Introduction
 
