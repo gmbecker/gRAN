@@ -39,15 +39,6 @@ You may install the stable, release version of GRANBase from CRAN like this:
 install.packages("GRANBase")
 ```
 
-Or you can install the development version of GRANBase from Github like this:
-```R
-# Make sure you have the devtools package installed
-install.packages("devtools")
-
-# Install GRANBase
-devtools::install_github("gmbecker/gRAN")
-```
-
 ## Contribute
 
 Want to contribute? Great! You can do so by:
