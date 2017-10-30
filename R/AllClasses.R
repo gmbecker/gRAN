@@ -26,7 +26,8 @@ setClass("RepoBuildParam",
                         build_timeout = "numeric",
                         check_timeout = "numeric",
                         email_notifications = "logical",
-                        email_opts = "list"),
+                        email_opts = "list",
+                        repo_archive = "character"),
          prototype = prototype(use_cran_granbase = TRUE,
                                build_timeout = 10*60,
                                check_timeout = 15*60,
@@ -84,6 +85,7 @@ updateGRANRepoObject <- function(object, ...) {
                            auth = object@auth,
                            email_notifications = object@email_notifications,
                            email_opts = object@email_opts,
+                           repo_archive = object@repo_archive,
                            ...)
 
     man = PkgManifest(manifest = object@manifest[,names(ManifestRow())])
@@ -171,8 +173,10 @@ GRANRepository = function(manifest,
 #' @param check_test logical. Should R CMD check be run on the packages as a
 #' cohort. Requires install test.
 #' @param use_cran_granbase logical. Currently ignored.
-#' @param archive_timing numeric. Number of seconds to wait between attempts to pull a package from the CRAN archive
-#' @param archive_retries numeric. Number of times to retry pulling a package from the CRAN archive.
+#' @param archive_timing numeric. Number of seconds to wait between attempts to
+#' pull a package from the CRAN archive
+#' @param archive_retries numeric. Number of times to retry pulling a package
+#' from the CRAN archive.
 #' @param build_timeout numeric. Number of seconds before timeout during
 #' the build step for a single package. Defaults to 10 minutes.
 #' @param check_timeout numeric. Number of seconds before timeout during
@@ -185,6 +189,7 @@ GRANRepository = function(manifest,
 #' number - defaults to 25, \code{sender_email}: Whom should the emails
 #' be sent as? Defaults to "gran<repo_name>@localhost", \code{unsubscribers}:
 #' Vector of Perl-style regexes for unsubscribers - defaults to NULL.
+#' @param repo_archive Archive directory where older package sources will be saved
 #' @rdname repobuildparam
 #' @export
 
@@ -219,7 +224,8 @@ RepoBuildParam <- function(
     email_opts = list(smtp_server = "localhost",
                       smtp_port = 25,
                       sender_email = paste0("gran", repo_name, "@localhost"),
-                      unsubscribers = NULL)) {
+                      unsubscribers = NULL),
+    repo_archive = file.path(destination, repo_name, "src", "contrib", "Archive")) {
     if(!file.exists(basedir))
         dir.create(basedir, recursive = TRUE)
 
@@ -231,30 +237,32 @@ RepoBuildParam <- function(
     if(check_test && !install_test)
         stop("Cannot run check test without install test")
 
-    repo <- new("RepoBuildParam", base_dir = basedir,
-        repo_name = repo_name,
-        temp_repo = normalizePath2(temp_repo),
-        temp_checkout = normalizePath2(temp_checkout),
-        errlog = errlog,
-        logfile = logfile,
-        check_note_ok = check_note_ok,
-        check_warn_ok = check_warn_ok,
-        tempLibLoc = normalizePath2(tempLibLoc),
-        extra_fun = extra_fun,
-        dest_base= normalizePath2(destination),
-        auth = auth,
-        dest_url = dest_url,
-        shell_init = shell_init,
-        logfun = function(x) NULL, #this is replaced below
-        install_test = install_test,
-        check_test = check_test,
-        use_cran_granbase = use_cran_granbase,
-        archive_timing = archive_timing,
-        archive_retries = archive_retries,
-        build_timeout = build_timeout,
-        check_timeout = check_timeout,
-        email_notifications = email_notifications,
-        email_opts = email_opts)
+    repo <- new("RepoBuildParam",
+                base_dir = basedir,
+                repo_name = repo_name,
+                temp_repo = normalizePath2(temp_repo),
+                temp_checkout = normalizePath2(temp_checkout),
+                errlog = errlog,
+                logfile = logfile,
+                check_note_ok = check_note_ok,
+                check_warn_ok = check_warn_ok,
+                tempLibLoc = normalizePath2(tempLibLoc),
+                extra_fun = extra_fun,
+                dest_base= normalizePath2(destination),
+                auth = auth,
+                dest_url = dest_url,
+                shell_init = shell_init,
+                logfun = function(x) NULL, #this is replaced below
+                install_test = install_test,
+                check_test = check_test,
+                use_cran_granbase = use_cran_granbase,
+                archive_timing = archive_timing,
+                archive_retries = archive_retries,
+                build_timeout = build_timeout,
+                check_timeout = check_timeout,
+                email_notifications = email_notifications,
+                email_opts = email_opts,
+                repo_archive = repo_archive)
 
     logfun(repo) <- function(pkg, ...) {
       loginnerfun(pkg, ..., errfile = errlogfile(repo),
@@ -264,13 +272,13 @@ RepoBuildParam <- function(
     repo
 }
 
-prepDirStructure <- function(basedir, subrepo, temprepo, tempcheckout,
-    templibloc, destination) {
-    if (!file.exists(file.path(basedir, subrepo, "src", "contrib")))
-        dir.create(file.path(basedir, subrepo, "src", "contrib"),
+prepDirStructure <- function(basedir, repo_name, temprepo, tempcheckout,
+                             templibloc, destination) {
+    if (!file.exists(file.path(basedir, repo_name, "src", "contrib")))
+        dir.create(file.path(basedir, repo_name, "src", "contrib"),
                    recursive=TRUE)
-    if (!file.exists(file.path(basedir, subrepo, "src", "contrib", "Archive")))
-        dir.create(file.path(basedir, subrepo, "src", "contrib", "Archive"),
+    if (!file.exists(file.path(basedir, repo_name, "src", "contrib", "Archive")))
+        dir.create(file.path(basedir, repo_name, "src", "contrib", "Archive"),
                    recursive=TRUE)
     if (!file.exists(file.path(temprepo, "src", "contrib")))
         dir.create(file.path(temprepo, "src", "contrib"),
@@ -282,33 +290,38 @@ prepDirStructure <- function(basedir, subrepo, temprepo, tempcheckout,
         dir.create(tempcheckout, recursive = TRUE)
     if (!file.exists(templibloc))
         dir.create(templibloc, recursive = TRUE)
-    if (!file.exists(file.path(basedir, subrepo, "staging")))
-        dir.create(file.path(basedir, subrepo, "staging"),
+    if (!file.exists(file.path(basedir, repo_name, "staging")))
+        dir.create(file.path(basedir, repo_name, "staging"),
                    recursive = TRUE)
-    if (!file.exists(file.path(destination, subrepo, "src", "contrib")))
-        dir.create(file.path(destination, subrepo, "src", "contrib"),
+    if (!file.exists(file.path(destination, repo_name, "src", "contrib")))
+        dir.create(file.path(destination, repo_name, "src", "contrib"),
                    recursive = TRUE)
-    if (!file.exists(file.path(destination, subrepo, "src", "contrib", "Archive")))
-        dir.create(file.path(destination, subrepo, "src", "contrib", "Archive"),
+    if (!file.exists(file.path(destination, repo_name, "CheckResults")))
+        dir.create(file.path(destination, repo_name, "CheckResults"),
                    recursive = TRUE)
-    if (!file.exists(file.path(destination, subrepo, "CheckResults")))
-        dir.create(file.path(destination, subrepo, "CheckResults"),
-                   recursive = TRUE)
-    if (!file.exists(file.path(destination, subrepo, "SinglePkgLogs")))
-        dir.create(file.path(destination, subrepo, "SinglePkgLogs"),
+    chklogs_as_html <- file.path(destination, repo_name, "CheckResults", ".htaccess")
+    if (!file.exists(chklogs_as_html)) {
+      cat("AddType text/html .log", file = chklogs_as_html)
+    }
+    if (!file.exists(file.path(destination, repo_name, "SinglePkgLogs")))
+        dir.create(file.path(destination, repo_name, "SinglePkgLogs"),
                    recursive = TRUE)
     # If you're running an Apache HTTP server for your repo, this is handy
-    logs_as_html <- file.path(destination, subrepo, "SinglePkgLogs", ".htaccess")
-    if (!file.exists(logs_as_html)) {
-      cat("AddType text/html .log", file = logs_as_html)
+    pkglogs_as_html <- file.path(destination, repo_name, "SinglePkgLogs", ".htaccess")
+    if (!file.exists(pkglogs_as_html)) {
+      cat("AddType text/html .log", file = pkglogs_as_html)
     }
-    if (!file.exists(file.path(destination, subrepo, "CovrReports")))
-        dir.create(file.path(destination, subrepo, "CovrReports"),
+    if (!file.exists(file.path(destination, repo_name, "CovrReports")))
+        dir.create(file.path(destination, repo_name, "CovrReports"),
                    recursive = TRUE)
-    if (!file.exists(file.path(destination, subrepo, "InstallResults")))
-        dir.create(file.path(destination, subrepo, "InstallResults"),
+    if (!file.exists(file.path(destination, repo_name, "InstallResults")))
+        dir.create(file.path(destination, repo_name, "InstallResults"),
                    recursive = TRUE)
-    if (!file.exists(file.path(destination, subrepo, "PkgDocumentation")))
-        dir.create(file.path(destination, subrepo, "PkgDocumentation"),
+    instlogs_as_html <- file.path(destination, repo_name, "InstallResults", ".htaccess")
+    if (!file.exists(instlogs_as_html)) {
+      cat("AddType text/html .log", file = instlogs_as_html)
+    }
+    if (!file.exists(file.path(destination, repo_name, "PkgDocumentation")))
+        dir.create(file.path(destination, repo_name, "PkgDocumentation"),
                    recursive = TRUE)
 }

@@ -1,4 +1,4 @@
-Changes in version 1.6.5 (2017-10-20)
+Changes in version 1.6.5 (2017-10-30)
 
 - New Features
   * Parallelize creation of covr reports

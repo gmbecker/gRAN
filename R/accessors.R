@@ -145,9 +145,6 @@ setMethod("staging_logs", "GRANRepository", function(repo) {
 })
 
 
-
-
-
 #' temporary library
 #'
 #' @param repo A GRANRepository object
@@ -190,6 +187,7 @@ setMethod("destination", "GRANRepository",
           function(repo) file.path(normalizePath2(param(repo)@dest_base),
                                    param(repo)@repo_name,  "src", "contrib"))
 
+
 #' archivedir
 #' Return the full path to the archive directory for the final repository
 #' deployment.
@@ -205,7 +203,16 @@ setGeneric("archivedir", function(repo) standardGeneric("archivedir"))
 #' @aliases archivedir,GRANRepository-method
 #' @export
 setMethod("archivedir", "GRANRepository",
-          function(repo) file.path(destination(repo), "Archive"))
+          function(repo) {
+            archive_dir <- param(repo)@repo_archive
+            if (is.null(archive_dir) || identical(archive_dir, character(0))) {
+              archive_dir <- file.path(destination(repo), "Archive")
+            }
+            if(!file.exists(archive_dir)) {
+                dir.create(archive_dir, recursive = TRUE)
+            }
+            return(archive_dir)
+})
 
 #' dest_base
 #' Return the full path to the contrib directory for the final repository
