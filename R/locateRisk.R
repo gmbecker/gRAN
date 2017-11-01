@@ -17,8 +17,7 @@ buildRiskReport = function(repo,
                            liblocs = .libPaths(),
                            repo_urls = getOption("repos"),
                            file = file.path(destination(repo), "update-risk.html"),
-                           theme = "bootstrap")
-{
+                           theme = "bootstrap") {
   if (class(to_update) == "matrix") {
     oldmat = to_update
     to_update = to_update[, "Package"]
@@ -37,6 +36,12 @@ buildRiskReport = function(repo,
   oldmat$ImpPkgsAffected = sapply(risks$splash_damage, function(vec, imp)
     sum(imp %in% vec), imp = important_pkgs)
   rownames(oldmat) <- NULL
+
+  # Create the assets directory if it's missing
+  if(!file.exists(file.path(destination(repo), "assets"))) {
+    assets_folder <- system.file2("assets", package = "GRANBase")
+    file.copy(assets_folder, destination(repo), recursive = TRUE)
+  }
 
   css_tag <- paste0(
     "<link rel=\"stylesheet\" type=\"text/css\"",
