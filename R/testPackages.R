@@ -98,7 +98,7 @@ installTest = function(repo, cores = (parallel:::detectCores() - 1))
                           repos = reps,
                           type = "source",
                           dependencies = TRUE,
-                          ## Ncpus = cores
+                          Ncpus = cores,
                           param = param(repo),
                           outdir = staging_logs(repo))
   success = processInstOut(names(res), res, repo)
@@ -394,7 +394,7 @@ testCoverage <-
                    sum(repo_results(repo)$building),
                    " packages"
                  ),
-                 type = "full")
+                 type = "both")
 
     # Determine lib checkout location
     loc <- checkout_dir(repo)
@@ -409,7 +409,7 @@ testCoverage <-
       )
     if (nrow(bres) == 0) {
       logfun(repo)("NA", "No packages to check test coverage for",
-                   type = "full")
+                   type = "both")
       return(repo)
     }
 
@@ -420,7 +420,7 @@ testCoverage <-
     coverage <- suppressWarnings(mcmapply2(function(pkgName) {
       pkgDir <- file.path(loc, pkgName)
       if (file.exists(pkgDir)) {
-        logfun(repo)(pkgName, "Calculating test coverage", type = "full")
+        logfun(repo)(pkgName, "Calculating test coverage", type = "both")
         pkgCovg <- tryCatch(
           package_coverage(path = pkgDir),
           error = function(e)
@@ -445,7 +445,7 @@ testCoverage <-
           error = function(e)
             NULL
         )
-        logfun(repo)(pkgName, "Completed test coverage", type = "full")
+        logfun(repo)(pkgName, "Completed test coverage", type = "both")
         if (is.numeric(percentCovg) && !is.nan(percentCovg)) {
           paste("<span class=\"label",
                 label,
@@ -464,7 +464,7 @@ testCoverage <-
                    length(bres$name),
                    " packages."
                  ),
-                 type = "full")
+                 type = "both")
     covg <- as.data.frame(coverage)
     covg$name <- rownames(covg)
 

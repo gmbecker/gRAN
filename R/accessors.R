@@ -250,6 +250,23 @@ setMethod("check_result_dir","GRANRepository",
                                    param(repo)@repo_name, "CheckResults" ))
 
 
+#' backup_archive
+#' Return path where packages are backed up by default when clearing the repo
+#'
+#' @rdname backup_archive-methods
+#' @param repo a GRANRepository object
+#' @return Directory where packages are backed up by default when clearing repo
+#' @docType methods
+#' @export
+setGeneric("backup_archive", function(repo) standardGeneric("backup_archive"))
+#' @rdname backup_archive-methods
+#' @aliases backup_archive, GRANRepository-method
+#' @export
+setMethod("backup_archive", "GRANRepository",
+          function(repo) file.path(normalizePath2(param(repo)@dest_base),
+                                   param(repo)@repo_name, "Archive" ))
+
+
 #' coverage_report_dir
 #' Return the path where test coverage reports for packages will be deployed
 #' for use in the build report.
