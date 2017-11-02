@@ -86,8 +86,8 @@ GRANonGRAN = function(repo) {
   }
 
   if (!cran_use_ok) {
-    ## Force switchr and GRANBase into the manifest and make them build
-    ## Don't build them if there has been no version bump
+    # Force switchr and GRANBase into the manifest and make them build
+    # Don't build them if there has been no version bump
 
     pkgs <- c("switchr",     #[1]
               "GRANBase")    #[2]
@@ -131,7 +131,9 @@ GRANonGRAN = function(repo) {
     # if old_gran_ver is not the same as curr_gran_ver,
     # then force them into the repo and build them
     # Otherwise, don't force them in
-    if ((old_switchr_ver != curr_switchr_ver) || (old_gran_ver != curr_gran_ver)) {
+    force_switchr <- compareVersion(curr_switchr_ver, old_switchr_ver) == 1
+    force_gran <- compareVersion(curr_gran_ver, old_gran_ver) == 1
+    if (force_switchr || force_gran) {
       repo = addPkg(repo,
                     name = pkgs,
                     url = repo_urls,
