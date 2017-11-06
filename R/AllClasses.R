@@ -127,6 +127,8 @@ GRANRepository = function(manifest,
     new("GRANRepository", manifest = manifest, results = results, param = param)
 }
 
+rm_slashes = function(x) gsub("/", "_", x)
+
 
 #' RepoBuildParam
 #'
