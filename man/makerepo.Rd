@@ -55,3 +55,6 @@ A GRANRepository object which has used to create a repository.
 Make a package repository containing a specified set of packages from
 various sources
 }
+\references{
+Becker G, Barr C, Gentleman R, Lawrence M; Enhancing Reproducibility and Collaboration via Management of R Package Cohorts. Journal of Statistical Software, 81(1). 2017. doi: 10.18637/jss.v082.i01
+}

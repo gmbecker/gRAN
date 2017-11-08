@@ -273,7 +273,7 @@ readPkgsNEWS = function(df,
       unlink(tmplib)
     return(as.data.frame(newsres))
   } else
-    return(NULL)
+      return(NULL)
 }
 
 globalVariables("Version")
