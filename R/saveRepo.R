@@ -1,4 +1,3 @@
-
 saveRepoFiles = function(repo) {
   repolock = file.path(repobase(repo), "repo.R.LOCK")
   if (file.exists(repolock)) {
@@ -28,9 +27,9 @@ finalizeRepo = function(repo) {
       "scripts", "getGRAN.R"), file.path(repobase(repo), "getGRAN.R"))
   }
   if (email_notify(repo)) {
-      logfun(repo)("NA", "Sending email notifications...", type = "full")
+      logfun(repo)("NA", "Sending email notifications...", type = "both")
       emailNotifier(repo)
-      logfun(repo)("NA", "Completed email delivery", type = "full")
+      logfun(repo)("NA", "Completed email delivery", type = "both")
   }
   repo
 }

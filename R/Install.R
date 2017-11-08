@@ -11,8 +11,8 @@
 #' @export
 #' @importMethodsFrom switchr install_packages
 
-
-setMethod("install_packages", c(pkgs = "character", repos= "GRANRepository"), function(pkgs, repos,versions, verbose, ...) {
-    install_packages(pkgs = pkgs, repos = c(repo_url(repos), defaultRepos()),
-            verbose = verbose, ...)
+setMethod("install_packages", c(pkgs = "character", repos= "GRANRepository"),
+    function(pkgs, repos,versions, verbose, ...) {
+        install_packages(pkgs = pkgs, repos = c(repo_url(repos), defaultRepos()),
+                         verbose = verbose, ...)
 })

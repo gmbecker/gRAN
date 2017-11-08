@@ -45,7 +45,8 @@ setMethod("makeRepo", "GRANRepository",
                    ...) {
     message(paste("Started makeRepo at", Sys.time()))
     if(!haveGit()) {
-        message("Your system does not appear to have Git available. Returning NULL from makeRepo")
+        message("Your system does not appear to have Git available. ",
+                "Returning NULL from makeRepo")
         return(NULL)
     }
     repo = x
@@ -53,15 +54,16 @@ setMethod("makeRepo", "GRANRepository",
         repo2 = tryCatch(loadRepo(paste(destination(repo), "repo.R",
                                         sep="/")), error = function(x) NULL)
     else
-        repo2 = suppressWarnings(tryCatch(loadRepo(paste(repo_url(repo), "repo.R", sep="/")),
-                                          error = function(x) NULL))
+        repo2 = suppressWarnings(tryCatch(
+                              loadRepo(paste(repo_url(repo), "repo.R", sep="/")), 
+                              error = function(x) NULL))
     if(!is.null(repo2) ) {
         res = repo_results(repo)
         res2 = repo_results(repo2)
-        if(any(!is.na(res$lastAttempt)) && (max(res$lastAttempt, na.rm=TRUE) < max(res2$lastAttempt,
-                                                                                   na.rm=TRUE))) {
+        if(any(!is.na(res$lastAttempt)) &&
+        (max(res$lastAttempt, na.rm=TRUE) < max(res2$lastAttempt, na.rm=TRUE))) {
             warning("Loading latest results from specified repository")
-                      repo = repo2
+            repo = repo2
         }
     }
     repo = init_results(repo)

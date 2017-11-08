@@ -30,23 +30,32 @@ emailNotifier <- function (repo,
   # Get the failure info from the repo object
   if (!file.exists(manifestFile)) {
     failedPkgManifest_old <- getFailureInfo(repo)
-    failedPkgManifest_old <- failedPkgManifest_old[0, ]
+    failedPkgManifest_old <- failedPkgManifest_old[0,]
   } else {
-    failedPkgManifest_old <- as.data.frame(read.csv(manifestFile, header=TRUE))
+    failedPkgManifest_old <-
+      as.data.frame(read.csv(manifestFile, header = TRUE))
   }
 
   failedPkgManifest_new <- getFailureInfo(repo)
 
   # Find the differences/delta between the new and old manifests
-  cnames <- c("name", "version", "lastAttemptStatus",
-              "lastAttemptVersion", "email")
+  cnames <- c("name",
+              "version",
+              "lastAttemptStatus",
+              "lastAttemptVersion",
+              "email")
   failedPkgManifest_old <- failedPkgManifest_old[, cnames]
   failedPkgManifest_new <- failedPkgManifest_new[, cnames]
   write.csv(failedPkgManifest_old, file = manifestFile)
-  notifiablePkgs <- tryCatch(deltaDF(failedPkgManifest_new, failedPkgManifest_old),
-                    error = function(e) {
-                      setNames(data.frame(matrix(ncol = length(cnames), nrow = 0)), cnames)
-                    })
+  notifiablePkgs <-
+    tryCatch(
+      deltaDF(failedPkgManifest_new, failedPkgManifest_old),
+      error = function(e) {
+        setNames(data.frame(matrix(
+          ncol = length(cnames), nrow = 0
+        )), cnames)
+      }
+    )
 
   # Send the notifications
   notifyManifest(notifiablePkgs,
@@ -66,7 +75,9 @@ emailNotifier <- function (repo,
 #' @return String that is alphabetically sorted
 #' @note This function is not intended for direct use by the end user.
 sortDelimitedString <- function(string, delimiter = ",", ...) {
-  trimws(toString(sort(unlist(strsplit(string, split=delimiter)), ...)))
+  trimws(toString(sort(unlist(
+    strsplit(string, split = delimiter)
+  ), ...)))
 }
 
 
@@ -81,27 +92,41 @@ getFailureInfo <- function(repo) {
     stop(paste("Missing arguments to", match.call()[[1]]))
   }
 
-  cnames <- c("name", "version", "lastAttempt", "lastAttemptStatus",
-              "lastAttemptVersion", "lastbuilt", "lastbuiltversion",
-              "lastbuiltstatus", "maintainer")
+  cnames <- c(
+    "name",
+    "version",
+    "lastAttempt",
+    "lastAttemptStatus",
+    "lastAttemptVersion",
+    "lastbuilt",
+    "lastbuiltversion",
+    "lastbuiltstatus",
+    "maintainer"
+  )
 
   RepoResultsDF <- repo_results(repo)[, cnames]
-  RepoResultsDF <- RepoResultsDF[! RepoResultsDF$name %in% suspended_pkgs(repo), ]
-  failedPackages <- RepoResultsDF[grep("fail", RepoResultsDF$lastAttemptStatus),]
-  failedPackages <- failedPackages[complete.cases(failedPackages[, "maintainer"]),]
-  failedPackages$email <- regmatches(failedPackages$maintainer,
-                                     gregexpr("(?<=\\<).*?(?=\\>)",
-                                     failedPackages$maintainer, perl = T))
+  RepoResultsDF <-
+    RepoResultsDF[!RepoResultsDF$name %in% suspended_pkgs(repo),]
+  failedPackages <-
+    RepoResultsDF[grep("fail", RepoResultsDF$lastAttemptStatus), ]
+  failedPackages <-
+    failedPackages[complete.cases(failedPackages[, "maintainer"]), ]
+  failedPackages$email <- regmatches(
+    failedPackages$maintainer,
+    gregexpr("(?<=\\<).*?(?=\\>)",
+             failedPackages$maintainer, perl = T)
+  )
   failedPackages$email <- as.character(failedPackages$email)
   failedPackages$email <- gsub("c\\(\"", "", failedPackages$email)
-  failedPackages$email <- gsub("\", \"", ",", failedPackages$email )
+  failedPackages$email <- gsub("\", \"", ",", failedPackages$email)
   failedPackages$email <- gsub("\"\\)", "", failedPackages$email)
 
   for (i in 1:NROW(failedPackages)) {
     failedPackages[i, "email"] = sortDelimitedString(failedPackages[i, "email"])
   }
 
-  failedPackages <- failedPackages[, !(colnames(failedPackages) %in% c("maintainer"))]
+  failedPackages <-
+    failedPackages[,!(colnames(failedPackages) %in% c("maintainer"))]
   rownames(failedPackages) <- NULL
 
   return(failedPackages)
@@ -124,7 +149,8 @@ sendMail <- function(receiver,
                      repo,
                      mailopts = email_options(repo),
                      attachments = NULL) {
-  if (missing(receiver) || missing(subject) || missing(body) || missing(repo)) {
+  if (missing(receiver) ||
+      missing(subject) || missing(body) || missing(repo)) {
     stop(paste("Missing mandatory arguments to", match.call()[[1]]))
   }
 
@@ -139,17 +165,28 @@ sendMail <- function(receiver,
 
   for (attachmentPath in attachments) {
     if (!file.exists(attachmentPath)) {
-      stop(paste("Halting execution. Please check that the file",
-                 attachmentPath, "exists"))
+      stop(paste(
+        "Halting execution. Please check that the file",
+        attachmentPath,
+        "exists"
+      ))
     }
     attachmentName <- basename(attachmentPath)
-    attachmentObject <- mime_part(x = attachmentPath, name = attachmentName)
-    bodyWithAttachment[[length(bodyWithAttachment) + 1]] <- attachmentObject
+    attachmentObject <-
+      mime_part(x = attachmentPath, name = attachmentName)
+    bodyWithAttachment[[length(bodyWithAttachment) + 1]] <-
+      attachmentObject
   }
   sendmailV <- Vectorize(sendmail , vectorize.args = "to")
-  receiver <- unlist(strsplit(receiver, split=","))
-  status <- sendmailV(from = sender, to = receiver, subject = subject,
-                     msg = bodyWithAttachment, control = mailControl)
+  receiver <- unlist(strsplit(receiver, split = ","))
+  status <-
+    sendmailV(
+      from = sender,
+      to = receiver,
+      subject = subject,
+      msg = bodyWithAttachment,
+      control = mailControl
+    )
 
   if (status[[1]] != 221) {
     stop(paste("Failed to send email to", receiver))
@@ -173,19 +210,29 @@ notifyManifest <- function(manifest, repo, ...) {
   unsubscribe_list <- email_options(repo)["unsubscribers"]
   for (emailID in unique(manifest$email)) {
     if (isValidEmail(emailID)) {
-      subDF <- manifest[manifest[, "email"] == emailID, ]
-      emailSubject <- paste0("Packages that failed to build on GRAN",
-                              repo@param@repo_name, ": ", Sys.time())
-      emailBody <- htmlTable(subDF[, c("name", "version", "lastAttemptStatus")],
-                             caption = "The following packages failed to build in GRAN:",
-                             css.cell = ("padding-left: 1em; padding-right: 1em"),
-                             rnames = rep("",nrow(subDF)),
-                             tfoot = paste("<br>To fix this, please checkin",
-                             "fixes to the packages including a version bump, ",
-                             "and they'll be rebuilt the following night.<br>",
-                             "Log info available here:", buildReportURL(repo)))
-      is_unsubscriber <- grepl(paste(unsubscribe_list, collapse="|"), emailID,
-                               perl = TRUE)
+      subDF <- manifest[manifest[, "email"] == emailID,]
+      emailSubject <-
+        paste0("Packages that failed to build on GRAN",
+               repo@param@repo_name,
+               ": ",
+               Sys.time())
+      emailBody <-
+        htmlTable(
+          subDF[, c("name", "version", "lastAttemptStatus")],
+          caption = "The following packages failed to build in GRAN:",
+          css.cell = ("padding-left: 1em; padding-right: 1em"),
+          rnames = rep("", nrow(subDF)),
+          tfoot = paste(
+            "<br>To fix this, please checkin",
+            "fixes to the packages including a version bump, ",
+            "and they'll be rebuilt the following night.<br>",
+            "Log info available here:",
+            buildReportURL(repo)
+          )
+        )
+      is_unsubscriber <-
+        grepl(paste(unsubscribe_list, collapse = "|"), emailID,
+              perl = TRUE)
       if (!is_unsubscriber) {
         sendMail(emailID, emailSubject, emailBody, repo, ...)
       }
@@ -199,6 +246,6 @@ notifyManifest <- function(manifest, repo, ...) {
 #' @note This function is not intended for direct use by the end user.
 buildReportURL <- function(repo) {
   base_url <- param(repo)@dest_url
-  sub_url <- gsub("^.*\\//","", destination(repo))
+  sub_url <- gsub("^.*\\//", "", destination(repo))
   paste0(base_url, "/", sub_url, "/buildreport.html")
 }

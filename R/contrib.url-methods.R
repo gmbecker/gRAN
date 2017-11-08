@@ -25,7 +25,10 @@ setMethod("contrib.url", "GRANRepository", function(repos, type) {
 #' @rdname availpkgs
 #' @docType methods
 #' @export
-setGeneric("available.packages", function(contriburl, method, fields = NULL, type = getOption("pkgType"), filters = NULL, repos = NULL) standardGeneric("available.packages"))
+setGeneric("available.packages", function(contriburl, method, fields = NULL,
+                                          type = getOption("pkgType"),
+                                          filters = NULL, repos = NULL)
+                                          standardGeneric("available.packages"))
 
 #' @rdname availpkgs
 #' @aliases available.packages,ANY
@@ -35,7 +38,8 @@ setMethod("available.packages", "ANY",
                     filters = NULL,
                     repos = NULL)
           {
-              args = list(contriburl = contriburl, fields = fields, type = type, filters = filters)
+              args = list(contriburl = contriburl, fields = fields,
+                          type = type, filters = filters)
               if("repos" %in% names(formals(utils::available.packages)))
                   args$repos = repos
               else if(!is.null(repos))
@@ -45,7 +49,6 @@ setMethod("available.packages", "ANY",
 
               do.call(utils::available.packages, args)
           })
-
 
 #' @rdname availpkgs
 #' @aliases available.packages,GRANRepository

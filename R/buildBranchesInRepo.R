@@ -1,7 +1,7 @@
-#' create the tarballs in the new repo from the svn branch locs
+#' Create the tarballs in the new repo from the SCM branch locs
 #'
 #'
-#' @title Build SVN Checkouts Into Repository Directory
+#' @title Build SCM Checkouts Into Repository Directory
 #' @param repo a GRANRepository object
 #' @param cores number of cores to use during build process. defaults to (parallel:::detectCores() - 1)
 #' @param temp logical. whether we are building the temp or final version of the repository
@@ -12,9 +12,10 @@
 #' @importFrom tools write_PACKAGES
 #' @importFrom utils compareVersion
 #'
-buildBranchesInRepo <- function( repo, cores = (parallel:::detectCores() - 1), temp=FALSE,
-                                incremental = TRUE, manifest = manifest_df(repo)) {
-
+buildBranchesInRepo <- function(repo, cores = (parallel:::detectCores() - 1),
+                                temp=FALSE,
+                                incremental = TRUE,
+                                manifest = manifest_df(repo)) {
     binds = getBuilding(repo = repo)
     if(!sum(binds))
     {
@@ -23,8 +24,7 @@ buildBranchesInRepo <- function( repo, cores = (parallel:::detectCores() - 1), t
     }
     manifest = getBuildingManifest(repo = repo)
     results = getBuildingResults(repo = repo)
-    svnCheckoutsLoc = getCheckoutLocs(checkout_dir(repo), manifest,
-        manifest$branch)
+    scmCheckoutsLoc = getCheckoutLocs(checkout_dir(repo), manifest, manifest$branch)
     if(temp) {
         repoLoc = temp_repo(repo)
         if(!grepl("src/contrib", repoLoc, fixed=TRUE))
@@ -34,7 +34,8 @@ buildBranchesInRepo <- function( repo, cores = (parallel:::detectCores() - 1), t
             else
                 repoLoc = file.path(repoLoc, "src", "contrib")
         }
-        opts = c("--no-build-vignettes", "--no-manual", "--no-resave-data")
+        #opts = c("--no-build-vignettes", "--no-manual", "--no-resave-data")
+        opts = c("--no-build-vignettes", "--no-resave-data")
     } else {
         repoLoc = staging(repo)
         opts = "--resave-data"
@@ -51,7 +52,7 @@ buildBranchesInRepo <- function( repo, cores = (parallel:::detectCores() - 1), t
         ## Only build  packages into the temp repo that aren't already there.
         ## Not doing this was causing unreasonably slow times when
         ## not very many packages ended up being actually built
-        oldvers = character(length(svnCheckoutsLoc))
+        oldvers = character(length(scmCheckoutsLoc))
         names(oldvers) = results$name
         avl = tryCatch(available.packages(makeFileURL( repoLoc), filters= "duplicates"),
             error = function(x) x)
@@ -71,7 +72,7 @@ buildBranchesInRepo <- function( repo, cores = (parallel:::detectCores() - 1), t
     vers_restrict = subset(versions_df(repo), versions_df(repo)$name %in% manifest$name)
 
     res <- mcmapply2(function(...) tryCatch(.innerBuild(...), error = function(e) c("0.0-0" = "failed")),
-                     checkout = svnCheckoutsLoc,
+                     checkout = scmCheckoutsLoc,
                      repo = list(repo), opts = opts,
                      mc.cores=cores,
                                         #XXX shouldn't need the as.character...
@@ -80,9 +81,7 @@ buildBranchesInRepo <- function( repo, cores = (parallel:::detectCores() - 1), t
                      vers_restr = vers_restrict$version,
                      temp = temp,
                      USE.NAMES=FALSE,
-                     mc.preschedule = FALSE
-
-                     )
+                     mc.preschedule = FALSE)
     versions = names(res)
     res = unlist(res)
     ## at the temp stage we don't want to include anything
@@ -99,10 +98,13 @@ buildBranchesInRepo <- function( repo, cores = (parallel:::detectCores() - 1), t
     ## this is safe
     sameversion = res == "up-to-date"
     ##this may need to be more sophisticated later if we are building binaries for mac/win?
+    updateArchive(repo = repo,
+                  repodest = ".",
+                  archive = file.path(".", "Archive"))
     if(!temp)
-        write_PACKAGES(".", type="source", latestOnly = FALSE)
+        write_PACKAGES(".", type = "source", latestOnly = FALSE)
     else
-        write_PACKAGES(".", type="source", latestOnly = TRUE)
+        write_PACKAGES(".", type = "source", latestOnly = TRUE)
     if(any(res %in% c("failed", "build timed-out"))) {
         warning("Warning: not all packages were succesfully built")
     }
@@ -114,7 +116,7 @@ buildBranchesInRepo <- function( repo, cores = (parallel:::detectCores() - 1), t
     results$maintainer = getMaintainers(checkout_dir(repo),
                            manifest = manifest)
     repo_results(repo)[binds,] = results
-    repo
+    return(repo)
 
 }
 

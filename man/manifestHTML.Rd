@@ -6,7 +6,7 @@
 \usage{
 manifestHTML(repo, theme = "bootstrap",
   reportfile = file.path(destination(repo), "buildreport.html"),
-  riskrpt = FALSE)
+  riskrpt = FALSE, jsonrpt = FALSE)
 }
 \arguments{
 \item{repo}{A GRANRepository object}
@@ -16,6 +16,8 @@ manifestHTML(repo, theme = "bootstrap",
 \item{reportfile}{Where the report should be located}
 
 \item{riskrpt}{Whether to build the risk report}
+
+\item{jsonrpt}{Whether to create a JSON version of the build report}
 }
 \value{
 None

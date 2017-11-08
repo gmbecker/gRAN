@@ -46,6 +46,7 @@ setMethod("errlogfile", "GRANRepository", function(repo) {
 #' @aliases errlogfile,RepoBuildParam-method
 setMethod("errlogfile", "RepoBuildParam", function(repo) repo@errlog)
 
+
 #' Retrieve the path to a GRAN (sub) repository
 #' @rdname location-methods
 #' @param repo A GRANRepository object.
@@ -111,7 +112,8 @@ setMethod("repobase", "GRANRepository", function(repo) {
 
 
 #' staging
-#' Return the staging directory or the staging_logs to be used when building the repository. If the directory does not exist it will be created.
+#' Return the staging directory or the staging_logs to be used when building
+#' the repository. If the directory does not exist it will be created.
 #'
 #' @rdname staging-methods
 #' @param repo a GRANRepository object
@@ -141,9 +143,6 @@ setMethod("staging_logs", "GRANRepository", function(repo) {
         dir.create(ret, recursive=TRUE)
     normalizePath2(ret)
 })
-
-
-
 
 
 #' temporary library
@@ -184,10 +183,36 @@ setGeneric("destination", function(repo) standardGeneric("destination"))
 #' @rdname destination-methods
 #' @aliases destination,GRANRepository-method
 #' @export
-setMethod("destination","GRANRepository",
+setMethod("destination", "GRANRepository",
           function(repo) file.path(normalizePath2(param(repo)@dest_base),
                                    param(repo)@repo_name,  "src", "contrib"))
 
+
+#' archivedir
+#' Return the full path to the archive directory for the final repository
+#' deployment.
+#'
+#' @rdname archivedir-methods
+#' @param repo a GRANRepository object
+#' @return The full path to the archive directory where the archived packages
+#' will be deployed to
+#' @docType methods
+#' @export
+setGeneric("archivedir", function(repo) standardGeneric("archivedir"))
+#' @rdname archivedir-methods
+#' @aliases archivedir,GRANRepository-method
+#' @export
+setMethod("archivedir", "GRANRepository",
+          function(repo) {
+            archive_dir <- param(repo)@repo_archive
+            if (is.null(archive_dir) || identical(archive_dir, character(0))) {
+              archive_dir <- file.path(destination(repo), "Archive")
+            }
+            if(!file.exists(archive_dir)) {
+                dir.create(archive_dir, recursive = TRUE)
+            }
+            return(archive_dir)
+})
 
 #' dest_base
 #' Return the full path to the contrib directory for the final repository
@@ -223,6 +248,23 @@ setGeneric("check_result_dir", function(repo) standardGeneric("check_result_dir"
 setMethod("check_result_dir","GRANRepository",
           function(repo) file.path(normalizePath2(param(repo)@dest_base),
                                    param(repo)@repo_name, "CheckResults" ))
+
+
+#' backup_archive
+#' Return path where packages are backed up by default when clearing the repo
+#'
+#' @rdname backup_archive-methods
+#' @param repo a GRANRepository object
+#' @return Directory where packages are backed up by default when clearing repo
+#' @docType methods
+#' @export
+setGeneric("backup_archive", function(repo) standardGeneric("backup_archive"))
+#' @rdname backup_archive-methods
+#' @aliases backup_archive, GRANRepository-method
+#' @export
+setMethod("backup_archive", "GRANRepository",
+          function(repo) file.path(normalizePath2(param(repo)@dest_base),
+                                   param(repo)@repo_name, "Archive" ))
 
 
 #' coverage_report_dir

@@ -14,7 +14,9 @@ makeSrcDirs = function(repo, cores = (parallel:::detectCores() - 1), scm_auth)
             ret = makePkgDir(name = nm, source = src, path =path,
                 latest_only = FALSE, param = param(repo), forceRefresh=FALSE)
             if(ret && !is.na(version)  && file.exists(file.path(path, nm))) {
-                gotoVersCommit(file.path(path, nm), version = version, src = src,
+                gotoVersCommit(file.path(path, nm),
+                               version = version,
+                               src = src,
                                param = param(repo))
             }
             ret
