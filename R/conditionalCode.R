@@ -1,5 +1,5 @@
 if (!require(parallel)) {
-  mclapply2 = function(X,
+  mclapply2 <- function(X,
                        FUN,
                        ...,
                        mc.preschedule = TRUE,
@@ -10,7 +10,7 @@ if (!require(parallel)) {
                        mc.allow.recursive = TRUE)
     lapply(X, FUN, ...)
 
-  mcmapply2 = function(FUN,
+  mcmapply2 <- function(FUN,
                        ...,
                        MoreArgs = NULL,
                        SIMPLIFY = TRUE,
@@ -20,15 +20,10 @@ if (!require(parallel)) {
                        mc.silent = FALSE,
                        mc.cores = getOption("mc.cores", 3L),
                        mc.cleanup = TRUE) {
-    mapply(
-      FUN,
-      ...,
-      MoreArgs = MoreArgs,
-      SIMPLIFY = SIMPLIFY,
-      USE.NAMES = USE.NAMES
-    )
+    mapply(FUN, ..., MoreArgs = MoreArgs, SIMPLIFY = SIMPLIFY,
+           USE.NAMES = USE.NAMES)
   }
 } else {
-  mclapply2 = mclapply
-  mcmapply2 = mcmapply
+  mclapply2 <- mclapply
+  mcmapply2 <- mcmapply
 }

@@ -46,7 +46,8 @@ buildBranchesInRepo <- function(repo, cores = (parallel:::detectCores() - 1),
     startDir <- getwd()
     on.exit(setwd(startDir))
     setwd(repoLoc)
-    logfun(repo)("NA", paste0("Attempting to build ", sum(results$building), " into ", repoLoc))
+    logfun(repo)("NA", paste("Attempting to build", sum(results$building),
+                             "into", repoLoc))
 
     if(temp) {
         ## Only build  packages into the temp repo that aren't already there.
@@ -173,8 +174,10 @@ buildBranchesInRepo <- function(repo, cores = (parallel:::detectCores() - 1),
        ("status" %in% attributes(out) && attr(out, "status") > 0) ||
        !file.exists(paste0(pkg, "_", vnum, builtPkgExt()))) {
         type = if(temp) "Temporary" else "Final"
-        logfun(repo)(pkg, paste(type,"Package build failed. R CMD build returned non-zero status"), type ="both")
-        logfun(repo)(pkg, c("R CMD build output for failed package build:", out), type="error")
+        logfun(repo)(pkg, paste(type, "Package build failed. R CMD build",
+                                "returned non-zero status"), type ="both")
+        logfun(repo)(pkg, c("R CMD build output for failed package build:",
+                     out), type="error")
         ret = "failed"
     } else {
         #XXX we want to include the full output when the build succeeds?

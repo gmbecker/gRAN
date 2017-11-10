@@ -23,7 +23,7 @@ buildRiskReport = function(repo,
     to_update = to_update[, "Package"]
   } else {
     oldmat = old.packages(lib.loc = liblocs, repos = repo_urls)
-    oldmat = oldmat[oldmat[, "Packages"] %in% to_update]
+    oldmat = oldmat[oldmat[, "Package"] %in% to_update]
   }
 
   oldmat = as.data.frame(oldmat[, c("Package", "Installed", "Built", "ReposVer",
@@ -78,8 +78,8 @@ buildRiskReport = function(repo,
       </script>"
     )
   title <- paste("<title>Update Risk Assessment:",
-                 repo_name(repo),
-                 Sys.Date(),
+                 if(!is.null(repo)) repo_name(repo),
+                 date(),
                  "</title>")
 
   if (ncol(oldmat) == 10) {
@@ -257,6 +257,11 @@ readPkgsNEWS = function(df,
   prevlp = .libPaths()
   .libPaths(newlib)
   on.exit(.libPaths(prevlp))
+
+  if(tmp) {
+      install.packages(df$Package, lib = tmplib, contriburl = repos)
+  }
+
   if (!(is.null(df$Package) ||
         is.null(df$Installed) || is.null(df$Repository))) {
     newsres = t(
@@ -266,14 +271,12 @@ readPkgsNEWS = function(df,
         instver = df$Installed,
         repo = df$Repository,
         newlib = tmplib,
-        oldlib = oldlib
-      )
-    )
+        oldlib = list(oldlib)))
     if (tmp)
       unlink(tmplib)
     return(as.data.frame(newsres))
   } else
-      return(NULL)
+    return(NULL)
 }
 
 globalVariables("Version")

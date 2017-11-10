@@ -52,7 +52,7 @@ clear_temp_fils = function(repo, checkout = FALSE) {
     res = unlink(fils, recursive=TRUE)
     if(any(res>0))
         logfun(repo)("NA", sprintf("Failed to clear %d files/directories from %s (%s)",
-                                   sum(res>0), dirlab, dir), type = "error")
+                                   sum(res>0), dirlab, dir), type = "both")
     all(res==0)
 }
 

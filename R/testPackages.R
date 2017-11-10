@@ -307,8 +307,7 @@ checkTest = function(repo, cores = (parallel:::detectCores() - 1))
   if (length(outs) != nrow(bres))
     stop("Fatal error. I didn't get check output for all checked packages.")
 
-  success = mapply(
-    function(nm, out, repo) {
+  success <- mapply(function(nm, out, repo) {
       if (errorOrNonZero(out) || any(grepl("Status: [[:digit:]]+ ERROR",
                                            out, fixed = FALSE))) {
         logfun(repo)(nm, "R CMD check failed.", type = "both")
@@ -325,11 +324,11 @@ checkTest = function(repo, cores = (parallel:::detectCores() - 1))
           any(grepl("Standardizable: TRUE", out))
         ##non-standard license
         if (numwarns - licIsWarning > 0) {
-          logfun(repo)(nm, "R CMD check raised warnings.", type = "both")
+          logfun(repo)(nm, "R CMD check raised warnings.", type = "warn")
           outToErrLog = TRUE
           ret = "check warning(s)"
         } else if (numnotes-!licIsWarning > 0) {
-          logfun(repo)(nm, "R CMD check raised notes.", type = "both")
+          logfun(repo)(nm, "R CMD check raised notes.", type = "warn")
           outToErrLog = TRUE
           ret = "check note(s)"
         } else {
@@ -342,25 +341,16 @@ checkTest = function(repo, cores = (parallel:::detectCores() - 1))
           file = file.path(check_result_dir(repo),
                            paste0(nm, "_CHECK.log")))
       if (outToErrLog)
-        logfun(repo)(nm, c("R CMD check output:", out), type = "error")
+        logfun(repo)(nm, c("R CMD check output:", out), type = "warn")
       ret
 
-    },
-    nm = names(outs),
-    out = outs,
-    repo = list(repo)
-  )
+    }, nm = names(outs), out = outs, repo = list(repo))
 
 
   success = unlist(success)
   if (length(success) != length(binds)) {
-    stop(
-      "fatal error. only got ",
-      length(success),
-      " results from ",
-      length(binds),
-      " check tests."
-    )
+    stop("FATAL ERROR: Only got ",
+         length(success), " results from ", length(binds), " check tests.")
   }
 
 
@@ -385,31 +375,24 @@ checkTest = function(repo, cores = (parallel:::detectCores() - 1))
 #' @param cores How many CPU cores to use?
 #' @return repo A gRAN repo object with updated code coverage info
 #' @export
-testCoverage <-
-  function(repo, cores = (parallel:::detectCores() - 1))
-  {
+testCoverage <- function(repo, cores = (parallel:::detectCores() - 1)) {
     logfun(repo)("NA",
                  paste0(
                    "Creating test coverage reports for ",
                    sum(repo_results(repo)$building),
                    " packages"
-                 ),
-                 type = "both")
+                 ))
 
     # Determine lib checkout location
     loc <- checkout_dir(repo)
     dir.create(loc, recursive = TRUE, showWarnings = FALSE)
 
-    bres <-
-      subset(
-        repo_results(repo),
-        repo_results(repo)$building == TRUE
-        & !is.na(repo_results(repo)$buildReason)
-        & repo_results(repo)$status != "up-to-date"
-      )
+    bres <- subset(repo_results(repo),
+                   repo_results(repo)$building == TRUE
+                   & !is.na(repo_results(repo)$buildReason)
+                   & repo_results(repo)$status != "up-to-date")
     if (nrow(bres) == 0) {
-      logfun(repo)("NA", "No packages to check test coverage for",
-                   type = "both")
+      logfun(repo)("NA", "No packages to check test coverage for")
       return(repo)
     }
 
@@ -420,17 +403,11 @@ testCoverage <-
     coverage <- suppressWarnings(mcmapply2(function(pkgName) {
       pkgDir <- file.path(loc, pkgName)
       if (file.exists(pkgDir)) {
-        logfun(repo)(pkgName, "Calculating test coverage", type = "both")
-        pkgCovg <- tryCatch(
-          package_coverage(path = pkgDir),
-          error = function(e)
-            NULL
-        )
-        percentCovg <- tryCatch(
-          percent_coverage(pkgCovg),
-          error = function(e)
-            NULL
-        )
+        logfun(repo)(pkgName, "Calculating test coverage")
+        pkgCovg <- tryCatch(package_coverage(path = pkgDir),
+                            error = function(e) NULL)
+        percentCovg <- tryCatch(percent_coverage(pkgCovg),
+                                error = function(e) NULL)
         if (percentCovg > 90 && !is.nan(percentCovg)) {
           label <- "label-success"
         } else if (percentCovg > 75 && !is.nan(percentCovg)) {
@@ -438,33 +415,21 @@ testCoverage <-
         } else {
           label <- "label-danger"
         }
-        cvgrptfile <-
-          file.path(coverageDir, paste0(pkgName, "-covr-report.html"))
-        tryCatch(
-          report(pkgCovg, file = cvgrptfile, browse = FALSE),
-          error = function(e)
-            NULL
-        )
-        logfun(repo)(pkgName, "Completed test coverage", type = "both")
+        cvgrptfile <- file.path(coverageDir, paste0(pkgName, "-covr-report.html"))
+        dummy <- tryCatch(report(pkgCovg, file = cvgrptfile, browse = FALSE),
+                          error = function(e) NULL)
+        logfun(repo)(pkgName, "Completed test coverage")
         if (is.numeric(percentCovg) && !is.nan(percentCovg)) {
-          paste("<span class=\"label",
-                label,
-                "\">",
-                paste0(round(percentCovg, digits = 2), "%"),
-                "</span>")
+          paste("<span class=\"label", label, "\">",
+                paste(round(percentCovg, digits = 2), "%"), "</span>")
         } else {
-          "<span class=\"label label-default \">Details</span>"
+          "<span class=\"label label-default\">Details</span>"
         }
       }
     }, pkgName = bres$name, mc.cores = cores))
 
-    logfun(repo)("NA",
-                 paste0(
-                   "Completed test coverage reports for ",
-                   length(bres$name),
-                   " packages."
-                 ),
-                 type = "both")
+    logfun(repo)("NA", paste("Completed test coverage reports for",
+                             length(bres$name),"packages."))
     covg <- as.data.frame(coverage)
     covg$name <- rownames(covg)
 

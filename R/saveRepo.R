@@ -27,9 +27,9 @@ finalizeRepo = function(repo) {
       "scripts", "getGRAN.R"), file.path(repobase(repo), "getGRAN.R"))
   }
   if (email_notify(repo)) {
-      logfun(repo)("NA", "Sending email notifications...", type = "both")
+      logfun(repo)("NA", "Sending email notifications...")
       emailNotifier(repo)
-      logfun(repo)("NA", "Completed email delivery", type = "both")
+      logfun(repo)("NA", "Completed email delivery")
   }
   repo
 }

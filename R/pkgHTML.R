@@ -9,9 +9,8 @@
 #' @return None
 #' @export
 pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
-  logfun(repo)("NA", paste0("Creating HTML splash pages for ",
-                            sum(repo_results(repo)$building), " packages"),
-                            type = "both")
+  logfun(repo)("NA", paste("Creating HTML splash pages for",
+                            sum(repo_results(repo)$building), "packages"))
 
   # Build splash pages only for building packages
   bres <- subset(repo_results(repo), repo_results(repo)$building == TRUE
@@ -19,8 +18,7 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
                                   & repo_results(repo)$status != "up-to-date"
                                   & !is.na(repo_results(repo)$lastbuiltversion))
   if(nrow(bres) == 0) {
-      logfun(repo)("NA", "No packages to create HTML splash pages for",
-                   type = "both")
+      logfun(repo)("NA", "No packages to create HTML splash pages for")
       return(repo)
   }
   bres <- subset(bres, !(grepl("^GRAN", bres$name)))
@@ -43,8 +41,8 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
     if (file.exists(check_dir)) {
 
       # Create description info table
-      logfun(repo)(pkg_name, paste0("Found check directory at ",
-                                check_dir), type = "both")
+      logfun(repo)("NA", paste("Found check directory at", check_dir,
+                                "for", pkg_name))
       if (file.exists(file.path(check_dir, pkg_name, "DESCRIPTION"))) {
         descr_df <- generateDescInfo(file.path(check_dir, pkg_name))
 
@@ -72,7 +70,7 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
                         css.class = "table table-striped table-hover",
                         css.table = "margin-left:10px;margin-right:10px;",
                         align="l", rnames = names(descr_df))
-        logfun(repo)(pkg_name, "Created DESCRIPTION info", type = "both")
+        logfun(repo)("NA", paste("Created DESCRIPTION info for", pkg_name))
       } else {
         desc_header <- ""
         desc_html <- ""
@@ -86,11 +84,11 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
                         css.class = "table table-striped table-hover",
                         css.table = "margin-left:10px;margin-right:10px;",
                         align="l", rnames = names(revdeps))
-        logfun(repo)(pkg_name, "Created revdep info", type = "both")
+        logfun(repo)("NA", paste("Created revdep info for", pkg_name))
       } else {
         revdeps_header <- ""
         revdeps_html <- ""
-        logfun(repo)(pkg_name, "No revdep info available", type = "both")
+        logfun(repo)("NA", paste("No revdep info available for", pkg_name))
       }
 
       # Create sticker for the package
@@ -113,7 +111,7 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
                       "<tcplaceholder/>",
                       "<p>Authors: ", authors, "</p> ",
                       "<p>Maintainer: ", maintainer, "</p> ")
-      logfun(repo)(pkg_name, "Created package intro", type = "both")
+      logfun(repo)("NA", paste("Created package intro for", pkg_name))
 
       # Installation instructions
       installn <- paste0("<br/><h4>Installation</h4><hr>",
@@ -127,7 +125,7 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
                          "<p>install_packages(\"", pkg_name, "\"",
                          ", type=\"source\")</p></code></pre>")
 
-      logfun(repo)(pkg_name, "Created installation info", type = "both")
+      logfun(repo)("NA", paste("Created installation info for", pkg_name))
 
       # Copy reference manual, vignettes and NEWS into destination
       reference_man <- file.path(check_dir, paste0(pkg_name, '-manual.pdf'))
@@ -160,7 +158,7 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
           }
           pdf_vign_header <- paste("<p>PDF Vignettes:", paste(vign_vec,
                                                       collapse = ", "), "</p>")
-          logfun(repo)(pkg_name, "Created PDF Vignette info", type = "both")
+          logfun(repo)("NA", paste("Created PDF Vignette info for", pkg_name))
         } else pdf_vign_header <- ""
         # Create link for HTML Vignettes files
         rmd_files <- list.files(check_docs, pattern = "\\.Rmd", full.names = TRUE)
@@ -176,7 +174,7 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
           }
           html_vign_header <- paste("<p>HTML Vignettes:", paste(vign_vec2,
                                                       collapse = ", "), "</p>")
-          logfun(repo)(pkg_name, "Created HTML Vignette info", type = "both")
+          logfun(repo)("NA", paste("Created HTML Vignette info", pkg_name))
         } else html_vign_header <- ""
         # Create link for NEWS files
         news_files <- list.files(file.path(check_docs, '..'),
@@ -192,7 +190,7 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
           }
           news_header <- paste("<p>NEWS files:", paste(news_vec,
                                                       collapse = ", "), "</p>")
-          logfun(repo)(pkg_name, "Created NEWS info", type = "both")
+          logfun(repo)("NA", paste("Created NEWS info", pkg_name))
         } else news_header <- ""
       } else {
         pdf_vign_header <- ""
@@ -213,7 +211,7 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
                           revdeps_html, doc_header, doc_content, "</body></html>")
 
       # Create the HTML spash page
-      logfun(repo)(pkg_name, "Writing final pkg HTML info", type = "both")
+      logfun(repo)("NA", paste("Writing final pkg HTML info", pkg_name))
       # Rename files from previous GRAN versions
       if (file.exists(file.path(docdir, paste0(pkg_name, "-", splashname)))) {
         file.rename(file.path(docdir, paste0(pkg_name, "-", splashname)),

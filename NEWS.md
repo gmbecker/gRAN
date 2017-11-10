@@ -1,13 +1,14 @@
-Changes in version 1.6.5 (2017-10-30)
+Changes in version 1.6.6 (2017-11-10)
 
 - New Features
   * Parallelize creation of covr reports
-  * Create a CRAN-style archive directory
+  * Create a CRAN-style archive directory, location can be optionally specified in repo params
   * Performance improvements
 
 - Bugfixes
   * Don't create covr reports if check_test is off
   * Handle cases when all packages build successfully
+  * Risk report is properly styled
 
 Changes in version 1.6.4 (2017-09-01)
 
