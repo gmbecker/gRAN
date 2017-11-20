@@ -4,12 +4,12 @@
 \alias{pkgHTML}
 \title{Create HTML splash pages for packages}
 \usage{
-pkgHTML(repo, suffix = "-index.html", theme = "bootstrap")
+pkgHTML(repo, splashname = "index.html", theme = "bootstrap")
 }
 \arguments{
 \item{repo}{A gRAN repo object}
 
-\item{suffix}{Append a suffix to the HTML splash page}
+\item{splashname}{Filename for the HTML splash page}
 
 \item{theme}{CSS theme. bootstrap, foundation, semanticui or jqueryui}
 }

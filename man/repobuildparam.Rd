@@ -21,7 +21,9 @@ RepoBuildParam(basedir, repo_name = "current",
   archive_timing = 2, archive_retries = 2, build_timeout = 10 * 60,
   check_timeout = 15 * 60, email_notifications = FALSE,
   email_opts = list(smtp_server = "localhost", smtp_port = 25, sender_email =
-  paste0("gran", repo_name, "@localhost"), unsubscribers = NULL))
+  paste0("gran", repo_name, "@localhost"), unsubscribers = NULL),
+  repo_archive = file.path(destination, repo_name, "src", "contrib",
+  "Archive"))
 }
 \arguments{
 \item{basedir}{The base directory. By default the temporary repository,
@@ -79,9 +81,11 @@ cohort. Requires install test.}
 
 \item{use_cran_granbase}{logical. Currently ignored.}
 
-\item{archive_timing}{numeric. Number of seconds to wait between attempts to pull a package from the CRAN archive}
+\item{archive_timing}{numeric. Number of seconds to wait between attempts to
+pull a package from the CRAN archive}
 
-\item{archive_retries}{numeric. Number of times to retry pulling a package from the CRAN archive.}
+\item{archive_retries}{numeric. Number of times to retry pulling a package
+from the CRAN archive.}
 
 \item{build_timeout}{numeric. Number of seconds before timeout during
 the build step for a single package. Defaults to 10 minutes.}
@@ -98,6 +102,8 @@ the SMTP server - defaults to "localhost", \code{smtp_port}: SMTP port
 number - defaults to 25, \code{sender_email}: Whom should the emails
 be sent as? Defaults to "gran<repo_name>@localhost", \code{unsubscribers}:
 Vector of Perl-style regexes for unsubscribers - defaults to NULL.}
+
+\item{repo_archive}{Archive directory where older package sources will be saved}
 }
 \description{
 Parameters for building a GRAN repository. Most behavior during the

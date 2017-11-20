@@ -11,8 +11,8 @@ writeGRANLog(pkg, msg, type = "full", logfile, errfile, pkglog = NULL)
 
 \item{msg}{The log message, collapsed if length>1}
 
-\item{type}{"full", "error", or "both" indicating which log(s) the message
-should be written to}
+\item{type}{"full", "error", "warn", or "both" indicating which
+log(s) the message should be written to}
 
 \item{logfile}{The location of the full log file to write/append to}
 

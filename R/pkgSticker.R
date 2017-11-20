@@ -14,7 +14,7 @@ createSticker <- function(pkgName, destination) {
     pkgFillColor <- setNames(as.list(c("#E5E4E2", "#C2DFFF", "#98FF98",
                                        "#FDD7E4","#FFF5EE","#93FFE8","#FFFF00",
                                        "#FCDFFF","#CCFB5D","#FFCBA4")), 0:9)
-    pkgOutlineColor <- setNames(as.list(c("#4B0082", "#FFFF00", "#566D7E",
+    pkgOutlineColor <- setNames(as.list(c("#4B0082", "#000000", "#566D7E",
                                           "#1F45FC", "#008080", "#348017",
                                           "#FFD801", "#ADA96E", "#F62217",
                                           "#FF00FF")), 0:9)

@@ -11,92 +11,153 @@
 #' @param theme CSS theme. bootstrap, foundation, semanticui or jqueryui
 #' @return none. Writes HTML report with risk assessment
 #' @export
-buildRiskReport = function(repo, to_update = old.packages(repos = repo_urls),
-    important_pkgs = installed.packages(lib.loc = liblocs)[,"Package"],
-    liblocs = .libPaths(),
-    repo_urls = getOption("repos"),
-    file = file.path(destination(repo), "update-risk.html"),
-    theme = "bootstrap")
-{
-  if(class(to_update) == "matrix") {
+buildRiskReport = function(repo,
+                           to_update = old.packages(repos = repo_urls),
+                           important_pkgs = installed.packages(lib.loc = liblocs)[, "Package"],
+                           liblocs = .libPaths(),
+                           repo_urls = getOption("repos"),
+                           file = file.path(destination(repo), "update-risk.html"),
+                           theme = "bootstrap") {
+  if (class(to_update) == "matrix") {
     oldmat = to_update
-    to_update = to_update[,"Package"]
+    to_update = to_update[, "Package"]
   } else {
     oldmat = old.packages(lib.loc = liblocs, repos = repo_urls)
-    oldmat = oldmat[oldmat[,"Package"] %in% to_update]
+    oldmat = oldmat[oldmat[, "Package"] %in% to_update]
   }
 
-  oldmat = as.data.frame(oldmat[,c("Package", "Installed", "Built", "ReposVer",
-                                   "Repository")], stringsAsFactors = FALSE)
+  oldmat = as.data.frame(oldmat[, c("Package", "Installed", "Built", "ReposVer",
+                                    "Repository")], stringsAsFactors = FALSE)
   if (!is.null(readPkgsNEWS(oldmat))) {
     oldmat = cbind(oldmat, readPkgsNEWS(oldmat))
   }
 
-  risks = identifyRisk(repo, to_update= to_update, important_pkgs = important_pkgs)
+  risks = identifyRisk(repo, to_update = to_update, important_pkgs = important_pkgs)
   oldmat$ImpPkgsAffected = sapply(risks$splash_damage, function(vec, imp)
-                                  sum(imp %in% vec), imp = important_pkgs)
+    sum(imp %in% vec), imp = important_pkgs)
   rownames(oldmat) <- NULL
 
-  css_tag <- paste0("<link rel=\"stylesheet\" type=\"text/css\"",
-                   " href=\"assets/css/", theme, ".min.css\">",
-                   "<link rel=\"stylesheet\" type=\"text/css\"",
-                   " href=\"assets/css/dataTables.", theme, ".min.css\">")
-  js_tag <- paste0("<script type=\"text/javascript\" language=\"javascript\"
-                  src=\"assets/js/jquery.js\"></script>",
-                  "<script type=\"text/javascript\" language=\"javascript\"
-                  src=\"assets/js/", theme,".min.js\"></script>",
-                  "<script type=\"text/javascript\" language=\"javascript\"
-                  src=\"assets/js/jquery.dataTables.min.js\"></script>",
-                  "<script type=\"text/javascript\" language=\"javascript\"
-                  src=\"assets/js/dataTables.", theme, ".min.js\"></script>")
-  ds_script <- paste("<script type=\"text/javascript\" charset=\"utf-8\">
-                  			$(document).ready(function() {
-                  				$('#updatedetails').DataTable();
-                          $('#riskdetails').DataTable();
-                  			} );
-                  		</script>")
-  title <- paste("<title>Update Risk Assessment:", if(!is.null(repo)) repo_name(repo),
-                 Sys.Date(), "</title>")
+  # Create the assets directory if it's missing
+  if(!file.exists(file.path(destination(repo), "assets"))) {
+    assets_folder <- system.file2("assets", package = "GRANBase")
+    file.copy(assets_folder, destination(repo), recursive = TRUE)
+  }
+
+  css_tag <- paste0(
+    "<link rel=\"stylesheet\" type=\"text/css\"",
+    " href=\"assets/css/",
+    theme,
+    ".min.css\">",
+    "<link rel=\"stylesheet\" type=\"text/css\"",
+    " href=\"assets/css/dataTables.",
+    theme,
+    ".min.css\">"
+  )
+  js_tag <-
+    paste0(
+      "<script type=\"text/javascript\" language=\"javascript\"
+      src=\"assets/js/jquery.js\"></script>",
+      "<script type=\"text/javascript\" language=\"javascript\"
+      src=\"assets/js/",
+      theme,
+      ".min.js\"></script>",
+      "<script type=\"text/javascript\" language=\"javascript\"
+      src=\"assets/js/jquery.dataTables.min.js\"></script>",
+      "<script type=\"text/javascript\" language=\"javascript\"
+      src=\"assets/js/dataTables.",
+      theme,
+      ".min.js\"></script>"
+    )
+  ds_script <-
+    paste(
+      "<script type=\"text/javascript\" charset=\"utf-8\">
+      $(document).ready(function() {
+      $('#updatedetails').DataTable();
+      $('#riskdetails').DataTable();
+      } );
+      </script>"
+    )
+  title <- paste("<title>Update Risk Assessment:",
+                 if(!is.null(repo)) repo_name(repo),
+                 date(),
+                 "</title>")
 
   if (ncol(oldmat) == 10) {
     update_header <- "<h2>Packages with updates available:</h2>"
-    table_headers <- c("Package", "Installed Version", "Build with R",
-        "Repository Version", "Repository", "Bugfixes", "User-visible changes",
-        "Deprecations", "Total listed changes", "Number of pkgs affected")
-    update_html <- htmlTable(as.matrix(oldmat), header = table_headers,
-                          css.cell = ("padding-left: 0.5em; padding-right: 0.5em"),
-                          css.class = "table table-striped table-hover",
-                          css.table = "margin-left:10px;margin-right:10px;",
-                          align="l", label = "updatedetails")
-    update_html <- gsub("border-bottom: 2px solid grey;", "", update_html)
+    table_headers <-
+      c(
+        "Package",
+        "Installed Version",
+        "Build with R",
+        "Repository Version",
+        "Repository",
+        "Bugfixes",
+        "User-visible changes",
+        "Deprecations",
+        "Total listed changes",
+        "Number of pkgs affected"
+      )
+    update_html <-
+      htmlTable(
+        as.matrix(oldmat),
+        header = table_headers,
+        css.cell = ("padding-left: 0.5em; padding-right: 0.5em"),
+        css.class = "table table-striped table-hover",
+        css.table = "margin-left:10px;margin-right:10px;",
+        align = "l",
+        label = "updatedetails"
+      )
+    update_html <-
+      gsub("border-bottom: 2px solid grey;", "", update_html)
   } else {
     update_header <- ""
     update_html <- ""
   }
 
 
-  danger_df <- suppressWarnings(as.data.frame(do.call(rbind, risks$in_danger)))
+  danger_df <-
+    suppressWarnings(as.data.frame(do.call(rbind, risks$in_danger)))
   cols <- colnames(danger_df)
-  danger_df$RisksTo<-rownames(danger_df)
-  danger_df$Package <- apply(danger_df[ , cols, drop=F], 1, paste, collapse = ",")
-  danger_df$Package <- sapply(strsplit(danger_df$Package ,","),
-                                    function(x) paste(unique(x), collapse=", "))
-  danger_df <- danger_df[ ,!(names(danger_df) %in% cols)]
+  danger_df$RisksTo <- rownames(danger_df)
+  danger_df$Package <-
+    apply(danger_df[, cols, drop = F], 1, paste, collapse = ",")
+  danger_df$Package <- sapply(strsplit(danger_df$Package , ","),
+                              function(x)
+                                paste(unique(x), collapse = ", "))
+  danger_df <- danger_df[,!(names(danger_df) %in% cols)]
   rownames(danger_df) <- NULL
 
   danger_header <- "<hr><h2>Packages at risk:</h2>"
-  danger_html <- suppressWarnings(htmlTable(danger_df,
-              header = c("Package at risk:", "When these packages are updated:"),
-              css.cell = ("padding-left: 0.5em; padding-right: 0.5em"),
-              css.class = "table table-striped table-hover",
-              css.table = "margin-left:10px;margin-right:10px;",
-              align="l", label = "riskdetails"))
-  danger_html <- gsub("border-bottom: 2px solid grey;", "", danger_html)
+  danger_html <- suppressWarnings(
+    htmlTable(
+      danger_df,
+      header = c("Package at risk:", "When these packages are updated:"),
+      css.cell = ("padding-left: 0.5em; padding-right: 0.5em"),
+      css.class = "table table-striped table-hover",
+      css.table = "margin-left:10px;margin-right:10px;",
+      align = "l",
+      label = "riskdetails"
+    )
+  )
+  danger_html <-
+    gsub("border-bottom: 2px solid grey;", "", danger_html)
 
-  final_html <- paste("<html><head>",title, css_tag, js_tag, ds_script, "</head>",
-              update_header, update_html, danger_header, danger_html, "</html>")
+  final_html <-
+    paste(
+      "<html><head>",
+      title,
+      css_tag,
+      js_tag,
+      ds_script,
+      "</head>",
+      update_header,
+      update_html,
+      danger_header,
+      danger_html,
+      "</html>"
+    )
   write(final_html, file)
-}
+  }
 
 #' identifyRisk
 #'
@@ -120,31 +181,37 @@ buildRiskReport = function(repo, to_update = old.packages(repos = repo_urls),
 #' @importFrom tools dependsOnPkgs
 #' @importFrom utils installed.packages old.packages
 #' @export
-identifyRisk = function(repo, to_update = old.packages(repos = repo_urls),
-    liblocs = .libPaths(),
-    important_pkgs = installed.packages(lib.loc = liblocs)[,"Package"],
-    repo_urls = getOption("repos"))
+identifyRisk = function(repo,
+                        to_update = old.packages(repos = repo_urls),
+                        liblocs = .libPaths(),
+                        important_pkgs = installed.packages(lib.loc = liblocs)[, "Package"],
+                        repo_urls = getOption("repos"))
 {
-    if(!is.null(repo))
-        repo_urls = c(repo_url(repo), repo_urls)
-    if(is(to_update, "matrix"))
-        to_update = to_update[,"Package"]
+  if (!is.null(repo))
+    repo_urls = c(repo_url(repo), repo_urls)
+  if (is(to_update, "matrix"))
+    to_update = to_update[, "Package"]
 
-    splash_damage = sapply(to_update, dependsOnPkgs, simplify=FALSE)
+  splash_damage = sapply(to_update, dependsOnPkgs, simplify = FALSE)
 
-    in_danger= vector("list", length(important_pkgs))
-    names(in_danger) = important_pkgs
-    for(i in important_pkgs)
-        {
-            in_danger[[i]] = names(splash_damage)[sapply(splash_damage,
-                                            function(vec, i) i %in% vec, i = i)]
-        }
+  in_danger = vector("list", length(important_pkgs))
+  names(in_danger) = important_pkgs
+  for (i in important_pkgs)
+  {
+    in_danger[[i]] = names(splash_damage)[sapply(splash_damage,
+                                                 function(vec, i)
+                                                   i %in% vec, i = i)]
+  }
 
-    in_danger = tryCatch(
-                      {in_danger[sapply(in_danger, function(x) length(x) > 0)]},
-                      error = function(e) {list()})
+  in_danger = tryCatch({
+    in_danger[sapply(in_danger, function(x)
+      length(x) > 0)]
+  },
+  error = function(e) {
+    list()
+  })
 
-    list(splash_damage = splash_damage, in_danger = in_danger)
+  list(splash_damage = splash_damage, in_danger = in_danger)
 }
 
 #'readPkgsNEWS
@@ -170,50 +237,79 @@ identifyRisk = function(repo, to_update = old.packages(repos = repo_urls),
 #' entries). All counts are NA if the package does not have parsable NEWS.
 #' @importFrom utils news
 #' @export
-readPkgsNEWS = function(df, oldlib = .libPaths(), tmplib = file.path(tempdir(),
-                      "libloc"), repos = unique(df$Repository), newlib = NULL) {
-    if(is.matrix(df))
-        df = as.data.frame(df, stringsAsFactors=FALSE)
-    if(is.null(newlib)) {
-        tmp=TRUE
-        newlib = tmplib
-        if(!file.exists(tmplib))
-            dir.create(tmplib, recursive=TRUE)
-    } else {
-        tmp = FALSE
-        tmplib = newlib
-    }
-    prevlp = .libPaths()
-    .libPaths(newlib)
-    on.exit(.libPaths(prevlp))
-    if(tmp) {
-        install.packages(df$Package, lib = tmplib, contriburl = repos)
-    }
-   
-    if (!(is.null(df$Package) || is.null(df$Installed) )) { ##|| is.null(df$Repository))) {
-      newsres = t(mapply(innerReadNEWS, pkg = df$Package, instver = df$Installed,
-                       repo = df$Repository, newlib = tmplib, oldlib = list(oldlib)))
-      if(tmp)
-          unlink(tmplib)
-      return(as.data.frame(newsres))
-    } else return(NULL)
+readPkgsNEWS = function(df,
+                        oldlib = .libPaths(),
+                        tmplib = file.path(tempdir(),
+                                           "libloc"),
+                        repos = unique(df$Repository),
+                        newlib = NULL) {
+  if (is.matrix(df))
+    df = as.data.frame(df, stringsAsFactors = FALSE)
+  if (is.null(newlib)) {
+    tmp = TRUE
+    newlib = tmplib
+    if (!file.exists(tmplib))
+      dir.create(tmplib, recursive = TRUE)
+  } else {
+    tmp = FALSE
+    tmplib = newlib
+  }
+  prevlp = .libPaths()
+  .libPaths(newlib)
+  on.exit(.libPaths(prevlp))
+
+  if(tmp) {
+      install.packages(df$Package, lib = tmplib, contriburl = repos)
+  }
+
+  if (!(is.null(df$Package) ||
+        is.null(df$Installed) || is.null(df$Repository))) {
+    newsres = t(
+      mapply(
+        innerReadNEWS,
+        pkg = df$Package,
+        instver = df$Installed,
+        repo = df$Repository,
+        newlib = tmplib,
+        oldlib = list(oldlib)))
+    if (tmp)
+      unlink(tmplib)
+    return(as.data.frame(newsres))
+  } else
+    return(NULL)
 }
 
 globalVariables("Version")
 innerReadNEWS = function(pkg, instver, repo, newlib, oldlib) {
-    .libPaths(c(newlib))
-    on.exit(.libPaths(oldlib))
-    newsdf = tryCatch(as.data.frame(news(Version > instver, package=pkg,
-                                        lib.loc = newlib)), error=function(x) x)
-    if(is(newsdf, "error") || !nrow(newsdf)) {
-        return(data.frame(bugfixes = NA, u_visible_changes = NA, deprecs = NA,
-                          total_listed_changes = NA))
-    }
-    bugs = sum(newsdf$Category == "BUG FIXES")
-    u_visible_changes = length(grep("USER.VISIBLE.CHANGES", newsdf$Category,
-                                    ignore.case=TRUE))
-    deprecs = length(grep("(DEPRECATE|DEFUNCT)", newsdf$Category,
-                          ignore.case=TRUE))
-    data.frame(bugfixes = bugs, u_visible_changes = u_visible_changes,
-               deprecs = deprecs, total_listed_changes = nrow(newsdf))
+  .libPaths(c(newlib))
+  on.exit(.libPaths(oldlib))
+  newsdf = tryCatch(
+    as.data.frame(news(
+      Version > instver, package = pkg,
+      lib.loc = newlib
+    )),
+    error = function(x)
+      x
+  )
+  if (is(newsdf, "error") || !nrow(newsdf)) {
+    return(
+      data.frame(
+        bugfixes = NA,
+        u_visible_changes = NA,
+        deprecs = NA,
+        total_listed_changes = NA
+      )
+    )
+  }
+  bugs = sum(newsdf$Category == "BUG FIXES")
+  u_visible_changes = length(grep("USER.VISIBLE.CHANGES", newsdf$Category,
+                                  ignore.case = TRUE))
+  deprecs = length(grep("(DEPRECATE|DEFUNCT)", newsdf$Category,
+                        ignore.case = TRUE))
+  data.frame(
+    bugfixes = bugs,
+    u_visible_changes = u_visible_changes,
+    deprecs = deprecs,
+    total_listed_changes = nrow(newsdf)
+  )
 }
