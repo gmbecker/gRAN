@@ -1,8 +1,0 @@
-library(<%= pkg %>)
-
-repo = loadRepo("<%= repfile %>")
-
-repo = <%= pkg %>:::doPkgTests(repo, cores = <%= cores %>)
-
-saveRepo(repo, file="<%= repfile %>")
-

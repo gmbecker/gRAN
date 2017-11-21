@@ -11,7 +11,7 @@ GRANonGRAN = function(repo) {
   babyGRAN = file.path(tmpdir, pkgname)
   if (file.exists(babyGRAN))
     unlink(babyGRAN, recursive = TRUE, force = TRUE)
-  dirs = file.path(babyGRAN, c("inst/scripts", "R", "man", "vignettes"))
+  dirs = file.path(babyGRAN, c("inst/scripts", "R"))
   sapply(dirs, dir.create, recursive = TRUE)
   GRANRepo = repo
   fils = list.files(system.file2("GRAN", package = "GRANBase"), recursive =
@@ -27,7 +27,7 @@ GRANonGRAN = function(repo) {
   code = paste(
     "getGRAN = function(...) {",
     sprintf(
-      "install.packages('%s', ..., repos = c('%s', getOption('repos')))",
+      "install.packages('%s', repos = c('%s', getOption('repos')))",
       pkgname,
       repo_url(repo)
     ),

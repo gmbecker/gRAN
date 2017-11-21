@@ -7,7 +7,7 @@
 buildRiskReport(repo, to_update = old.packages(repos = repo_urls),
   important_pkgs = installed.packages(lib.loc = liblocs)[, "Package"],
   liblocs = .libPaths(), repo_urls = getOption("repos"),
-  file = file.path(destination(repo), "update-risk.html"),
+  report_file = file.path(destination(repo), "update-risk.html"),
   theme = "bootstrap")
 }
 \arguments{
@@ -24,7 +24,7 @@ from updating the packages in \code{to_update}. Defaults to all installed packag
 
 \item{repo_urls}{The repositories to check for new versions of packages}
 
-\item{file}{File to write the resulting HTML report into.}
+\item{report_file}{File where HTML report will be written to}
 
 \item{theme}{CSS theme. bootstrap, foundation, semanticui or jqueryui}
 }

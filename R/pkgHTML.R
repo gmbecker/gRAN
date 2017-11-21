@@ -212,11 +212,6 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
 
       # Create the HTML spash page
       logfun(repo)("NA", paste("Writing final pkg HTML info", pkg_name))
-      # Rename files from previous GRAN versions
-      if (file.exists(file.path(docdir, paste0(pkg_name, "-", splashname)))) {
-        file.rename(file.path(docdir, paste0(pkg_name, "-", splashname)),
-                    file.path(docdir, splashname))
-      }
       write(final_html, file = file.path(docdir, splashname))
     }
   }

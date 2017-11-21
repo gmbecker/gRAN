@@ -21,7 +21,9 @@ manifestHTML <- function(repo, theme = "bootstrap",
   title <- paste0("<title>GRAN", repo_name(repo), " Build Report</title>")
   summary_header <- paste0("<h2>Overall Build Stats for GRAN",
                           repo_name(repo), "</h2>")
-  lastattempt <- repo_results(repo)$lastAttemptStatus
+  results_df <- repo_results(repo)
+  results_df <- results_df[!(results_df$name %in% suspended_pkgs(repo)), ]
+  lastattempt <- results_df$lastAttemptStatus
   attmptab <- as.matrix(table(lastattempt))
   attmpthtml <- htmlTable(attmptab,
                         css.cell = ("padding-left: 0.5em; padding-right: 0.5em"),
@@ -170,7 +172,7 @@ manifestHTML <- function(repo, theme = "bootstrap",
   risk_rpt_html <- ""
   risk_rpt <- file.path(destination(repo), "update-risk.html")
   if(riskrpt) {
-    buildRiskReport(repo, file = risk_rpt, theme = theme)
+    buildRiskReport(repo, report_file = risk_rpt, theme = theme)
   }
   if(file.exists(risk_rpt)) {
   risk_rpt_html <- paste("<hr><p>Update Risk Report for all site packages:",
