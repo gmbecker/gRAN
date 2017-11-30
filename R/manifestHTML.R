@@ -137,7 +137,7 @@ manifestHTML <- function(repo, theme = "bootstrap",
   build_header <- "<h2>Build details</h2>"
   table_header <- c("Package Name", "Last Attempt Version", "Last Attempt Status",
                 "Last Attempt Date", "Last Built Version", "Last Built Status",
-                "Last Built Date", "Maintianer", "Coverage", "Build History")
+                "Last Built Date", "Maintainer", "Coverage", "Build History")
   build_html <- htmlTable(tmpman,
                         header = table_header,
                         css.cell = ("padding-left: 0.5em; padding-right: 0.5em"),
