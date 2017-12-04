@@ -21,13 +21,16 @@ manifestHTML <- function(repo, theme = "bootstrap",
   title <- paste0("<title>GRAN", repo_name(repo), " Build Report</title>")
   summary_header <- paste0("<h2>Overall Build Stats for GRAN",
                           repo_name(repo), "</h2>")
-  lastattempt <- repo_results(repo)$lastAttemptStatus
+  results_df <- repo_results(repo)
+  results_df <- results_df[!(results_df$name %in% suspended_pkgs(repo)), ]
+  lastattempt <- results_df$lastAttemptStatus
   attmptab <- as.matrix(table(lastattempt))
   attmpthtml <- htmlTable(attmptab,
                         css.cell = ("padding-left: 0.5em; padding-right: 0.5em"),
                         css.class = "table-hover table-bordered table-striped",
                         css.table = "margin-left:10px;margin-right:10px;",
-                        align = "l")
+                        align = "l",
+                        escape.html = FALSE)
 
   # Get detailed build report
   cnames <- c("name", "lastAttemptVersion", "lastAttemptStatus", "lastAttempt",
@@ -135,14 +138,15 @@ manifestHTML <- function(repo, theme = "bootstrap",
   build_header <- "<h2>Build details</h2>"
   table_header <- c("Package Name", "Last Attempt Version", "Last Attempt Status",
                 "Last Attempt Date", "Last Built Version", "Last Built Status",
-                "Last Built Date", "Maintianer", "Coverage", "Build History")
+                "Last Built Date", "Maintainer", "Coverage", "Build History")
   build_html <- htmlTable(tmpman,
                         header = table_header,
                         css.cell = ("padding-left: 0.5em; padding-right: 0.5em"),
                         css.class = "table-hover table-striped table-bordered",
                         css.table = "margin-left:10px; margin-right:10px;",
                         label = "builddetails",
-                        align = "l")
+                        align = "l",
+                        escape.html = FALSE)
   build_html <- gsub("border-bottom: 2px solid grey;", "", build_html)
 
   # Add JS, CSS to the report page
@@ -170,7 +174,7 @@ manifestHTML <- function(repo, theme = "bootstrap",
   risk_rpt_html <- ""
   risk_rpt <- file.path(destination(repo), "update-risk.html")
   if(riskrpt) {
-    buildRiskReport(repo, file = risk_rpt, theme = theme)
+    buildRiskReport(repo, report_file = risk_rpt, theme = theme)
   }
   if(file.exists(risk_rpt)) {
   risk_rpt_html <- paste("<hr><p>Update Risk Report for all site packages:",

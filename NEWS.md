@@ -1,3 +1,13 @@
+Changes in version 1.6.7 (2017-12-04)
+
+- Improvements
+  * Package sticker colors are obtained from ColorBrewer
+  * babyGRAN packages will not include unnecessary man and vignettes dirs
+
+- Bugfixes
+  * Overall build stats will exclude suspended packages
+  * Handle cases when there is no package update risk during risk report creation
+
 Changes in version 1.6.6 (2017-11-10)
 
 - New Features

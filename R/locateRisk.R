@@ -7,7 +7,7 @@
 #' @title Build risk-assessment for proposed package updates
 #' @inheritParams identifyRisk
 #' @importFrom htmlTable htmlTable
-#' @param file File to write the resulting HTML report into.
+#' @param report_file File where HTML report will be written to
 #' @param theme CSS theme. bootstrap, foundation, semanticui or jqueryui
 #' @return none. Writes HTML report with risk assessment
 #' @export
@@ -16,7 +16,7 @@ buildRiskReport = function(repo,
                            important_pkgs = installed.packages(lib.loc = liblocs)[, "Package"],
                            liblocs = .libPaths(),
                            repo_urls = getOption("repos"),
-                           file = file.path(destination(repo), "update-risk.html"),
+                           report_file = file.path(destination(repo), "update-risk.html"),
                            theme = "bootstrap") {
   if (class(to_update) == "matrix") {
     oldmat = to_update
@@ -105,7 +105,8 @@ buildRiskReport = function(repo,
         css.class = "table table-striped table-hover",
         css.table = "margin-left:10px;margin-right:10px;",
         align = "l",
-        label = "updatedetails"
+        label = "updatedetails",
+        escape.html = FALSE
       )
     update_html <-
       gsub("border-bottom: 2px solid grey;", "", update_html)
@@ -136,28 +137,31 @@ buildRiskReport = function(repo,
       css.class = "table table-striped table-hover",
       css.table = "margin-left:10px;margin-right:10px;",
       align = "l",
-      label = "riskdetails"
+      label = "riskdetails",
+      escape.html = FALSE
     )
   )
-  danger_html <-
-    gsub("border-bottom: 2px solid grey;", "", danger_html)
+  danger_html <- gsub("border-bottom: 2px solid grey;", "", danger_html)
 
-  final_html <-
-    paste(
-      "<html><head>",
-      title,
-      css_tag,
-      js_tag,
-      ds_script,
-      "</head>",
-      update_header,
-      update_html,
-      danger_header,
-      danger_html,
-      "</html>"
-    )
-  write(final_html, file)
+  final_html <- paste("<html><head>",
+                      title,
+                      css_tag,
+                      js_tag,
+                      ds_script,
+                      "</head>",
+                      update_header,
+                      update_html,
+                      danger_header,
+                      danger_html,
+                      "</html>")
+  write(final_html, report_file)
+  if (file.exists(report_file)) {
+    message("Risk report is available at ", report_file)
+  } else {
+    stop("Issue creating the risk report at ", report_file)
   }
+}
+
 
 #' identifyRisk
 #'
@@ -214,6 +218,7 @@ identifyRisk = function(repo,
   list(splash_damage = splash_damage, in_danger = in_danger)
 }
 
+
 #'readPkgsNEWS
 #'
 #' Attempts to generate a per-package summary of risky-to-ignore changes for
@@ -258,6 +263,11 @@ readPkgsNEWS = function(df,
   .libPaths(newlib)
   on.exit(.libPaths(prevlp))
 
+  if (is.null(df$Package)) {
+      message("No packages will be updated, so no update risk.")
+      return(invisible(NULL))
+  }
+
   if(tmp) {
       install.packages(df$Package, lib = tmplib, contriburl = repos)
   }
@@ -279,7 +289,10 @@ readPkgsNEWS = function(df,
     return(NULL)
 }
 
+
 globalVariables("Version")
+
+
 innerReadNEWS = function(pkg, instver, repo, newlib, oldlib) {
   .libPaths(c(newlib))
   on.exit(.libPaths(oldlib))

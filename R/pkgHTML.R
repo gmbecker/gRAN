@@ -69,7 +69,8 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
                         css.cell = ("padding-left: 0.5em; padding-right: 0.5em"),
                         css.class = "table table-striped table-hover",
                         css.table = "margin-left:10px;margin-right:10px;",
-                        align="l", rnames = names(descr_df))
+                        align="l", rnames = names(descr_df),
+                        escape.html = FALSE)
         logfun(repo)("NA", paste("Created DESCRIPTION info for", pkg_name))
       } else {
         desc_header <- ""
@@ -83,7 +84,8 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
                         css.cell = ("padding-left: 0.5em; padding-right: 0.5em"),
                         css.class = "table table-striped table-hover",
                         css.table = "margin-left:10px;margin-right:10px;",
-                        align="l", rnames = names(revdeps))
+                        align="l", rnames = names(revdeps),
+                        escape.html = FALSE)
         logfun(repo)("NA", paste("Created revdep info for", pkg_name))
       } else {
         revdeps_header <- ""
@@ -212,11 +214,6 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
 
       # Create the HTML spash page
       logfun(repo)("NA", paste("Writing final pkg HTML info", pkg_name))
-      # Rename files from previous GRAN versions
-      if (file.exists(file.path(docdir, paste0(pkg_name, "-", splashname)))) {
-        file.rename(file.path(docdir, paste0(pkg_name, "-", splashname)),
-                    file.path(docdir, splashname))
-      }
       write(final_html, file = file.path(docdir, splashname))
     }
   }
