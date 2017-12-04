@@ -29,7 +29,8 @@ manifestHTML <- function(repo, theme = "bootstrap",
                         css.cell = ("padding-left: 0.5em; padding-right: 0.5em"),
                         css.class = "table-hover table-bordered table-striped",
                         css.table = "margin-left:10px;margin-right:10px;",
-                        align = "l")
+                        align = "l",
+                        escape.html = FALSE)
 
   # Get detailed build report
   cnames <- c("name", "lastAttemptVersion", "lastAttemptStatus", "lastAttempt",
@@ -144,7 +145,8 @@ manifestHTML <- function(repo, theme = "bootstrap",
                         css.class = "table-hover table-striped table-bordered",
                         css.table = "margin-left:10px; margin-right:10px;",
                         label = "builddetails",
-                        align = "l")
+                        align = "l",
+                        escape.html = FALSE)
   build_html <- gsub("border-bottom: 2px solid grey;", "", build_html)
 
   # Add JS, CSS to the report page

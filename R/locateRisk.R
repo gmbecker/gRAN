@@ -105,7 +105,8 @@ buildRiskReport = function(repo,
         css.class = "table table-striped table-hover",
         css.table = "margin-left:10px;margin-right:10px;",
         align = "l",
-        label = "updatedetails"
+        label = "updatedetails",
+        escape.html = FALSE
       )
     update_html <-
       gsub("border-bottom: 2px solid grey;", "", update_html)
@@ -136,7 +137,8 @@ buildRiskReport = function(repo,
       css.class = "table table-striped table-hover",
       css.table = "margin-left:10px;margin-right:10px;",
       align = "l",
-      label = "riskdetails"
+      label = "riskdetails",
+      escape.html = FALSE
     )
   )
   danger_html <- gsub("border-bottom: 2px solid grey;", "", danger_html)
