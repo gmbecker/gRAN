@@ -1,4 +1,4 @@
-Changes in version 1.6.6 (2017-11-10)
+Changes in version 1.6.7 (2017-12-04)
 
 - Improvements
   * Package sticker colors are obtained from ColorBrewer

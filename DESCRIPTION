@@ -13,7 +13,7 @@ License: Artistic-2.0
 Imports:
     tools,
     utils,
-    htmlTable,
+    htmlTable (>= 1.11.0),
     dplyr,
     sendmailR,
     covr,
