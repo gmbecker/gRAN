@@ -75,7 +75,8 @@ clear_repo = function(repo, all = TRUE, checkout = FALSE, archivedir = NA) {
         res = logical()
     d = destination(repo)
     if(!is.null(archivedir)) {
-        fils = list.files(d, pattern = builtPkgExt(), full.names = TRUE)
+        fils = list.files(d, pattern = builtPkgExt(),
+                          full.names = TRUE, recursive = TRUE)
         logfun(repo)("NA", sprintf("Found %d deployed packages. Copying to archive before clearing repository.", length(fils)))
         file.copy(fils, archivedir, overwrite = FALSE)
     }

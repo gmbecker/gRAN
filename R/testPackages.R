@@ -1,4 +1,4 @@
-doPkgTests = function(repo, cores = (parallel:::detectCores() - 1))
+doPkgTests <- function(repo, cores = (parallel:::detectCores() - 1))
 {
   logfun(repo)(
     "NA",
@@ -33,7 +33,7 @@ doPkgTests = function(repo, cores = (parallel:::detectCores() - 1))
   repo
 }
 
-installTest = function(repo, cores = (parallel:::detectCores() - 1))
+installTest <- function(repo, cores = (parallel:::detectCores() - 1))
 {
   logfun(repo)(
     "NA",
@@ -206,7 +206,7 @@ cleanupInstOut = function(outdir = staging_logs(repo), repo)
 }
 
 
-.innerCheck =  function(nm, tar, repo) {
+.innerCheck <- function(nm, tar, repo) {
   if (grepl("^GRAN", nm)) {
     logfun(repo)(nm,
                  paste("Not checking", nm, "package to avoid recursion problems"))
@@ -247,7 +247,7 @@ cleanupInstOut = function(outdir = staging_logs(repo), repo)
 }
 
 
-checkTest = function(repo, cores = (parallel:::detectCores() - 1))
+checkTest <- function(repo, cores = (parallel:::detectCores() - 1))
 {
   oldwd = getwd()
   setwd(staging(repo))

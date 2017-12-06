@@ -219,7 +219,7 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
   }
 
   logfun(repo)("NA", paste0("Completed HTML splash page creation for ",
-               length(bres$name), " packages."), type = "both")
+               length(bres$name), " packages."))
   NULL
 }
 
