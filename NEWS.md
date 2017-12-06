@@ -1,4 +1,13 @@
-Changes in version 1.6.6 (2017-11-10)
+Changes in version 2.0.0 (2017-12-05)
+
+- API Changes
+  * GRANRepository classes and methods have moved to the GRANCore package
+
+- Improvements
+  * Vignette is now in the Rmd format, and does not rely on BiocStyle anymore
+  * GRAN repository packages are now smaller in size, and only depend on GRANCore
+
+Changes in version 1.6.7 (2017-12-04)
 
 - Improvements
   * Package sticker colors are obtained from ColorBrewer
