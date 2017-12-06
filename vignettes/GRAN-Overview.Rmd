@@ -8,6 +8,10 @@ output:
   rmarkdown::html_document:
     theme: sandstone
     highlight: pygments
+vignette: >
+  %\VignetteIndexEntry{The GRAN repository system}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
 ---
 
 ```{r setup, include = FALSE}
