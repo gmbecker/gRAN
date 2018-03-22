@@ -1,3 +1,9 @@
+Changes in version 2.0.1 (2017-12-06)
+
+- Bugfixes
+  * switchr dependency is versioned (>= 0.9.28)
+  * Specify vignette engine
+
 Changes in version 2.0.0 (2017-12-05)
 
 - API Changes
@@ -20,7 +26,6 @@ Changes in version 1.6.7 (2017-12-04)
 Changes in version 1.6.6 (2017-11-10)
 
 - New Features
-  * Parallelize creation of covr reports
   * Create a CRAN-style archive directory, location can be optionally specified in repo params
   * Performance improvements
 
@@ -28,6 +33,15 @@ Changes in version 1.6.6 (2017-11-10)
   * Don't create covr reports if check_test is off
   * Handle cases when all packages build successfully
   * Risk report is properly styled
+
+Changes in version 1.6.5 (2017-11-02)
+
+- New Features
+  * Added README.md page
+
+- Improvements
+  * Force switchr to build only if remote (Github) version is greater than repo version
+  * Parallelize creation of covr reports
 
 Changes in version 1.6.4 (2017-09-01)
 
@@ -55,6 +69,7 @@ Changes in version 1.6.0 (2017-08-02)
 
 - New Features
   * Risk reports, build badges for covr reports & build status
+  * A JSON file containing metadata for the package is created in the PkgDocumentation directory
   * Beautified build report
 
 Changes in version 1.5.0 (2017-07-18)
