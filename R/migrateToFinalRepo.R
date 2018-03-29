@@ -51,13 +51,14 @@ migrateToFinalRepo = function(repo)
     setwd(repoLoc)
     on.exit(setwd(oldwd))
     updateArchive(repo)
+    createMeta(repo)
     write_PACKAGES(type="source")
     repo <- updateResults(repo)
     dummy <- pkgHTML(repo)
     if(clearstage) {
         out = tryCatch(unlink(list.files(stagingLoc,
                                           pattern = paste0("(PACKAGES|Rcheck|",
-                                                       builtPkgExt(regex=TRUE),
+                                                       "\\.tar\\..*$",
                                                        ")"), full.names=TRUE),
                                                        recursive = TRUE),
                                           error = function(x) x)
@@ -83,7 +84,7 @@ remFailedPkgTballs = function(repo) {
     failed = res$building & !isOkStatus(repo = repo)
     flpkgs = res$name[failed]
     tarbls = file.path(temp_repo(repo),"src", "contrib",  paste0(flpkgs, "_",
-                                            res$version[failed], builtPkgExt()))
+                                            res$version[failed], ".tar.gz"))
     tarbls = tarbls[file.exists(tarbls)]
     if(length(tarbls)>0) {
         logfun(repo)(NA, msg = paste("Removing", length(tarbls),
@@ -97,7 +98,7 @@ remOldPkgTballs = function(repo) {
 
     tballs = list.files(file.path(temp_repo(repo), "src/contrib"),
                         pattern = paste0(".+_[[:digit:]]+\\.[[:digit:]]+(\\.|-)[[:digit:]]\\",
-                                         builtPkgExt()),
+                                         ".tar.gz"),
                         full.names=TRUE)
     stuff = strsplit(basename(tballs), split="(\\.|-|_)")
     stuffdf = do.call(rbind, lapply(stuff, as.data.frame))
