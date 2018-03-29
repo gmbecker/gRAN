@@ -10,9 +10,9 @@ makeWinBins(repo, cores = (parallel:::detectCores() - 1),
 \arguments{
 \item{repo}{A GRANRepository object}
 
-\item{cores}{Number of cores to use during build process. defaults to (parallel:::detectCores() - 1)}
+\item{cores}{Number of cores to use during build process}
 
-\item{virtualstore}{Windows directory where built binary packages are initially stored}
+\item{virtualstore}{Windows VM directory where built binaries are stored}
 }
 \value{
 None

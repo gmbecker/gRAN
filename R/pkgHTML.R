@@ -500,6 +500,17 @@ createJSON <- function(repo, pkg_name, descr_df, scm_df, docdir,
   descr_df$RVersion <- R.version$version.string
   #descr_df$BiocVersion <- BiocInstaller::biocVersion()
 
+  # Add repo result information
+  bldresults <- repo_results(repo)
+  bldresults <- bldresults[bldresults$name == pkg_name, ]
+  descr_df$last_attempt_version <- bldresults$lastAttemptVersion
+  descr_df$last_attempt_status <- bldresults$lastAttemptStatus
+  descr_df$last_attempt_date <- bldresults$lastAttempt
+  descr_df$last_built_version <- bldresults$lastbuiltversion
+  descr_df$last_built_status <- bldresults$lastbuiltstatus
+  descr_df$last_built_date <- bldresults$lastbuilt
+  descr_df$is_suspended <- bldresults$suspended
+
   # Get documentation URL locations:
   doc_url <- paste0(repo_url(repo), "/PkgDocumentation/", pkg_name)
   descr_df$pkgdocs_url <- doc_url

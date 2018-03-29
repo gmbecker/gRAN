@@ -5,7 +5,7 @@
 \title{Create package metadata files}
 \usage{
 createMeta(repo, repodest = destination(repo), metadir = metadatadir(repo),
-  archive_dir = archivedir(repo))
+  archive_dir = archivedir(repo), serialize_json = FALSE)
 }
 \arguments{
 \item{repo}{A GRAN repo object}
@@ -16,6 +16,8 @@ createMeta(repo, repodest = destination(repo), metadir = metadatadir(repo),
 \item{metadir}{The directory containing metadata files}
 
 \item{archive_dir}{Directory containing package archive}
+
+\item{serialize_json}{Serialize the RDS metadata files as JSON}
 }
 \description{
 Create package metadata files
