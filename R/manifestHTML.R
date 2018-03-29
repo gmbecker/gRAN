@@ -15,7 +15,7 @@
 manifestHTML <- function(repo, theme = "bootstrap",
                 reportfile = file.path(destination(repo), "buildreport.html"),
                 riskrpt = FALSE,
-                jsonrpt = FALSE) {
+                jsonrpt = TRUE) {
 
   # Overall Build Stats
   title <- paste0("<title>GRAN", repo_name(repo), " Build Report</title>")

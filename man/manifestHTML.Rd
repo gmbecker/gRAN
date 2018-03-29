@@ -6,7 +6,7 @@
 \usage{
 manifestHTML(repo, theme = "bootstrap",
   reportfile = file.path(destination(repo), "buildreport.html"),
-  riskrpt = FALSE, jsonrpt = FALSE)
+  riskrpt = FALSE, jsonrpt = TRUE)
 }
 \arguments{
 \item{repo}{A GRANRepository object}

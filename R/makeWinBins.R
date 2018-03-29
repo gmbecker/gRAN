@@ -3,8 +3,8 @@
 #'
 #' @title Make Windows binary packages
 #' @param repo A GRANRepository object
-#' @param cores Number of cores to use during build process. defaults to (parallel:::detectCores() - 1)
-#' @param virtualstore Windows directory where built binary packages are initially stored
+#' @param cores Number of cores to use during build process
+#' @param virtualstore Windows VM directory where built binaries are stored
 #' @return None
 #' @author Dinakar Kulkarni
 #' @importFrom tools write_PACKAGES
@@ -36,10 +36,17 @@ makeWinBins <- function(repo,
                      Ncpus = cores)
 
     dummy <- mcmapply2(function(srcpkg) {
-              binpkg <- paste0(gsub("\\.tar\\..*$",
-                                    "", basename(srcpkg)), ".zip")
-              file.rename(from = file.path(virtualstore, binpkg),
-                          to = file.path(windowsbindir, binpkg))
+        binpkg <- paste0(gsub("\\.tar\\..*$",
+                              "", basename(srcpkg)), ".zip")
+        if (file.exists(file.path(virtualstore, binpkg))) {
+            file.rename(from = file.path(virtualstore, binpkg),
+                        to = file.path(windowsbindir, binpkg))
+        } else if (file.exists(file.path(getwd(), binpkg))) {
+            file.rename(from = file.path(getwd(), binpkg),
+                        to = file.path(windowsbindir, binpkg))
+        } else {
+            message(getwd(), " is the working dir and no zips were created here")
+        }
     }, pkgName = srcbuilds, mc.cores = cores)
 
     # Create PACKAGES files
