@@ -16,29 +16,29 @@ buildBranchesInRepo <- function(repo, cores = (parallel:::detectCores() - 1),
                                 temp=FALSE,
                                 incremental = TRUE,
                                 manifest = manifest_df(repo)) {
-    binds = getBuilding(repo = repo)
+    binds <- getBuilding(repo = repo)
     if(!sum(binds))
     {
         logfun(repo)("NA", "No packages to build in buildBranchesInRepo.")
         return(repo)
     }
-    manifest = getBuildingManifest(repo = repo)
-    results = getBuildingResults(repo = repo)
-    scmCheckoutsLoc = getCheckoutLocs(checkout_dir(repo), manifest, manifest$branch)
+    manifest <- getBuildingManifest(repo = repo)
+    results <- getBuildingResults(repo = repo)
+    scmCheckoutsLoc <- getCheckoutLocs(checkout_dir(repo), manifest, manifest$branch)
     if(temp) {
-        repoLoc = temp_repo(repo)
+        repoLoc <- temp_repo(repo)
         if(!grepl("src/contrib", repoLoc, fixed=TRUE))
         {
             if(!grepl(repo_name(repo), repoLoc, fixed=TRUE))
-                repoLoc = file.path(repoLoc, repo_name(repo), "src", "conbrib")
+                repoLoc <- file.path(repoLoc, repo_name(repo), "src", "conbrib")
             else
-                repoLoc = file.path(repoLoc, "src", "contrib")
+                repoLoc <- file.path(repoLoc, "src", "contrib")
         }
         #opts = c("--no-build-vignettes", "--no-manual", "--no-resave-data")
-        opts = c("--no-build-vignettes", "--no-resave-data")
+        opts <- c("--no-build-vignettes", "--no-resave-data")
     } else {
-        repoLoc = staging(repo)
-        opts = "--resave-data"
+        repoLoc <- staging(repo)
+        opts <- "--resave-data"
     }
 
     if(!file.exists(repoLoc))
@@ -53,24 +53,24 @@ buildBranchesInRepo <- function(repo, cores = (parallel:::detectCores() - 1),
         ## Only build  packages into the temp repo that aren't already there.
         ## Not doing this was causing unreasonably slow times when
         ## not very many packages ended up being actually built
-        oldvers = character(length(scmCheckoutsLoc))
-        names(oldvers) = results$name
-        avl = tryCatch(available.packages(makeFileURL( repoLoc), filters= "duplicates"),
+        oldvers <- character(length(scmCheckoutsLoc))
+        names(oldvers) <- results$name
+        avl <- tryCatch(available.packages(makeFileURL( repoLoc), filters= "duplicates"),
             error = function(x) x)
         if(is(avl, "error"))
-            oldvers = rep(NA, times = nrow(results))
+            oldvers <- rep(NA, times = nrow(results))
         else {
-            inds = match(avl[,"Package"], names(oldvers))
-            inds = inds[!is.na(inds)]
-            pkgs = names(oldvers)[inds]
-            oldvers[pkgs] = avl[pkgs,"Version"]
-            oldvers[!nchar(oldvers)] = NA
+            inds <- match(avl[,"Package"], names(oldvers))
+            inds <- inds[!is.na(inds)]
+            pkgs <- names(oldvers)[inds]
+            oldvers[pkgs] <- avl[pkgs,"Version"]
+            oldvers[!nchar(oldvers)] <- NA
         }
     } else {
-        oldvers = as.character(results$lastbuiltversion)
+        oldvers <- as.character(results$lastbuiltversion)
     }
 
-    vers_restrict = subset(versions_df(repo), versions_df(repo)$name %in% manifest$name)
+    vers_restrict <- subset(versions_df(repo), versions_df(repo)$name %in% manifest$name)
 
     res <- mcmapply2(function(...) tryCatch(.innerBuild(...), error = function(e) c("0.0-0" = "failed")),
                      checkout = scmCheckoutsLoc,
@@ -83,8 +83,8 @@ buildBranchesInRepo <- function(repo, cores = (parallel:::detectCores() - 1),
                      temp = temp,
                      USE.NAMES=FALSE,
                      mc.preschedule = FALSE)
-    versions = names(res)
-    res = unlist(res)
+    versions <- names(res)
+    res <- unlist(res)
     ## at the temp stage we don't want to include anything
     ## from the list of potential builds, we just want
     ## to avoid unnecessary building within the temporary
@@ -110,23 +110,23 @@ buildBranchesInRepo <- function(repo, cores = (parallel:::detectCores() - 1),
         warning("Warning: not all packages were succesfully built")
     }
 
-    res2 = res[!sameversion]
-    results$status[!sameversion] = ifelse(res2=="ok", "ok", "build failed")
-    results$status[sameversion] = "up-to-date"
-    results$version[built] = versions[built]
-    results$maintainer = getMaintainers(checkout_dir(repo),
+    res2 <- res[!sameversion]
+    results$status[!sameversion] <- ifelse(res2=="ok", "ok", "build failed")
+    results$status[sameversion] <- "up-to-date"
+    results$version[built] <- versions[built]
+    results$maintainer <- getMaintainers(checkout_dir(repo),
                            manifest = manifest)
-    repo_results(repo)[binds,] = results
+    repo_results(repo)[binds,] <- results
     return(repo)
 
 }
 
-.innerBuild = function (checkout, repo, opts, oldver, vers_restr, incremental, temp) {
+.innerBuild <- function (checkout, repo, opts, oldver, vers_restr, incremental, temp) {
 
     ## incremental build logic. If incremental == TRUE,
     ## we only rebuild if the package version number has bumped.
-    vnum = read.dcf(file.path(checkout, "DESCRIPTION"))[1,"Version"]
-    pkg = getPkgNames(checkout)
+    vnum <- read.dcf(file.path(checkout, "DESCRIPTION"))[1,"Version"]
+    pkg <- getPkgNames(checkout)
 
     if(!is.na(vers_restr) && vnum != vers_restr) {
         logfun(repo)(pkg, paste("Wrong version number for pkg",
@@ -134,8 +134,8 @@ buildBranchesInRepo <- function(repo, cores = (parallel:::detectCores() - 1),
                                 "have", vnum, "error earlier",
                                 "in build process?"),
                      type = "both")
-        ret = "wrong version"
-        names(ret) = vnum
+        ret <- "wrong version"
+        names(ret) <- vnum
         return(ret)
     }
 
@@ -147,43 +147,43 @@ buildBranchesInRepo <- function(repo, cores = (parallel:::detectCores() - 1),
                                  ". Building new version ", vnum))
     } else if (incremental) {
         logfun(repo)(pkg, paste0("Package up to date at version ", vnum, ". Not rebuilding."))
-        ret = "up-to-date"
-        names(ret) = vnum
+        ret <- "up-to-date"
+        names(ret) <- vnum
         return(ret)
     } else {
         logfun(repo)(pkg, paste0("Forcing rebuild of version ", vnum, "."))
     }
-    evars = character()
+    evars <- character()
 
 
     #GRANBase is loaded, so new versions of repo packages can fail to
     # load. Do simple, no-install builds for GRANBase and GRAN* packages, always
     if((temp || grepl("^GRAN", pkg)) && !grepl("--no-build-vignettes", opts))
-        opts = c(opts, "--no-build-vignettes")
-    evars = c(evars, "R_TESTS=''")
+        opts <- c(opts, "--no-build-vignettes")
+    evars <- c(evars, "R_TESTS=''")
     ## make sure that we hit the actual R that we're currently in, even if
     ## it's not the default/system R installation
     command <- file.path(R.home("bin"), "R")
-    opts = c(paste("CMD build", checkout), opts)
+    opts <- c(paste("CMD", "build", checkout), opts)
 
-    evars = c(evars, paste0("R_LIBS=", temp_lib(repo)))
-    out = tryCatch(system_w_init(command, args = opts, env = evars, intern = TRUE,
+    evars <- c(evars, paste0("R_LIBS=", temp_lib(repo)))
+    out <- tryCatch(system_w_init(command, args = opts, env = evars, intern = TRUE,
         param = param(repo)), error = function(x) x)
     ## all the ways we can know it didn't work...
     if(is(out, "error") ||
        ("status" %in% attributes(out) && attr(out, "status") > 0) ||
-       !file.exists(paste0(pkg, "_", vnum, builtPkgExt()))) {
-        type = if(temp) "Temporary" else "Final"
+       !file.exists(paste0(pkg, "_", vnum, ".tar.gz"))) {
+        type <- if(temp) "Temporary" else "Final"
         logfun(repo)(pkg, paste(type, "Package build failed. R CMD build",
                                 "returned non-zero status"), type ="both")
         logfun(repo)(pkg, c("R CMD build output for failed package build:",
                      out), type="error")
-        ret = "failed"
+        ret <- "failed"
     } else {
         #XXX we want to include the full output when the build succeeds?
         logfun(repo)(pkg, "Successfully built package.", type="full")
-        ret = "ok"
+        ret <- "ok"
     }
-    names(ret) = vnum
+    names(ret) <- vnum
     ret
 }

@@ -95,8 +95,7 @@ install.packages2 <- function(pkgs, repos, lib,  ..., param = SwitchrParam(),
     ##install.packages(pkgs, ..., keep_outputs=outdir)
     avail = available.packages(contrib.url(repos, type = "source"))
     install.packages(pkgs = pkgs, repos = repos,
-                         INSTALL_opts = sprintf("-l %s", lib), lib = lib,
-                         ..., keep_outputs=TRUE)
+                     lib = lib, ..., keep_outputs=TRUE)
     ret = sapply(pkgs, function(p)
     {
         if(! p %in% avail[,"Package"])
@@ -133,22 +132,6 @@ getBuildingResults <- function(repo, results = repo_results(repo))
 }
 
 
-builtPkgExt <- function(regex = FALSE) {
-##    if(Sys.info()["sysname"] == "Darwin")
-##        ret = ".tgz"
-    ##    else if (.Platform$OS.type == "windows")
-    if (.Platform$OS.type == "windows")
-        ret = ".zip"
-    else
-        ret = ".tar.gz"
-
-    if(regex)
-        ret = gsub(".", "\\.", fixed=TRUE, ret)
-    ret
-
-}
-
-
 trim_PACKAGES <- function(dir) {
 
     pkgs = read.dcf(file.path(dir, "PACKAGES"))
@@ -157,7 +140,7 @@ trim_PACKAGES <- function(dir) {
         fils = pkgsdf$Files
     else {
         fils = file.path(dir, paste0(pkgsdf$Package, "_",
-                                     pkgsdf$Version, builtPkgExt()))
+                                     pkgsdf$Version, ".tar.gz"))
     }
     missing = !file.exists(fils)
     pkgsdf = pkgsdf[!missing,]
@@ -210,7 +193,7 @@ getOS <- function(){
     os <- sysinf['sysname']
     if (os == 'Darwin')
       os <- "osx"
-  } else { ## mystery machine
+  } else {
     os <- .Platform$OS.type
     if (grepl("^darwin", R.version$os))
       os <- "osx"

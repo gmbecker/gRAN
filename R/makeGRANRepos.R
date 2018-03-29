@@ -51,12 +51,12 @@ setMethod("makeRepo", "GRANRepository",
     }
     repo = x
     if(file.exists(destination(repo)))
-        repo2 = tryCatch(loadRepo(paste(destination(repo), "repo.R",
-                                        sep="/")), error = function(x) NULL)
+        repo2 = suppressWarnings(tryCatch(
+                    loadRepo(file.path(destination(repo), "repo.R")), error = function(x) NULL))
     else
         repo2 = suppressWarnings(tryCatch(
-                              loadRepo(paste(repo_url(repo), "repo.R", sep="/")), 
-                              error = function(x) NULL))
+                    loadRepo(paste(repo_url(repo), "repo.R", sep="/")),
+                    error = function(x) NULL))
     if(!is.null(repo2) ) {
         res = repo_results(repo)
         res2 = repo_results(repo2)
@@ -104,6 +104,11 @@ setMethod("makeRepo", "GRANRepository",
     message(paste("starting migrateToFinalRepo", Sys.time()))
     message(paste("Built", sum(getBuilding(repo)), "packages"))
     repo = suppressWarnings(migrateToFinalRepo(repo))
+
+    # Create Windows binaries
+    if (make_windows_bins(repo) && getOS() == "windows") {
+        makeWinBins(repo, cores = cores)
+    }
 
     finalizeRepo(repo)
     message(paste("Completed makeRepo at", Sys.time()))

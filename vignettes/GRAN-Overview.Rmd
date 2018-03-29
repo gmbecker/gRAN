@@ -38,18 +38,18 @@ options(error=traceback)
 ```
 
 ```{r makerepo, echo = TRUE, eval = TRUE, results = "hide", warning = FALSE, message = FALSE, error = FALSE}
-testpkgs <- list.files(system.file("testpkgs", package = "GRANBase"), 
+testpkgs <- list.files(system.file("testpkgs", package = "GRANBase"),
                        full.names = TRUE)
 man <- PkgManifest(name = basename(testpkgs),
                   url = testpkgs, type = "local")
 repdir <- file.path(tempdir(), "repos")
 if(!file.exists(repdir)) dir.create(repdir)
-repo <- makeRepo(man, 
-                repo_name= "stable", 
-                basedir = repdir, 
-                destination = repdir, 
-                cores = 1L, 
-                install_test = FALSE, 
+repo <- makeRepo(man,
+                repo_name= "stable",
+                basedir = repdir,
+                destination = repdir,
+                cores = 1L,
+                install_test = FALSE,
                 check_test = FALSE)
 ```
 
@@ -73,7 +73,7 @@ The `makeRepo()` function also accepts a `build_pkgs` argument, which will cause
 
 ```{r makestablerepo2, echo = TRUE, eval = FALSE}
 repo2 <- makeRepo(repo,
-                  build_pkgs = basename(testpkgs)[1], 
+                  build_pkgs = basename(testpkgs)[1],
                   cores = 1L)
 ```
 
@@ -83,8 +83,8 @@ repo2 <- makeRepo(repo,
 GRANBase performs the following steps when creating or updating a repository. At the end of each step, the packages' statuses are updated to reflect the results of that step.
 
 * Up-to-date copies of package sources are obtained for each package being built, including updating previously checked out versions
-* Packages whose versions have changed since their last successful build, or who are reverse dependencies of such a package, are built without vignettes into a temporary repository via `R CMD build`. 
-* Packages which successfully built, along with their GRANBase, `CRAN`, and `Bioconductor`-based dependencies, are installed into a temporary library location. 
+* Packages whose versions have changed since their last successful build, or who are reverse dependencies of such a package, are built without vignettes into a temporary repository via `R CMD build`.
+* Packages which successfully built, along with their GRANBase, `CRAN`, and `Bioconductor`-based dependencies, are installed into a temporary library location.
 * Packages which successfully installed are built again, with vignettes, into a staging directory.
 * Remaining packages are tested via `R CMD CHECK`, and their statuses are updated accordingly
 * Packages which meet the requirements set for the repository (`CHECK` warnings and notes can be all owed, or not) are deployed into the final destination repository

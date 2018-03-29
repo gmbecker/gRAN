@@ -1,8 +1,9 @@
 #' Create HTML splash pages for packages
 #' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @importFrom htmlTable htmlTable
-#' @importFrom tools file_path_sans_ext
+#' @importFrom tools file_path_sans_ext file_ext
 #' @importFrom jsonlite toJSON
+#' @importFrom markdown markdownToHTML
 #' @param repo A gRAN repo object
 #' @param splashname Filename for the HTML splash page
 #' @param theme CSS theme. bootstrap, foundation, semanticui or jqueryui
@@ -148,6 +149,7 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
 
       check_docs <- file.path(check_dir, pkg_name, 'doc')
       if (file.exists(check_docs)) {
+
         # Create link for PDF Vignettes files
         rnw_files <- list.files(check_docs, pattern = "\\.Rnw", full.names = TRUE)
         if (length(rnw_files) > 0) {
@@ -164,6 +166,7 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
                                                       collapse = ", "), "</p>")
           logfun(repo)("NA", paste("Created PDF Vignette info for", pkg_name))
         } else pdf_vign_header <- ""
+
         # Create link for HTML Vignettes files
         rmd_files <- list.files(check_docs, pattern = "\\.Rmd", full.names = TRUE)
         if (length(rmd_files) > 0) {
@@ -180,13 +183,20 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
                                                       collapse = ", "), "</p>")
           logfun(repo)("NA", paste("Created HTML Vignette info", pkg_name))
         } else html_vign_header <- ""
+
         # Create link for NEWS files
         news_files <- list.files(file.path(check_docs, '..'),
                                   pattern = "NEWS*", full.names = TRUE)
         if (length(news_files) > 0) {
           news_vec <- c()
           for (news_file in news_files) {
-            file.copy(news_file, docdir)
+            # Convert NEWS.md into HTML
+            if(file_ext(news_file) == "md") {
+              markdownToHTML(file = news_file,
+                             output = file.path(docdir, basename(news_file)))
+            } else {
+              file.copy(news_file, docdir)
+            }
             news_url <- createURL(file.path("..", "..", "PkgDocumentation",
                                    pkg_name, basename(news_file)),
                                    label = basename(news_file))
@@ -196,15 +206,40 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
                                                       collapse = ", "), "</p>")
           logfun(repo)("NA", paste("Created NEWS info", pkg_name))
         } else news_header <- ""
+
+        # Create link for README files
+        readme_files <- list.files(file.path(check_docs, '..', '..',
+                                             '00_pkg_src', pkg_name),
+                                  pattern = "README*", full.names = TRUE)
+        if (length(readme_files) > 0) {
+          readme_vec <- c()
+          for (readme_file in readme_files) {
+            # Convert README.md into HTML
+            if(file_ext(readme_file) == "md") {
+              markdownToHTML(file = readme_file,
+                             output = file.path(docdir, basename(readme_file)))
+            } else {
+              file.copy(readme_file, docdir)
+            }
+            readme_url <- createURL(file.path("..", "..", "PkgDocumentation",
+                                   pkg_name, basename(readme_file)),
+                                   label = basename(readme_file))
+            readme_vec <- append(readme_vec, readme_url)
+          }
+          readme_header <- paste("<p>README files:",
+                                 paste(readme_vec, collapse = ", "), "</p>")
+          logfun(repo)("NA", paste("Created README info", pkg_name))
+        } else readme_header <- ""
       } else {
         pdf_vign_header <- ""
         html_vign_header <- ""
         news_header <- ""
+        readme_header <- ""
       }
 
       # Create HTML snippet for documentation, NEWS, vignettes
 
-      doc_content <- paste(manref_url, pdf_vign_header,
+      doc_content <- paste(readme_header, manref_url, pdf_vign_header,
                            html_vign_header, news_header)
 
       # Construct final HTML

@@ -5,7 +5,7 @@
 \title{Move older package sources to the Archive directory}
 \usage{
 updateArchive(repo, repodest = destination(repo),
-  archive = archivedir(repo))
+  archive = archivedir(repo), ext = "\\\\.tar\\\\..*$")
 }
 \arguments{
 \item{repo}{A GRAN repo object}
@@ -14,6 +14,8 @@ updateArchive(repo, repodest = destination(repo),
 (something that looks like BASE_REPO_DIR/src/contrib)}
 
 \item{archive}{The Archive directory where older packages will be stored}
+
+\item{ext}{Regex describing the file extension of the built packages}
 }
 \description{
 Move older versions of packages into the repo Archive

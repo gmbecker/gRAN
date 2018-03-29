@@ -1,5 +1,5 @@
 #right now we only look for and care about reverse dependencies
-# in GRAN packages so we only look in repo@TempLibLoc
+# in GRAN packages so we only look in repo@tempLibLoc
 addRevDeps <- function(repo)
 {
     ##reset and recalculate reverse dependencies every time. Expensive

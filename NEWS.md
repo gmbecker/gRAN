@@ -1,6 +1,16 @@
 Changes in version 2.0.1 (2017-12-06)
 
 - Bugfixes
+  * Set correct statuses for package builds
+
+- New Features
+  * Added support for Windows binary builds
+  * Metadata RDS files are created in the Meta folder of the repository
+  * Package README file links are available on package splash pages
+
+Changes in version 2.0.1 (2017-12-06)
+
+- Bugfixes
   * switchr dependency is versioned (>= 0.9.28)
   * Specify vignette engine
 
