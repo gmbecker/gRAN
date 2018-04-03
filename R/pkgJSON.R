@@ -47,9 +47,13 @@ createJSON <- function(repo, pkg_name, descr_df, scm_df, docdir,
 
   # Convert to JSON
   desc_json <- toJSON(descr_df, pretty = TRUE)
-  json_outfile <- file.path(docdir, paste0(pkg_name, suffix))
+  # Make sure JSON is not in the form of a list,
+  # Trim leading and trailing list markers i.e. '[' and ']'
+  desc_json <- substring(desc_json, 2)
+  desc_json <- substr(desc_json, 1, nchar(desc_json) - 1)
 
   # Write JSON
+  json_outfile <- file.path(docdir, paste0(pkg_name, suffix))
   logfun(repo)(pkg_name, "Writing package metadata JSON file")
   write(desc_json, json_outfile)
 }
