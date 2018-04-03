@@ -2,7 +2,7 @@
 % Please edit documentation in R/createMeta.R
 \name{createMeta}
 \alias{createMeta}
-\title{Create package metadata files}
+\title{Create package metadata files in the "Meta" folder}
 \usage{
 createMeta(repo, repodest = destination(repo), metadir = metadatadir(repo),
   archive_dir = archivedir(repo), serialize_json = FALSE)

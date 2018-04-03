@@ -1,4 +1,7 @@
-Changes in version 2.0.1 (2017-12-06)
+Changes in version 2.1.0 (2017-12-06)
+
+- Improvements
+  * Always update packages in the temporary library before testing
 
 - Bugfixes
   * Set correct statuses for package builds
