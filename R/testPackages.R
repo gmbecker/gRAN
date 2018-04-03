@@ -33,6 +33,7 @@ doPkgTests <- function(repo, cores = (parallel:::detectCores() - 1))
   repo
 }
 
+#' @importFrom utils update.packages
 installTest <- function(repo, cores = (parallel:::detectCores() - 1))
 {
   logfun(repo)(
@@ -92,6 +93,10 @@ installTest <- function(repo, cores = (parallel:::detectCores() - 1))
   if(nrow(bres) == 0) {
     return(repo)
   }
+
+  # Update packages in the temporary library,
+  # given that we always want to test with the latest available packages
+  update.packages(lib.loc = loc, repos = reps, ask = FALSE, instlib = loc)
 
   res = install.packages2(bres$name,
                           lib = loc,

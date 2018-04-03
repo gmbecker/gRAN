@@ -1,6 +1,6 @@
 #' Create package metadata files
 #'
-#' @title Create package metadata files
+#' @title Create package metadata files in the "Meta" folder
 #' @importFrom jsonlite serializeJSON
 #' @param repo A GRAN repo object
 #' @param repodest The repo destination
