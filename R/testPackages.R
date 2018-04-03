@@ -96,7 +96,8 @@ installTest <- function(repo, cores = (parallel:::detectCores() - 1))
 
   # Update packages in the temporary library,
   # given that we always want to test with the latest available packages
-  update.packages(lib.loc = loc, repos = reps, ask = FALSE, instlib = loc)
+  update.packages(lib.loc = loc, repos = dep_repos(repo),
+                  ask = FALSE, instlib = loc)
 
   res = install.packages2(bres$name,
                           lib = loc,
