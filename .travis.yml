@@ -1,0 +1,4 @@
+language: R
+cache: packages
+bioc_packages: BiocInstaller
+r_github_packages: gmbecker/GRANCore
