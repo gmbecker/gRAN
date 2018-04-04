@@ -1,4 +1,4 @@
-doPkgTests = function(repo, cores = (parallel:::detectCores() - 1))
+doPkgTests <- function(repo, cores = (parallel:::detectCores() - 1))
 {
   logfun(repo)(
     "NA",
@@ -33,7 +33,8 @@ doPkgTests = function(repo, cores = (parallel:::detectCores() - 1))
   repo
 }
 
-installTest = function(repo, cores = (parallel:::detectCores() - 1))
+#' @importFrom utils update.packages
+installTest <- function(repo, cores = (parallel:::detectCores() - 1))
 {
   logfun(repo)(
     "NA",
@@ -92,6 +93,11 @@ installTest = function(repo, cores = (parallel:::detectCores() - 1))
   if(nrow(bres) == 0) {
     return(repo)
   }
+
+  # Update packages in the temporary library,
+  # given that we always want to test with the latest available packages
+  update.packages(lib.loc = loc, repos = dep_repos(repo),
+                  ask = FALSE, instlib = loc)
 
   res = install.packages2(bres$name,
                           lib = loc,
@@ -206,15 +212,11 @@ cleanupInstOut = function(outdir = staging_logs(repo), repo)
 }
 
 
-.innerCheck =  function(nm, tar, repo) {
+.innerCheck <- function(nm, tar, repo) {
   if (grepl("^GRAN", nm)) {
     logfun(repo)(nm,
                  paste("Not checking", nm, "package to avoid recursion problems"))
-    return(c(
-      paste("*", nm, "not checked to prevent recursion"),
-      "* DONE",
-      "* Status: OK"
-    ))
+    return(c(paste("*", nm, "not checked to prevent recursion")))
   }
   logfun(repo)(nm, paste("Running R CMD check on ", tar))
   ## We built the vignettes during this round of building, so if the pkg is going to
@@ -247,7 +249,7 @@ cleanupInstOut = function(outdir = staging_logs(repo), repo)
 }
 
 
-checkTest = function(repo, cores = (parallel:::detectCores() - 1))
+checkTest <- function(repo, cores = (parallel:::detectCores() - 1))
 {
   oldwd = getwd()
   setwd(staging(repo))
@@ -271,7 +273,7 @@ checkTest = function(repo, cores = (parallel:::detectCores() - 1))
     return(repo)
   }
   expectedTars = file.path(staging(repo),
-                           paste0(bres$name, "_", bres$version, builtPkgExt()))
+                           paste0(bres$name, "_", bres$version, ".tar.gz"))
   tars = expectedTars[file.exists(expectedTars)]
   if (!identical(expectedTars, tars)) {
     missing = !file.exists(expectedTars)
@@ -315,22 +317,28 @@ checkTest = function(repo, cores = (parallel:::detectCores() - 1))
 
         ret = "check fail"
       } else {
-        numwarns = length(grep("WARNING", out)) - 1 ##-1 to account for the WARNING count
-        numnotes = length(grep("NOTE", out)) - 1
-        license = any(grepl("Non-standard license", out))
-        ##Nonstandard but standardizable licence is a NOTE
+        ##-1 to account for the Status count
+        numwarns <- length(grep("\\.\\.\\. WARNING$", out)) - 1
+        numnotes <- length(grep("\\.\\.\\. NOTE$", out)) - 1
+        okstatus <- any(grepl("^Status: OK", out))
+        notchecked <- any(grepl("not checked to prevent recursion", out))
+        license <- any(grepl("Non-standard license", out))
+        ##Nonstandard but standardizable license is a NOTE
         ##Nonstandard and non-standardizable license is a WARNING
-        licIsWarning = license &&
-          any(grepl("Standardizable: TRUE", out))
+        licIsWarning = license && any(grepl("Standardizable: TRUE", out))
         ##non-standard license
-        if (numwarns - licIsWarning > 0) {
+        if (numwarns - licIsWarning > 0 && !okstatus) {
           logfun(repo)(nm, "R CMD check raised warnings.", type = "warn")
           outToErrLog = TRUE
           ret = "check warning(s)"
-        } else if (numnotes-!licIsWarning > 0) {
+        } else if (numnotes - !licIsWarning > 0 && !okstatus && !notchecked) {
           logfun(repo)(nm, "R CMD check raised notes.", type = "warn")
           outToErrLog = TRUE
           ret = "check note(s)"
+        } else if (notchecked) {
+          logfun(repo)(nm, "Not doing R CMD check", type = "full")
+          outToErrLog = FALSE
+          ret = "ok - not tested"
         } else {
           logfun(repo)(nm, "R CMD check passed.", type = "full")
           outToErrLog = FALSE

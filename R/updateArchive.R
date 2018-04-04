@@ -5,23 +5,24 @@
 #' @param repodest The repo destination
 #'    (something that looks like BASE_REPO_DIR/src/contrib)
 #' @param archive The Archive directory where older packages will be stored
+#' @param ext Regex describing the file extension of the built packages
 #' @author Dinakar Kulkarni
 updateArchive <- function (repo, repodest = destination(repo),
-                           archive = archivedir(repo)) {
+                           archive = archivedir(repo),
+                           ext = "\\.tar\\..*$") {
   if (!file.exists(archive)) {
     if (!dir.create(archive, recursive = TRUE)) {
-      stop("Repo Archive not found and could not be created\n", call. = FALSE)
+      stop("archive not found and could not be created\n", call. = FALSE)
     }
   }
 
   # Identify which packages are new vs which are old
-  ext <- "\\.tar\\..*$"
-  tarballs <- list.files(repodest, pattern = ext, full.names = FALSE)
-  noextfiles <- gsub(ext, "", tarballs)
-  pkgs <- sapply(strsplit(tarballs, "_", fixed = TRUE), "[", 1L)
+  builtpkgs <- list.files(repodest, pattern = ext, full.names = FALSE)
+  noextfiles <- gsub(ext, "", builtpkgs)
+  pkgs <- sapply(strsplit(builtpkgs, "_", fixed = TRUE), "[", 1L)
   verstxt <- gsub("[a-zA-Z0-9\\.]*_", "", noextfiles)
   vers <- package_version(verstxt)
-  df <- data.frame(file = tarballs, package = pkgs,
+  df <- data.frame(file = builtpkgs, package = pkgs,
                    version = vers, stringsAsFactors = FALSE)
   df <- df[order(df$package, df$version, decreasing = TRUE), ]
   df$newest <- !duplicated(df$package)

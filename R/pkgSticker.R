@@ -1,11 +1,11 @@
 #' Create hex stickers for packages
 #' @author Dinakar Kulkarni <kulkard2@gene.com>
-#' @importFrom hexSticker sticker
 #' @param pkgName Name of the package
 #' @param destination Directory where the sticker will be saved
 #' @return None
 #' @export
 createSticker <- function(pkgName, destination) {
+  if (requireNamespace("hexSticker", quietly = TRUE)) {
     pkgcrypt <- encode_string(pkgName)
 
     pkgFontColor <- setNames(as.list(c("#2B1B17", "#4863A0", "#000080",
@@ -34,13 +34,18 @@ createSticker <- function(pkgName, destination) {
     }
 
     # Create the sticker
-    sticker(system.file2("assets", "images", "pkg.png"),
-            package = pkgName,
-            filename = file.path(destination, paste0(pkgName, ".png")),
-            p_size = fontsize,
-            s_x = 1, s_y = 0.6,
-            s_width = 0.9, s_height = 0.9,
-            p_color = as.character(pkgFontColor[as.character(x)]),
-            h_fill = as.character(pkgFillColor[as.character(y)]),
-            h_color = as.character(pkgOutlineColor[as.character(z)]))
+    hexSticker::sticker(system.file2("assets", "images", "pkg.png"),
+                        package = pkgName,
+                        filename = file.path(destination,
+                                             paste0(pkgName, ".png")),
+                        p_size = fontsize,
+                        s_x = 1, s_y = 0.6,
+                        s_width = 0.9, s_height = 0.9,
+                        p_color = as.character(pkgFontColor[as.character(x)]),
+                        h_fill = as.character(pkgFillColor[as.character(y)]),
+                        h_color = as.character(pkgOutlineColor[as.character(z)]))
+  } else {
+    file.copy(from = system.file2("assets", "images", "pkg.png"),
+              to = file.path(destination, paste0(pkgName, ".png")))
+  }
 }

@@ -1,4 +1,4 @@
-saveRepoFiles = function(repo) {
+saveRepoFiles <- function(repo) {
   repolock = file.path(repobase(repo), "repo.R.LOCK")
   if (file.exists(repolock)) {
     last = strftime(readLines(repolock))
@@ -19,8 +19,8 @@ saveRepoFiles = function(repo) {
   NULL
 }
 
-finalizeRepo = function(repo) {
-  manifestHTML(repo)
+finalizeRepo <- function(repo) {
+  buildReport(repo)
   saveRepoFiles(repo)
   if (!file.exists(file.path(repobase(repo), "getGRAN.R"))) {
     file.copy(file.path(repobase(repo), paste0("GRAN", repo_name(repo)), "inst",

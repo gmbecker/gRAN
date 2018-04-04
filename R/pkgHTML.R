@@ -1,8 +1,9 @@
 #' Create HTML splash pages for packages
 #' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @importFrom htmlTable htmlTable
-#' @importFrom tools file_path_sans_ext
+#' @importFrom tools file_path_sans_ext file_ext
 #' @importFrom jsonlite toJSON
+#' @importFrom markdown markdownToHTML
 #' @param repo A gRAN repo object
 #' @param splashname Filename for the HTML splash page
 #' @param theme CSS theme. bootstrap, foundation, semanticui or jqueryui
@@ -69,7 +70,8 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
                         css.cell = ("padding-left: 0.5em; padding-right: 0.5em"),
                         css.class = "table table-striped table-hover",
                         css.table = "margin-left:10px;margin-right:10px;",
-                        align="l", rnames = names(descr_df),
+                        align="l",
+                        rnames = names(descr_df),
                         escape.html = FALSE)
         logfun(repo)("NA", paste("Created DESCRIPTION info for", pkg_name))
       } else {
@@ -84,7 +86,8 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
                         css.cell = ("padding-left: 0.5em; padding-right: 0.5em"),
                         css.class = "table table-striped table-hover",
                         css.table = "margin-left:10px;margin-right:10px;",
-                        align="l", rnames = names(revdeps),
+                        align="l",
+                        rnames = names(revdeps),
                         escape.html = FALSE)
         logfun(repo)("NA", paste("Created revdep info for", pkg_name))
       } else {
@@ -146,6 +149,7 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
 
       check_docs <- file.path(check_dir, pkg_name, 'doc')
       if (file.exists(check_docs)) {
+
         # Create link for PDF Vignettes files
         rnw_files <- list.files(check_docs, pattern = "\\.Rnw", full.names = TRUE)
         if (length(rnw_files) > 0) {
@@ -162,6 +166,7 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
                                                       collapse = ", "), "</p>")
           logfun(repo)("NA", paste("Created PDF Vignette info for", pkg_name))
         } else pdf_vign_header <- ""
+
         # Create link for HTML Vignettes files
         rmd_files <- list.files(check_docs, pattern = "\\.Rmd", full.names = TRUE)
         if (length(rmd_files) > 0) {
@@ -178,13 +183,20 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
                                                       collapse = ", "), "</p>")
           logfun(repo)("NA", paste("Created HTML Vignette info", pkg_name))
         } else html_vign_header <- ""
+
         # Create link for NEWS files
         news_files <- list.files(file.path(check_docs, '..'),
                                   pattern = "NEWS*", full.names = TRUE)
         if (length(news_files) > 0) {
           news_vec <- c()
           for (news_file in news_files) {
-            file.copy(news_file, docdir)
+            # Convert NEWS.md into HTML
+            if(file_ext(news_file) == "md") {
+              markdownToHTML(file = news_file,
+                             output = file.path(docdir, basename(news_file)))
+            } else {
+              file.copy(news_file, docdir)
+            }
             news_url <- createURL(file.path("..", "..", "PkgDocumentation",
                                    pkg_name, basename(news_file)),
                                    label = basename(news_file))
@@ -194,15 +206,40 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
                                                       collapse = ", "), "</p>")
           logfun(repo)("NA", paste("Created NEWS info", pkg_name))
         } else news_header <- ""
+
+        # Create link for README files
+        readme_files <- list.files(file.path(check_docs, '..', '..',
+                                             '00_pkg_src', pkg_name),
+                                  pattern = "README*", full.names = TRUE)
+        if (length(readme_files) > 0) {
+          readme_vec <- c()
+          for (readme_file in readme_files) {
+            # Convert README.md into HTML
+            if(file_ext(readme_file) == "md") {
+              markdownToHTML(file = readme_file,
+                             output = file.path(docdir, basename(readme_file)))
+            } else {
+              file.copy(readme_file, docdir)
+            }
+            readme_url <- createURL(file.path("..", "..", "PkgDocumentation",
+                                   pkg_name, basename(readme_file)),
+                                   label = basename(readme_file))
+            readme_vec <- append(readme_vec, readme_url)
+          }
+          readme_header <- paste("<p>README files:",
+                                 paste(readme_vec, collapse = ", "), "</p>")
+          logfun(repo)("NA", paste("Created README info", pkg_name))
+        } else readme_header <- ""
       } else {
         pdf_vign_header <- ""
         html_vign_header <- ""
         news_header <- ""
+        readme_header <- ""
       }
 
       # Create HTML snippet for documentation, NEWS, vignettes
 
-      doc_content <- paste(manref_url, pdf_vign_header,
+      doc_content <- paste(readme_header, manref_url, pdf_vign_header,
                            html_vign_header, news_header)
 
       # Construct final HTML
@@ -219,7 +256,7 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
   }
 
   logfun(repo)("NA", paste0("Completed HTML splash page creation for ",
-               length(bres$name), " packages."), type = "both")
+               length(bres$name), " packages."))
   NULL
 }
 
@@ -438,41 +475,3 @@ buildBadge <- function(status, pkg_name) {
         label, "\">", status, "</span></a>")
 }
 
-#' Create JSON representation of package information
-#' @author Dinakar Kulkarni <kulkard2@gene.com>
-#' @importFrom jsonlite toJSON
-#' @param repo A GRAN repo object
-#' @param pkg_name Name of the GRAN package
-#' @param descr_df data.frame representation of DESCRIPTION file
-#' @param scm_df data.frame representation of GRAN manifest object
-#' @param docdir Directory where the JSON doc will be written
-#' @param suffix Suffix for the JSON file
-#' @return None. Write JSON file to disk
-#' @seealso \code{\link{manifest_df}} for generating scm_df and
-#'    \code{\link{generateDescInfo}} for generating descr_df.
-createJSON <- function(repo, pkg_name, descr_df, scm_df, docdir,
-                       suffix = paste0("_", descr_df$Version, "-desc.json")) {
-  reponame <- paste0("GRAN", repo_name(repo))
-  descr_df$id <- encode_string(paste0(reponame, descr_df$Package))
-  descr_df$GranRepo <- reponame
-
-  # Get SCM info:
-  scm_info <- scm_df[scm_df$name == pkg_name, ]
-  descr_df$scm_url <- scm_info$url
-  descr_df$scm_type <- scm_info$type
-  descr_df$scm_branch <- scm_info$branch
-  descr_df$scm_subdir <- scm_info$subdir
-  descr_df$RVersion <- R.version$version.string
-  #descr_df$BiocVersion <- BiocInstaller::biocVersion()
-
-  # Get documentation URL locations:
-  doc_url <- paste0(repo_url(repo), "/PkgDocumentation/", pkg_name)
-  descr_df$pkgdocs_url <- doc_url
-
-  # Convert to JSON
-  desc_json <- toJSON(descr_df, pretty = TRUE)
-  json_outfile <- file.path(docdir, paste0(pkg_name, suffix))
-
-  # Write JSON
-  write(desc_json, json_outfile)
-}

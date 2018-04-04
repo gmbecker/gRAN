@@ -1,8 +1,7 @@
 #right now we only look for and care about reverse dependencies
-# in GRAN packages so we only look in repo@TempLibLoc
-addRevDeps = function(repo)
+# in GRAN packages so we only look in repo@tempLibLoc
+addRevDeps <- function(repo)
 {
-
     ##reset and recalculate reverse dependencies every time. Expensive
     ##but protects us against packages being added or removed from
     ##manfiest

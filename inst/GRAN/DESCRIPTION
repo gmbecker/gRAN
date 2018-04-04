@@ -1,14 +1,10 @@
 Package: GRANBase
 Type: Package
 Title: A GRAN repository package
-Version: 0.9.93
-Author: Gabriel Becker[aut,cre]
+Version: 0.10.0
+Author: Gabriel Becker [aut,cre], Dinakar Kulkarni [aut,ctb]
 Maintainer: Gabriel Becker <becker.gabriel@gene.com>
 Copyright: Creator of the contained repository
 Description: An encapsulated GRAN repository built using GRANBase.
 License: Artistic-2.0
-Depends:
-    GRANBase, switchr
-Suggests:
-    BiocStyle
-SystemRequirements: svn, git
+Depends: GRANCore
