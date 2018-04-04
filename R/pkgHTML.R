@@ -70,7 +70,8 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
                         css.cell = ("padding-left: 0.5em; padding-right: 0.5em"),
                         css.class = "table table-striped table-hover",
                         css.table = "margin-left:10px;margin-right:10px;",
-                        align="l", rnames = names(descr_df),
+                        align="l",
+                        rnames = names(descr_df),
                         escape.html = FALSE)
         logfun(repo)("NA", paste("Created DESCRIPTION info for", pkg_name))
       } else {
@@ -85,7 +86,8 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
                         css.cell = ("padding-left: 0.5em; padding-right: 0.5em"),
                         css.class = "table table-striped table-hover",
                         css.table = "margin-left:10px;margin-right:10px;",
-                        align="l", rnames = names(revdeps),
+                        align="l",
+                        rnames = names(revdeps),
                         escape.html = FALSE)
         logfun(repo)("NA", paste("Created revdep info for", pkg_name))
       } else {
