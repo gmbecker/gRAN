@@ -1,5 +1,8 @@
 Changes in version 2.1.0 (2017-12-06)
 
+- API Changes:
+  * manifestHTML() is now called buildReport()
+
 - Improvements
   * Always update packages in the temporary library before testing
 
@@ -8,6 +11,7 @@ Changes in version 2.1.0 (2017-12-06)
 
 - New Features
   * Added support for Windows binary builds
+  * Create an HTML report for the package manifest
   * Metadata RDS files are created in the Meta folder of the repository
   * Package README file links are available on package splash pages
 

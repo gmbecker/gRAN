@@ -27,10 +27,11 @@ GRANonGRAN <- function(repo) {
   if (any(!res))
     stop("Copy failed")
   saveRepo(GRANRepo, filename = file.path(babyGRAN, "inst", "myrepo.R"))
-  code <- paste("getGRAN = function(...) {",
-              sprintf("install.packages('%s', ", pkgname,
-                      "repos = c('%s', getOption('repos')))", repo_url(repo)),
-              "};", "getGRAN(type = 'source')", collapse = "\n")
+  code <- paste0("getGRAN = function(...) { install.packages('",
+                  pkgname,
+                  "', repos = c('",
+                  repo_url(repo),
+                  "', getOption('repos'))) }; getGRAN(type='source')")
   cat(code, file = file.path(babyGRAN, "inst", "scripts", "getGRAN.R"))
   cat(code, file = file.path(dest_base(repo),
                              paste0("getGRAN-", repo_name(repo), ".R")))

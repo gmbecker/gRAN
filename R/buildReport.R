@@ -1,4 +1,4 @@
-#' manifestHTML
+#' buildReport
 #'
 #' Create a build report for a repository reflecting the latest build
 #' @author Dinakar Kulkarni <kulkard2@gene.com>
@@ -7,12 +7,12 @@
 #' @importFrom tools file_path_sans_ext
 #' @param repo A GRANRepository object
 #' @param theme CSS+JS theme. bootstrap, foundation, semanticui or jqueryui
-#' @param reportfile Where the report should be located
+#' @param reportfile File path of the HTML report
 #' @param riskrpt Whether to build the risk report
 #' @param jsonrpt Whether to create a JSON version of the build report
 #' @return None
 #' @export
-manifestHTML <- function(repo, theme = "bootstrap",
+buildReport <- function(repo, theme = "bootstrap",
                 reportfile = file.path(destination(repo), "buildreport.html"),
                 riskrpt = FALSE,
                 jsonrpt = TRUE) {
@@ -45,7 +45,7 @@ manifestHTML <- function(repo, theme = "bootstrap",
   if (jsonrpt) {
     json_outfile <- paste0(file_path_sans_ext(reportfile), ".json")
     write(toJSON(tmpman, pretty = TRUE), json_outfile)
-    dl_json_link <- paste0("<p><a href=\"", json_outfile,
+    dl_json_link <- paste0("<p><a href=\"", basename(json_outfile),
                                   "\">View build report as JSON</a><p>")
   } else {
     dl_json_link <- ""
@@ -181,12 +181,21 @@ manifestHTML <- function(repo, theme = "bootstrap",
                          createURL(risk_rpt, label = "Risk Report"), "</p>")
   }
 
+  # Create the manifest report
+  manifest_location <- file.path(destination(repo), "manifest.html")
+  manifestReport(repo,
+                 theme = theme,
+                 jsonrpt = jsonrpt,
+                 reportfile = manifest_location)
+  manifestreport_link <- paste0("<p><a href=\"", basename(manifest_location),
+                                "\">View build manifest</a><p>")
+
   # Construct final HTML
   final_html <- paste("<!doctype html>
                       <html> <head>", title, css_tag, js_tag, ds_script,
                       "<body style=\"padding: 20px;\"></head>",
                       summary_header, attmpthtml, "<br/>", build_header,
-                      build_html, risk_rpt_html, dl_json_link, "</body></html>")
+                      build_html, risk_rpt_html, dl_json_link,
+                      manifestreport_link, "</body></html>")
   write(final_html, reportfile)
-  NULL
 }
