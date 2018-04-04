@@ -4,6 +4,7 @@ GRANBase
 
 [![CRAN Release Version and Date](http://www.r-pkg.org/badges/version-last-release/GRANBase)](https://cran.rstudio.com/web/packages/GRANBase/index.html)
 [![Downloads from CRAN](http://cranlogs.r-pkg.org/badges/grand-total/GRANBase)](https://cran.r-project.org/web/packages/GRANBase/GRANBase.pdf)
+[![Build Status](https://travis-ci.org/gmbecker/gRAN.svg?branch=master)](https://travis-ci.org/gmbecker/gRAN)
 
 
 ## Introduction
