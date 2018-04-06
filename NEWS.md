@@ -13,6 +13,7 @@ Changes in version 2.2.0 (2017-03-05)
 Changes in version 2.1.0 (2018-03-03)
 
 - API Changes
+
   * manifestHTML() is now called buildReport()
 
 - Improvements
