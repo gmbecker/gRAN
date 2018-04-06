@@ -16,6 +16,8 @@ createJSON <- function(repo, pkg_name, descr_df, scm_df, docdir,
 
   ## TODO
   # Convert Imports, Depends and Suggests to JSON arrays
+  # Add reverse dependencies
+  # Add previous version info
 
   descr_df$id <- encode_string(paste0(reponame, descr_df$Package))
   descr_df$gran_repo <- reponame
@@ -41,7 +43,7 @@ createJSON <- function(repo, pkg_name, descr_df, scm_df, docdir,
   descr_df$is_suspended <- bldresults$suspended
 
   # Get documentation URL locations:
-  doc_url <- paste0(repo_url(repo), "/PkgDocumentation/", pkg_name)
+  doc_url <- paste0(repo_url(repo), basename(pkg_doc_dir(repo)), pkg_name)
   descr_df$pkgdocs_url <- doc_url
   descr_df$pkg_sticker <- paste0(doc_url, "/", pkg_name, ".png")
 

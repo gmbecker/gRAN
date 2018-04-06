@@ -54,10 +54,10 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
         descr_df <- descr_df[ , !(names(descr_df) %in%
                                   c("Authors@R", "Collate"))]
         if("URL" %in% colnames(descr_df)) {
-          descr_df$URL <- createURL(descr_df$URL)
+          descr_df$URL <- createHyperlink(descr_df$URL)
         }
         if("BugReports" %in% colnames(descr_df)) {
-          descr_df$BugReports <- createURL(descr_df$BugReports)
+          descr_df$BugReports <- createHyperlink(descr_df$BugReports)
         }
         if("Suggests" %in% colnames(descr_df)) {
           descr_df$Suggests <- extPkgURL(descr_df$Suggests)
@@ -132,13 +132,12 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
 
       logfun(repo)("NA", paste("Created installation info for", pkg_name))
 
-      # Copy reference manual, vignettes and NEWS into destination
+      # Copy reference manual, vignettes and NEWS into pkg docs dir
       reference_man <- file.path(check_dir, paste0(pkg_name, '-manual.pdf'))
       if (file.exists(reference_man)) {
         file.copy(reference_man, docdir)
         manref_url <- paste("<p>Reference Manual:",
-                            createURL(file.path("..", "..", "PkgDocumentation",
-                                      pkg_name, paste0(pkg_name, '-manual.pdf')),
+                            createHyperlink(paste0(pkg_name, '-manual.pdf'),
                                       label = paste0(pkg_name, '-manual.pdf')),
                             "</p>")
         doc_header <- "<br/><h4>Package Documentation</h4><hr>"
@@ -157,9 +156,8 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
           for (rnw_file in rnw_files) {
             pdf_file <- paste0(file_path_sans_ext(rnw_file), ".pdf")
             file.copy(pdf_file, docdir)
-            vign_url <- createURL(file.path("..", "..", "PkgDocumentation",
-                                  pkg_name, basename(pdf_file)),
-                                  label = basename(pdf_file))
+            vign_url <- createHyperlink(basename(pdf_file),
+                                        label = basename(pdf_file))
             vign_vec <- append(vign_vec, vign_url)
           }
           pdf_vign_header <- paste("<p>PDF Vignettes:", paste(vign_vec,
@@ -174,9 +172,8 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
           for (rmd_file in rmd_files) {
             html_file <- paste0(file_path_sans_ext(rmd_file), ".html")
             file.copy(html_file, docdir)
-            vign_url2 <- createURL(file.path("..", "..", "PkgDocumentation",
-                                   pkg_name, basename(html_file)),
-                                   label = basename(html_file))
+            vign_url2 <- createHyperlink(basename(html_file),
+                                         label = basename(html_file))
             vign_vec2 <- append(vign_vec2, vign_url2)
           }
           html_vign_header <- paste("<p>HTML Vignettes:", paste(vign_vec2,
@@ -197,9 +194,8 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
             } else {
               file.copy(news_file, docdir)
             }
-            news_url <- createURL(file.path("..", "..", "PkgDocumentation",
-                                   pkg_name, basename(news_file)),
-                                   label = basename(news_file))
+            news_url <- createHyperlink(basename(news_file),
+                                        label = basename(news_file))
             news_vec <- append(news_vec, news_url)
           }
           news_header <- paste("<p>NEWS files:", paste(news_vec,
@@ -221,15 +217,34 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
             } else {
               file.copy(readme_file, docdir)
             }
-            readme_url <- createURL(file.path("..", "..", "PkgDocumentation",
-                                   pkg_name, basename(readme_file)),
-                                   label = basename(readme_file))
+            readme_url <- createHyperlink(basename(readme_file),
+                                          label = basename(readme_file))
             readme_vec <- append(readme_vec, readme_url)
           }
           readme_header <- paste("<p>README files:",
                                  paste(readme_vec, collapse = ", "), "</p>")
           logfun(repo)("NA", paste("Created README info", pkg_name))
         } else readme_header <- ""
+
+        # Create link for package source
+        src_build <- file.path(destination(repo),
+                               paste0(pkg_name, "_", descr_df$Version, ".tar.gz"))
+        if (file.exists(src_build)) {
+          src_build_url <- paste("<p>Package source:",
+                              createHyperlink(src_build,
+                                              label = basename(src_build)),
+                              "</p>")
+        } else src_build_url <- ""
+
+        # Create link for package archive
+        pkg_archive_dir <- file.path(archivedir(repo), pkg_name)
+        if (file.exists(pkg_archive_dir)) {
+          pkg_archive_url <- paste("<p>Old sources:",
+                              createHyperlink(pkg_archive_dir,
+                                              label = basename(src_build)),
+                              "</p>")
+        } else pkg_archive_url <- ""
+
       } else {
         pdf_vign_header <- ""
         html_vign_header <- ""
@@ -240,7 +255,8 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
       # Create HTML snippet for documentation, NEWS, vignettes
 
       doc_content <- paste(readme_header, manref_url, pdf_vign_header,
-                           html_vign_header, news_header)
+                           html_vign_header, news_header, src_build_url,
+                           pkg_archive_url)
 
       # Construct final HTML
       final_html <- paste0("<html><head>", "<title>", pkg_name, " on GRAN",
@@ -248,6 +264,16 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
                           "<body style=\"padding: 20px;\"> </head>", intro,
                           installn, desc_header, desc_html, revdeps_header,
                           revdeps_html, doc_header, doc_content, "</body></html>")
+
+      # Save the previous splash page
+      if (file.exists(file.path(docdir, splashname))) {
+        file.rename(from = file.path(docdir, splashname),
+                    to = file.path(docdir,
+                                   paste0(pkg_name,
+                                          "_",
+                                          descr_df$Version,
+                                          ".html")))
+      }
 
       # Create the HTML spash page
       logfun(repo)("NA", paste("Writing final pkg HTML info", pkg_name))
@@ -324,13 +350,13 @@ determinePkgURL <- function(pkg_name) {
   bioc_exp_url <- paste0(bioc_home, "/data/experiment/html/", pkg_name, ".html")
   bioc_ano_url <- paste0(bioc_home, "/data/annotation/html/", pkg_name, ".html")
   if (url.exists(cran_url)) {
-    url <- createURL(cran_url, pkg_name)
+    url <- createHyperlink(cran_url, pkg_name)
   } else if (url.exists(bioc_soft_url)) {
-    url <- createURL(bioc_soft_url, pkg_name)
+    url <- createHyperlink(bioc_soft_url, pkg_name)
   } else if (url.exists(bioc_exp_url)) {
-    url <- createURL(bioc_exp_url, pkg_name)
+    url <- createHyperlink(bioc_exp_url, pkg_name)
   } else if (url.exists(bioc_ano_url)) {
-    url <- createURL(bioc_ano_url, pkg_name)
+    url <- createHyperlink(bioc_ano_url, pkg_name)
   } else {
     url <- pkg_name
   }
@@ -402,7 +428,7 @@ string2list <- function(string, separator = ",") {
 #' @param string URL string
 #' @param label Label for href
 #' @return href tag
-createURL <- function(string, label = "") {
+createHyperlink <- function(string, label = "") {
   if (label == "" || is.null(label)) {
     label <- gsub("(/+)", "\\1&#8203;", string)
   }

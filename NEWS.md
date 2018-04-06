@@ -1,6 +1,18 @@
-Changes in version 2.1.0 (2017-12-06)
+Changes in version 2.2.0 (2017-03-05)
 
-- API Changes:
+- New Features
+  * Add hyperlinks for package source build and archive
+  * Save previous splash pages instead of always overwriting the existing one
+
+- API Changes
+  * Renamed createURL() to createHyperlink()
+
+- Improvements
+  * Use generic pkg_doc_dir instead of hardcoding package doc dir location
+
+Changes in version 2.1.0 (2018-03-03)
+
+- API Changes
   * manifestHTML() is now called buildReport()
 
 - Improvements
@@ -86,7 +98,7 @@ Changes in version 1.6.0 (2017-08-02)
 
 - New Features
   * Risk reports, build badges for covr reports & build status
-  * A JSON file containing metadata for the package is created in the PkgDocumentation directory
+  * A JSON file containing metadata for the package is created in the package docs directory
   * Beautified build report
 
 Changes in version 1.5.0 (2017-07-18)

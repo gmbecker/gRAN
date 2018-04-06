@@ -117,13 +117,13 @@ buildReport <- function(repo, theme = "bootstrap",
     tmpman$maintainer[i] <- emailTag(tmpman$maintainer[i])
 
     # Build history
-    tmpman$Chronicles[i] <- createURL(pkglog, "Build log")
+    tmpman$Chronicles[i] <- createHyperlink(pkglog, "Build log")
 
     # Package documentation
-    pkg_doc <- file.path("..", "..", "PkgDocumentation",
+    pkg_doc <- file.path(pkg_doc_dir(repo),
                          tmpman$name[i], "index.html")
     if (file.exists(file.path(destination(repo), pkg_doc))) {
-      tmpman$name[i] <- createURL(pkg_doc, tmpman$name[i])
+      tmpman$name[i] <- createHyperlink(pkg_doc, tmpman$name[i])
       # Add test coverage badge to spash page
       if (!tmpman$coverage[i] == "") {
         lines <- readLines(file.path(destination(repo), pkg_doc), warn = FALSE)
@@ -178,7 +178,7 @@ buildReport <- function(repo, theme = "bootstrap",
   }
   if(file.exists(risk_rpt)) {
   risk_rpt_html <- paste("<hr><p>Update Risk Report for all site packages:",
-                         createURL(risk_rpt, label = "Risk Report"), "</p>")
+                         createHyperlink(risk_rpt, label = "Risk Report"), "</p>")
   }
 
   # Create the manifest report
