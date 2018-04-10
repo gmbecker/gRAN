@@ -244,7 +244,6 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
                                               label = basename(src_build)),
                               "</p>")
         } else pkg_archive_url <- ""
-
       } else {
         pdf_vign_header <- ""
         html_vign_header <- ""

@@ -1,0 +1,4 @@
+^\.httr-oauth$
+^\.travis\.yml$
+^.*~$
+^README.md$
