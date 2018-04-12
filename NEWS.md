@@ -1,9 +1,15 @@
+Changes in version 2.3.1 (2017-04-12)
+
+- Bugfixes
+  * Change label for package archives
+  * Not saving splash pages for previous versions of the package
+
 Changes in version 2.3.0 (2017-04-11)
 
 - API Changes
   * createJSON now has an additional param for rev_deps
 
-- Improvements
+- New Features
   * Package metadata JSON: Add reverse dependency info and convert deps to JSON array
 
 Changes in version 2.2.0 (2017-04-05)
@@ -21,7 +27,6 @@ Changes in version 2.2.0 (2017-04-05)
 Changes in version 2.1.0 (2018-04-03)
 
 - API Changes
-
   * manifestHTML() is now called buildReport()
 
 - Improvements

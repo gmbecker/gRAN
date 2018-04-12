@@ -9,7 +9,9 @@
 #' @param theme CSS theme. bootstrap, foundation, semanticui or jqueryui
 #' @return None
 #' @export
-pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
+pkgHTML <- function(repo,
+                    splashname = "index.html",
+                    theme = "bootstrap") {
   logfun(repo)("NA", paste("Creating HTML splash pages for",
                             sum(repo_results(repo)$building), "packages"))
 
@@ -244,7 +246,7 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
         if (file.exists(pkg_archive_dir)) {
           pkg_archive_url <- paste("<p>Old sources:",
                               createHyperlink(pkg_archive_dir,
-                                              label = basename(src_build)),
+                                              label = "Archive"),
                               "</p>")
         } else pkg_archive_url <- ""
       } else {
@@ -268,14 +270,19 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
                           revdeps_html, doc_header, doc_content, "</body></html>")
 
       # Save the previous splash page
-      if (file.exists(file.path(docdir, splashname))) {
-        file.rename(from = file.path(docdir, splashname),
-                    to = file.path(docdir,
-                                   paste0(pkg_name,
-                                          "_",
-                                          descr_df$Version,
-                                          ".html")))
-      }
+      # If we're doing this, we'll need to do this for the remaining docs also.
+      # CRAN doesn't do this.
+      # Besides, if old sources are available from the archive then
+      # the required docs can be obtained from that.
+      # One could store the docs & sources into a CMS via separate mechanisms.
+      #if (file.exists(file.path(docdir, splashname))) {
+      #  file.rename(from = file.path(docdir, splashname),
+      #              to = file.path(docdir,
+      #                             paste0(pkg_name,
+      #                                    "_",
+      #                                    descr_df$Version,
+      #                                    ".html")))
+      #}
 
       # Create the HTML spash page
       logfun(repo)("NA", paste("Writing final pkg HTML info", pkg_name))
