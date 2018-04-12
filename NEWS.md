@@ -1,4 +1,12 @@
-Changes in version 2.2.0 (2017-03-05)
+Changes in version 2.3.0 (2017-04-11)
+
+- API Changes
+  * createJSON now has an additional param for rev_deps
+
+- Improvements
+  * Package metadata JSON: Add reverse dependency info and convert deps to JSON array
+
+Changes in version 2.2.0 (2017-04-05)
 
 - New Features
   * Add hyperlinks for package source build and archive
@@ -10,7 +18,7 @@ Changes in version 2.2.0 (2017-03-05)
 - Improvements
   * Use generic pkg_doc_dir instead of hardcoding package doc dir location
 
-Changes in version 2.1.0 (2018-03-03)
+Changes in version 2.1.0 (2018-04-03)
 
 - API Changes
 

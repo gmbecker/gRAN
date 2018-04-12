@@ -47,8 +47,11 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
       if (file.exists(file.path(check_dir, pkg_name, "DESCRIPTION"))) {
         descr_df <- generateDescInfo(file.path(check_dir, pkg_name))
 
+        # Get reverse dependencies
+        revdeps <- reversals(pkg_name)
+
         # Create JSON of the DESCRIPTION file
-        createJSON(repo, pkg_name, descr_df, scm_df, docdir)
+        createJSON(repo, pkg_name, descr_df, scm_df, docdir, revdeps)
 
         # Exclude these fields from the splash page
         descr_df <- descr_df[ , !(names(descr_df) %in%
@@ -78,8 +81,8 @@ pkgHTML <- function(repo, splashname = "index.html", theme = "bootstrap") {
         desc_header <- ""
         desc_html <- ""
       }
-      # Reverse dependencies
-      revdeps <- reversals(pkg_name)
+
+      # Create HTML for reverse deps
       if (!(is.data.frame(revdeps) && ncol(revdeps)==0)) {
         revdeps_header <- "<br/><h4>Reverse Dependencies</h4><hr>"
         revdeps_html <- htmlTable(t(revdeps),

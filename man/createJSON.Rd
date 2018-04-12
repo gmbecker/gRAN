@@ -4,8 +4,8 @@
 \alias{createJSON}
 \title{Create JSON representation of package information}
 \usage{
-createJSON(repo, pkg_name, descr_df, scm_df, docdir, suffix = paste0("_",
-  descr_df$Version, ".json"))
+createJSON(repo, pkg_name, descr_df, scm_df, docdir, rev_deps,
+  suffix = paste0("_", descr_df$Version, ".json"))
 }
 \arguments{
 \item{repo}{A GRAN repo object}
@@ -17,6 +17,8 @@ createJSON(repo, pkg_name, descr_df, scm_df, docdir, suffix = paste0("_",
 \item{scm_df}{data.frame representation of GRAN manifest object}
 
 \item{docdir}{Directory where the JSON doc will be written}
+
+\item{rev_deps}{data.frame representing pkg_name's reverse deps}
 
 \item{suffix}{Suffix for the JSON file}
 }

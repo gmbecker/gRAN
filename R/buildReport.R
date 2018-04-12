@@ -58,7 +58,7 @@ buildReport <- function(repo, theme = "bootstrap",
   } else {
     tmpman$coverage <- NULL
   }
-  covg_report <- file.path("..", "..", "CovrReports", paste0(tmpman$name,
+  covg_report <- file.path(coverage_report_dir(repo), paste0(tmpman$name,
                             "-covr-report.html"))
   tmpman$coverage <- paste0("<a href='", covg_report, "'>", tmpman$coverage, "</a>")
   tmpman$coverage[!file.exists(file.path(destination(repo), covg_report))] = ""
@@ -122,7 +122,7 @@ buildReport <- function(repo, theme = "bootstrap",
     # Package documentation
     pkg_doc <- file.path(pkg_doc_dir(repo),
                          tmpman$name[i], "index.html")
-    if (file.exists(file.path(destination(repo), pkg_doc))) {
+    if (file.exists(pkg_doc)) {
       tmpman$name[i] <- createHyperlink(pkg_doc, tmpman$name[i])
       # Add test coverage badge to spash page
       if (!tmpman$coverage[i] == "") {

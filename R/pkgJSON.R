@@ -6,18 +6,14 @@
 #' @param descr_df data.frame representation of DESCRIPTION file
 #' @param scm_df data.frame representation of GRAN manifest object
 #' @param docdir Directory where the JSON doc will be written
+#' @param rev_deps data.frame representing pkg_name's reverse deps
 #' @param suffix Suffix for the JSON file
 #' @return None. Write JSON file to disk
 #' @seealso \code{\link{manifest_df}} for generating scm_df and
 #'    \code{\link{generateDescInfo}} for generating descr_df.
-createJSON <- function(repo, pkg_name, descr_df, scm_df, docdir,
+createJSON <- function(repo, pkg_name, descr_df, scm_df, docdir, rev_deps,
                        suffix = paste0("_", descr_df$Version, ".json")) {
   reponame <- paste0("GRAN", repo_name(repo))
-
-  ## TODO
-  # Convert Imports, Depends and Suggests to JSON arrays
-  # Add reverse dependencies
-  # Add previous version info
 
   descr_df$id <- encode_string(paste0(reponame, descr_df$Package))
   descr_df$gran_repo <- reponame
@@ -47,15 +43,46 @@ createJSON <- function(repo, pkg_name, descr_df, scm_df, docdir,
   descr_df$pkgdocs_url <- doc_url
   descr_df$pkg_sticker <- paste0(doc_url, "/", pkg_name, ".png")
 
-  # Convert to JSON
-  desc_json <- toJSON(descr_df, pretty = TRUE)
-  # Remove leading and lagging JSON list markers i.e. '[' and ']'
-  # Useful if you're uploading JSON to Elasticsearch
-  #desc_json <- substring(desc_json, 2)
-  #desc_json <- substr(desc_json, 1, nchar(desc_json)-1)
+  # Convert the data.frame to a list
+  descr_list <- lapply(as.list(descr_df), as.vector)
 
+  # Get reverse dependencies
+  reverse_deps <- lapply(as.list(rev_deps), as.vector)
+
+  # Combine these lists
+  combo_list <- append(descr_list, reverse_deps)
+
+  # Convert comma-separated strings to vectors
+  if ("Imports" %in% names(combo_list))
+    combo_list$Imports <- .stringToVec(combo_list$Imports)
+  if ("Depends" %in% names(combo_list))
+    combo_list$Depends <- .stringToVec(combo_list$Depends)
+  if ("Suggests" %in% names(combo_list))
+    combo_list$Suggests <- .stringToVec(combo_list$Suggests)
+  if ("Enhances" %in% names(combo_list))
+    combo_list$Enhances <- .stringToVec(combo_list$Enhances)
+  if ("LinkingTo" %in% names(combo_list))
+    combo_list$LinkingTo <- .stringToVec(combo_list$LinkingTo)
+  if ("ReverseImports" %in% names(combo_list))
+    combo_list$ReverseImports <- .stringToVec(combo_list$ReverseImports)
+  if ("ReverseDependencies" %in% names(combo_list))
+    combo_list$ReverseDependencies <- .stringToVec(combo_list$ReverseDependencies)
+  if ("ReverseLinkingTo" %in% names(combo_list))
+    combo_list$ReverseLinkingTo <- .stringToVec(combo_list$ReverseLinkingTo)
+  if ("ReverseSuggests" %in% names(combo_list))
+    combo_list$ReverseSuggests <- .stringToVec(combo_list$ReverseSuggests)
+  if ("ReverseEnhances" %in% names(combo_list))
+    combo_list$ReverseEnhances <- .stringToVec(combo_list$ReverseEnhances)
+
+  # Convert to JSON
+  desc_json <- toJSON(combo_list, pretty = TRUE)
+  
   # Write JSON
   json_outfile <- file.path(docdir, paste0(pkg_name, suffix))
   logfun(repo)(pkg_name, "Writing package metadata JSON file")
   write(desc_json, json_outfile)
+}
+
+.stringToVec <- function(x) {
+  unlist(strsplit(gsub("[[:blank:]]", "",x), ","))
 }
