@@ -15,7 +15,9 @@ createJSON <- function(repo, pkg_name, descr_df, scm_df, docdir, rev_deps,
                        suffix = paste0("_", descr_df$Version, ".json")) {
   reponame <- paste0("GRAN", repo_name(repo))
 
-  descr_df$id <- encode_string(paste0(reponame, descr_df$Package))
+  descr_df$id <- encode_string(paste0(reponame,
+                                      descr_df$Package,
+                                      descr_df$Version))
   descr_df$gran_repo <- reponame
 
   # Get SCM info:
@@ -76,7 +78,7 @@ createJSON <- function(repo, pkg_name, descr_df, scm_df, docdir, rev_deps,
 
   # Convert to JSON
   desc_json <- toJSON(combo_list, pretty = TRUE)
-  
+
   # Write JSON
   json_outfile <- file.path(docdir, paste0(pkg_name, suffix))
   logfun(repo)(pkg_name, "Writing package metadata JSON file")
