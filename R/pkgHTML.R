@@ -232,6 +232,7 @@ pkgHTML <- function(repo,
         } else readme_header <- ""
 
         # Create link for package source
+        src_build_url <- ""
         src_build <- file.path(destination(repo),
                                paste0(pkg_name, "_", descr_df$Version, ".tar.gz"))
         if (file.exists(src_build)) {
@@ -254,6 +255,8 @@ pkgHTML <- function(repo,
         html_vign_header <- ""
         news_header <- ""
         readme_header <- ""
+        src_build_url <- ""
+        pkg_archive_url <- ""
       }
 
       # Create HTML snippet for documentation, NEWS, vignettes
