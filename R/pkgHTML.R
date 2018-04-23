@@ -53,7 +53,9 @@ pkgHTML <- function(repo,
         revdeps <- reversals(pkg_name)
 
         # Create JSON of the DESCRIPTION file
-        createJSON(repo, pkg_name, descr_df, scm_df, docdir, revdeps)
+        json_suffix <- paste0("_", descr_df$Version, ".json")
+        createJSON(repo, pkg_name, descr_df, scm_df, docdir, revdeps,
+                   suffix = json_suffix)
 
         # Exclude these fields from the splash page
         descr_df <- descr_df[ , !(names(descr_df) %in%
@@ -232,24 +234,44 @@ pkgHTML <- function(repo,
         } else readme_header <- ""
 
         # Create link for package source
-        src_build_url <- ""
         src_build <- file.path(destination(repo),
                                paste0(pkg_name, "_", descr_df$Version, ".tar.gz"))
+        src_build_uri <- file.path("..",
+                                   "..",
+                                   "src",
+                                   "contrib",
+                                   basename(src_build))
         if (file.exists(src_build)) {
           src_build_url <- paste("<p>Package source:",
-                              createHyperlink(src_build,
-                                              label = basename(src_build)),
-                              "</p>")
+                                 createHyperlink(src_build_uri,
+                                                 label = basename(src_build)),
+                                 "</p>")
         } else src_build_url <- ""
 
         # Create link for package archive
         pkg_archive_dir <- file.path(archivedir(repo), pkg_name)
+        pkg_archive_uri <- file.path("..",
+                                     "..",
+                                     "src",
+                                     "contrib",
+                                     basename(archivedir(repo)),
+                                     basename(pkg_archive_dir))
         if (file.exists(pkg_archive_dir)) {
           pkg_archive_url <- paste("<p>Old sources:",
-                              createHyperlink(pkg_archive_dir,
-                                              label = "Archive"),
-                              "</p>")
+                                   createHyperlink(pkg_archive_uri,
+                                                   label = paste(pkg_name,
+                                                                 "Archive")),
+                                   "</p>")
         } else pkg_archive_url <- ""
+
+        # Create link for package metadata JSON
+        pkg_metadata_json <- file.path(docdir, paste0(pkg_name, json_suffix))
+        if (file.exists(pkg_metadata_json)) {
+          pkg_json_url <- paste("<p>View metadata JSON:",
+                                   createHyperlink(basename(pkg_metadata_json)),
+                                "</p>")
+        } else pkg_json_url <- ""
+
       } else {
         pdf_vign_header <- ""
         html_vign_header <- ""
@@ -257,13 +279,14 @@ pkgHTML <- function(repo,
         readme_header <- ""
         src_build_url <- ""
         pkg_archive_url <- ""
+        pkg_json_url <- ""
       }
 
       # Create HTML snippet for documentation, NEWS, vignettes
 
       doc_content <- paste(readme_header, manref_url, pdf_vign_header,
                            html_vign_header, news_header, src_build_url,
-                           pkg_archive_url)
+                           pkg_archive_url, pkg_json_url)
 
       # Construct final HTML
       final_html <- paste0("<html><head>", "<title>", pkg_name, " on GRAN",

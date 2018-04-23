@@ -1,3 +1,11 @@
+Changes in version 2.4.0 (2017-04-23)
+
+- New Features
+  * Add link to view package metadata JSON in package docs
+
+- Bugfixes
+  * Use relative paths instead of absolute for hyperlinks in package docs
+
 Changes in version 2.3.1 (2017-04-12)
 
 - Bugfixes
