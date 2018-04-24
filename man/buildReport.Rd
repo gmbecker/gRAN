@@ -6,7 +6,7 @@
 \usage{
 buildReport(repo, theme = "bootstrap",
   reportfile = file.path(destination(repo), "buildreport.html"),
-  riskrpt = FALSE, jsonrpt = TRUE)
+  riskrpt = FALSE, jsonrpt = TRUE, splashname = "index.html")
 }
 \arguments{
 \item{repo}{A GRANRepository object}
@@ -18,6 +18,8 @@ buildReport(repo, theme = "bootstrap",
 \item{riskrpt}{Whether to build the risk report}
 
 \item{jsonrpt}{Whether to create a JSON version of the build report}
+
+\item{splashname}{Filename for the package HTML splash page}
 }
 \value{
 None

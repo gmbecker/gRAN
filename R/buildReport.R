@@ -10,12 +10,14 @@
 #' @param reportfile File path of the HTML report
 #' @param riskrpt Whether to build the risk report
 #' @param jsonrpt Whether to create a JSON version of the build report
+#' @param splashname Filename for the package HTML splash page
 #' @return None
 #' @export
 buildReport <- function(repo, theme = "bootstrap",
                 reportfile = file.path(destination(repo), "buildreport.html"),
                 riskrpt = FALSE,
-                jsonrpt = TRUE) {
+                jsonrpt = TRUE,
+                splashname = "index.html") {
 
   # Overall Build Stats
   title <- paste0("<title>GRAN", repo_name(repo), " Build Report</title>")
@@ -121,9 +123,15 @@ buildReport <- function(repo, theme = "bootstrap",
 
     # Package documentation
     pkg_doc <- file.path(pkg_doc_dir(repo),
-                         tmpman$name[i], "index.html")
+                         tmpman$name[i], splashname)
+    pkg_doc_uri <- file.path('..',
+                             '..',
+                             basename(pkg_doc_dir(repo)),
+                             tmpman$name[i],
+                             splashname)
     if (file.exists(pkg_doc)) {
-      tmpman$name[i] <- createHyperlink(pkg_doc, tmpman$name[i])
+      tmpman$name[i] <- createHyperlink(pkg_doc_uri,
+                                        tmpman$name[i])
       # Add test coverage badge to spash page
       if (!tmpman$coverage[i] == "") {
         lines <- readLines(file.path(destination(repo), pkg_doc), warn = FALSE)
