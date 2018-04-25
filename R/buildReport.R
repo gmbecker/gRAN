@@ -60,10 +60,15 @@ buildReport <- function(repo, theme = "bootstrap",
   } else {
     tmpman$coverage <- NULL
   }
-  covg_report <- file.path(coverage_report_dir(repo), paste0(tmpman$name,
-                            "-covr-report.html"))
-  tmpman$coverage <- paste0("<a href='", covg_report, "'>", tmpman$coverage, "</a>")
-  tmpman$coverage[!file.exists(file.path(destination(repo), covg_report))] = ""
+  covg_report <- file.path(coverage_report_dir(repo),
+                           paste0(tmpman$name, "-covr-report.html"))
+  covg_report_uri <- file.path("..",
+                               "..",
+                               basename(coverage_report_dir(repo)),
+                               paste0(tmpman$name, "-covr-report.html"))
+  tmpman$coverage <- paste("<a href='", covg_report_uri, "'>",
+                           tmpman$coverage, "</a>")
+  tmpman$coverage[!file.exists(covg_report)] <- ""
 
   # Assign badges and log links to the latest build status
   # Also make logs human-readable
@@ -134,10 +139,10 @@ buildReport <- function(repo, theme = "bootstrap",
                                         tmpman$name[i])
       # Add test coverage badge to spash page
       if (!tmpman$coverage[i] == "") {
-        lines <- readLines(file.path(destination(repo), pkg_doc), warn = FALSE)
+        lines <- readLines(pkg_doc, warn = FALSE)
         covbadge <- paste("<p>Test Coverage:", tmpman$coverage[i], "</p>")
         lines <- gsub("<tcplaceholder/>", covbadge, lines)
-        write(lines, file.path(destination(repo), pkg_doc))
+        write(lines, pkg_doc)
       }
     }
   }
