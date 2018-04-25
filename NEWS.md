@@ -1,3 +1,8 @@
+Changes in version 2.4.1 (2017-04-25)
+
+- Bugfixes
+  * Use relative paths for coverage report hyperlinks in the build report and package docs
+
 Changes in version 2.4.0 (2017-04-23)
 
 - New Features
