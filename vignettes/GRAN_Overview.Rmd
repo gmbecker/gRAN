@@ -1,17 +1,12 @@
 ---
 title: "The GRAN repository system and reproducibility tools"
-author:
-- "Gabriel Becker"
-- "Dinakar Kulkarni"
+author: "Gabriel Becker, Dinakar Kulkarni"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output:
-  rmarkdown::html_document:
-    theme: sandstone
-    highlight: pygments
+output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{The GRAN repository system}
   %\VignetteEngine{knitr::rmarkdown}
-  \usepackage[utf8]{inputenc}
+  %\VignetteIndexEntry{The GRAN repository system}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include = FALSE}
