@@ -1,4 +1,6 @@
-language: R
+language: r
+r: release
 cache: packages
 bioc_packages: BiocInstaller
 r_github_packages: gmbecker/GRANCore
+r_packages: rmarkdown knitr
