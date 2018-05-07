@@ -1,4 +1,4 @@
-doPkgTests <- function(repo, cores = (parallel:::detectCores() - 1))
+doPkgTests <- function(repo, cores = 1)
 {
   logfun(repo)(
     "NA",
@@ -34,7 +34,7 @@ doPkgTests <- function(repo, cores = (parallel:::detectCores() - 1))
 }
 
 #' @importFrom utils update.packages
-installTest <- function(repo, cores = (parallel:::detectCores() - 1))
+installTest <- function(repo, cores = 1)
 {
   logfun(repo)(
     "NA",
@@ -249,7 +249,7 @@ cleanupInstOut = function(outdir = staging_logs(repo), repo)
 }
 
 
-checkTest <- function(repo, cores = (parallel:::detectCores() - 1))
+checkTest <- function(repo, cores = 1)
 {
   oldwd = getwd()
   setwd(staging(repo))
@@ -383,7 +383,7 @@ checkTest <- function(repo, cores = (parallel:::detectCores() - 1))
 #' @param cores How many CPU cores to use?
 #' @return repo A gRAN repo object with updated code coverage info
 #' @export
-testCoverage <- function(repo, cores = (parallel:::detectCores() - 1)) {
+testCoverage <- function(repo, cores = 1) {
     logfun(repo)("NA",
                  paste0(
                    "Creating test coverage reports for ",
@@ -460,4 +460,4 @@ testCoverage <- function(repo, cores = (parallel:::detectCores() - 1)) {
     }
 
     return(covg)
-  }
+}

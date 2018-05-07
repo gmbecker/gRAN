@@ -12,7 +12,7 @@
 #' @importFrom tools write_PACKAGES
 #' @importFrom utils compareVersion
 #'
-buildBranchesInRepo <- function(repo, cores = (parallel:::detectCores() - 1),
+buildBranchesInRepo <- function(repo, cores = 1,
                                 temp=FALSE,
                                 incremental = TRUE,
                                 manifest = manifest_df(repo)) {

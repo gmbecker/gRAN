@@ -20,7 +20,7 @@
 #' @references Becker G, Barr C, Gentleman R, Lawrence M; Enhancing Reproducibility and Collaboration via Management of R Package Cohorts. Journal of Statistical Software, 81(1). 2017. doi: 10.18637/jss.v082.i01 
 #' @export
 
-setGeneric("makeRepo", function(x, cores = (parallel:::detectCores() - 1),
+setGeneric("makeRepo", function(x, cores = 1,
                                 build_pkgs = NULL,
                                 scm_auth = list("bioconductor.org" =
                                     c("readonly", "readonly")),

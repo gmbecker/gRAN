@@ -5,7 +5,7 @@ date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{The GRAN repository system}
+  %\VignetteIndexEntry{GRANBase}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -29,10 +29,11 @@ Given a manifest, initial construction and rebuilding of individual GRANBase rep
 
 ```{r init_granbase, include = FALSE}
 suppressPackageStartupMessages(library(GRANBase))
+chooseCRANmirror(ind=1L)
 options(error=traceback)
 ```
 
-```{r makerepo, echo = TRUE, eval = TRUE, results = "hide", warning = FALSE, message = FALSE, error = FALSE}
+```{r makerepo, echo = TRUE, eval = TRUE, results = "hide", warning = FALSE, message = FALSE, error = TRUE}
 testpkgs <- list.files(system.file("testpkgs", package = "GRANBase"),
                        full.names = TRUE)
 man <- PkgManifest(name = basename(testpkgs),

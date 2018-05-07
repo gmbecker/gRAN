@@ -4,8 +4,8 @@
 \alias{buildBranchesInRepo}
 \title{Build SCM Checkouts Into Repository Directory}
 \usage{
-buildBranchesInRepo(repo, cores = (parallel:::detectCores() - 1),
-  temp = FALSE, incremental = TRUE, manifest = manifest_df(repo))
+buildBranchesInRepo(repo, cores = 1, temp = FALSE, incremental = TRUE,
+  manifest = manifest_df(repo))
 }
 \arguments{
 \item{repo}{a GRANRepository object}

@@ -1,5 +1,5 @@
 
-makeSrcDirs = function(repo, cores = (parallel:::detectCores() - 1), scm_auth)
+makeSrcDirs = function(repo, cores = 1, scm_auth)
 {
     binds = getBuilding(repo = repo)
 

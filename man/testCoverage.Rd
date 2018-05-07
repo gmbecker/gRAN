@@ -4,7 +4,7 @@
 \alias{testCoverage}
 \title{Calculate and generate package code test coverage reports}
 \usage{
-testCoverage(repo, cores = (parallel:::detectCores() - 1))
+testCoverage(repo, cores = 1)
 }
 \arguments{
 \item{repo}{A gRAN repo object}

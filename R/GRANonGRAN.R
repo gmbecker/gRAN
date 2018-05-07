@@ -1,4 +1,43 @@
-# Package, build thine self, and create thine baby
+
+#' addPkg
+#'
+#' Add a package to the manifest for a GRANRepository
+#' @param x A GRANRepository object
+#' @param \dots passed to manifest method for addPkg
+#' @param rows data.frame or unspecified. passed to manifest method for addPkg
+#' @param versions data.frame passed to manifest method for addPkg
+#' @param replace logical. Should the information in \code{...}/\code{rows}
+#' replace existing rows for the same pacakge? Defaults to FALSE, in which case
+#' an error is thrown.
+#' @return \code{x} with the specified package(s) added to the associated manifest
+#' @examples
+#' man = GithubManifest("gmbecker/switchr")
+#' repo = GRANRepository(man, basedir = tempdir())
+#' repo = addPkg(repo, rows = GithubManifest("gmbecker/rpath"))
+#' @export
+#' @importMethodsFrom switchr addPkg
+setMethod("addPkg", "GRANRepository",
+          function(x, ..., rows, versions, replace = FALSE) {
+              if(any(manifest_df(rows)$name %in% manifest_df(x)$name) && !replace)
+                  stop("Some of the packages to be added already appear in the repo manifest")
+              manifest(x) = addPkg(manifest(x), ..., rows = rows, versions = versions,
+                                   replace = replace)
+              new = which(!manifest_df(x)$name %in% repo_results(x)$name)
+              if(length(new)) {
+                  oldres = repo_results(x)
+                  newres = ResultsRow(name = manifest_df(x)$name[new])
+                  oldres = oldres[,names(newres)]
+                  repo_results(x) = rbind(oldres, newres)
+              }
+              ## fail fast and hard if the manifest and results df don't line up
+              stopifnot(identical(manifest_df(x)$name, repo_results(x)$name))
+              ## otherwise when you call makeRepo it will go retrieve the old version!
+              ## XXX possibly fix this another way someday
+              saveRepoFiles(x)
+              x
+          })
+
+## Package, build thine self, and create thine baby
 #' @importFrom utils install.packages
 #' @import GRANCore
 #' @import switchr
@@ -74,7 +113,7 @@ GRANonGRAN <- function(repo) {
         mini_df <- old_df[old_df$name %in% pkgs, ]
         old_switchr_ver <- mini_df$lastbuiltversion[mini_df$name == pkgs[1]]
         old_gran_ver <- mini_df$lastbuiltversion[mini_df$name == pkgs[2]]
-        old_gran_ver <- mini_df$lastbuiltversion[mini_df$name == pkgs[3]]
+        old_grancore_ver <- mini_df$lastbuiltversion[mini_df$name == pkgs[3]]
         
         ## Construct raw Github URLs for DESCRIPTION files of GRAN and switchr
         github_user <- "gmbecker"

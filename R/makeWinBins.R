@@ -10,7 +10,7 @@
 #' @importFrom tools write_PACKAGES
 
 makeWinBins <- function(repo,
-                        cores = (parallel:::detectCores() - 1),
+                        cores = 1,
                         virtualstore = file.path(Sys.getenv("LOCALAPPDATA"),
                                                  "VirtualStore")) {
     bindir <- windowsbindir(repo)

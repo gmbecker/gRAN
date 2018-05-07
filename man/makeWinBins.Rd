@@ -4,7 +4,7 @@
 \alias{makeWinBins}
 \title{Make Windows binary packages}
 \usage{
-makeWinBins(repo, cores = (parallel:::detectCores() - 1),
+makeWinBins(repo, cores = 1,
   virtualstore = file.path(Sys.getenv("LOCALAPPDATA"), "VirtualStore"))
 }
 \arguments{

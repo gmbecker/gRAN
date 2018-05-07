@@ -1,7 +1,7 @@
 #' @rdname makerepo
 #' @aliases makeRepo,PkgManifest
 setMethod("makeRepo", "PkgManifest",
-          function(x, cores = (parallel:::detectCores() - 1), build_pkgs = NULL,
+          function(x, cores = 1, build_pkgs = NULL,
                    scm_auth = list("bioconductor.org" =
                        c("readonly", "readonly")),
                    ...
@@ -22,7 +22,7 @@ setMethod("makeRepo", "PkgManifest",
 #' @aliases makeRepo,SessionManifest
 
 setMethod("makeRepo", "SessionManifest",
-          function(x, cores = (parallel:::detectCores() - 1), build_pkgs = NULL,
+          function(x, cores = 1, build_pkgs = NULL,
                    scm_auth = list("bioconductor.org" =
                        c("readonly", "readonly")),
                    ...
@@ -39,7 +39,7 @@ setMethod("makeRepo", "SessionManifest",
 #' @rdname makerepo
 #' @aliases makeRepo,GRANRepository
 setMethod("makeRepo", "GRANRepository",
-          function(x, cores = (parallel:::detectCores() - 1), build_pkgs = NULL,
+          function(x, cores = 1, build_pkgs = NULL,
                    scm_auth = list("bioconductor.org" =
                                        c("readonly", "readonly")),
                    ...) {
@@ -119,7 +119,7 @@ setMethod("makeRepo", "GRANRepository",
 #' @aliases makeRepo,character
 
 setMethod("makeRepo", "character",
-          function(x, cores = (parallel:::detectCores() - 1), build_pkgs = NULL,
+          function(x, cores = 1, build_pkgs = NULL,
                    scm_auth = list("bioconductor.org" =
                        c("readonly", "readonly")),
                    ...) {
