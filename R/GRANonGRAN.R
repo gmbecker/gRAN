@@ -14,7 +14,8 @@
 #' man = GithubManifest("gmbecker/switchr")
 #' repo = GRANRepository(man, basedir = tempdir())
 #' repo = addPkg(repo, rows = GithubManifest("gmbecker/rpath"))
-#' @export
+#' @export 
+#' @importFrom switchr addPkg
 #' @importMethodsFrom switchr addPkg
 setMethod("addPkg", "GRANRepository",
           function(x, ..., rows, versions, replace = FALSE) {
