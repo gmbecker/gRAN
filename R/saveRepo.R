@@ -19,8 +19,8 @@ saveRepoFiles <- function(repo) {
   NULL
 }
 
-finalizeRepo <- function(repo) {
-  buildReport(repo)
+finalizeRepo <- function(repo, cores = 1L) {
+  buildReport(repo, cores = cores)
   saveRepoFiles(repo)
   if (!file.exists(file.path(repobase(repo), "getGRAN.R"))) {
     file.copy(file.path(repobase(repo), paste0("GRAN", repo_name(repo)), "inst",

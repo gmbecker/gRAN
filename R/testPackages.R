@@ -384,6 +384,13 @@ checkTest <- function(repo, cores = 1)
 #' @return repo A gRAN repo object with updated code coverage info
 #' @export
 testCoverage <- function(repo, cores = 1) {
+    if(!requireNamespace("DT")) {
+        logfun(repo)("NA", type ="both",
+            msg = "Unable to generate test coverage reports without the DT package. Skipping.")
+        warning("Unable to generate test coverage reports without the suggested DT package. Skipping.")
+    }
+
+        
     logfun(repo)("NA",
                  paste0(
                    "Creating test coverage reports for ",

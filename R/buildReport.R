@@ -11,13 +11,15 @@
 #' @param riskrpt Whether to build the risk report
 #' @param jsonrpt Whether to create a JSON version of the build report
 #' @param splashname Filename for the package HTML splash page
+#' @param cores Number of cores to use when generating coverage reports.
 #' @return None
 #' @export
 buildReport <- function(repo, theme = "bootstrap",
                 reportfile = file.path(destination(repo), "buildreport.html"),
                 riskrpt = FALSE,
                 jsonrpt = TRUE,
-                splashname = "index.html") {
+                splashname = "index.html",
+                cores = 1L) {
 
   # Overall Build Stats
   title <- paste0("<title>GRAN", repo_name(repo), " Build Report</title>")
@@ -55,7 +57,7 @@ buildReport <- function(repo, theme = "bootstrap",
 
   # Calculate test Coverage
   if(check_test_on(repo)) {
-    covr <- testCoverage(repo)
+    covr <- testCoverage(repo, cores = cores)
     tmpman$coverage <- covr$coverage[match(tmpman$name, covr$name)]
   } else {
     tmpman$coverage <- NULL

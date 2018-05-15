@@ -1,7 +1,7 @@
 Package: GRANBase
 Type: Package
 Title: Creating Continuously Integrated Package Repositories from Manifests
-Version: 2.5.0
+Version: 2.5.1
 Author: Gabriel Becker[aut,cre], Cory Barr [cre,ctb], Dinakar Kulkarni [aut,ctb]
 Maintainer: Gabriel Becker <becker.gabriel@gene.com>
 Copyright: Genentech Inc
@@ -30,7 +30,8 @@ Suggests:
     parallel,
     rmarkdown,
     hexSticker,
-    knitr
+    knitr,
+    DT (>= 0.2)
 VignetteBuilder: knitr
 SystemRequirements: svn, git
 URL: https://github.com/gmbecker/gRAN

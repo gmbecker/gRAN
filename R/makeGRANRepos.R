@@ -110,7 +110,7 @@ setMethod("makeRepo", "GRANRepository",
         makeWinBins(repo, cores = cores)
     }
 
-    finalizeRepo(repo)
+    finalizeRepo(repo, cores = cores)
     message(paste("Completed makeRepo at", Sys.time()))
     return(repo)
 })
