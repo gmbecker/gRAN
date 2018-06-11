@@ -402,21 +402,26 @@ testCoverage <- function(repo, cores = 1) {
     loc <- checkout_dir(repo)
     dir.create(loc, recursive = TRUE, showWarnings = FALSE)
 
-    bres <- subset(repo_results(repo),
-                   repo_results(repo)$building == TRUE
-                   & !is.na(repo_results(repo)$buildReason)
-                   & repo_results(repo)$status != "up-to-date")
+    ## bres <- subset(repo_results(repo),
+    ##                repo_results(repo)$building == TRUE
+    ##                & !is.na(repo_results(repo)$buildReason)
+    ##                & repo_results(repo)$status != "up-to-date")
+    bres <- getBuildingResults(repo)
+    mandf <- getBuildingManifest(repo)
     if (nrow(bres) == 0) {
       logfun(repo)("NA", "No packages to check test coverage for")
       return(repo)
     }
 
     bres <- subset(bres,!(grepl("^GRAN", bres$name)))
+    mandf <- subset(mandf,!(grepl("^GRAN", mandf$name)))
+    ## protective assertion
+    stopifnot(identical(bres[["name"]], mandf[["name"]]))
     coverageDir <- coverage_report_dir(repo)
 
     # Begin test coverage calculations
-    coverage <- suppressWarnings(mcmapply2(function(pkgName) {
-      pkgDir <- file.path(loc, pkgName)
+    coverage <- suppressWarnings(mcmapply2(function(pkgName, subdir) {
+      pkgDir <- file.path(loc, pkgName, subdir)
       if (file.exists(pkgDir)) {
         logfun(repo)(pkgName, "Calculating test coverage")
         pkgCovg <- tryCatch(package_coverage(path = pkgDir),
@@ -441,7 +446,7 @@ testCoverage <- function(repo, cores = 1) {
           "<span class=\"label label-default\">Details</span>"
         }
       }
-    }, pkgName = bres$name, mc.cores = cores))
+    }, pkgName = bres$name, subdir = mandf$subdir, mc.cores = cores))
 
     logfun(repo)("NA", paste("Completed test coverage reports for",
                              length(bres$name),"packages."))
