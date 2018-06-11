@@ -421,16 +421,19 @@ testCoverage <- function(repo, cores = 1) {
 
     # Begin test coverage calculations
     coverage <- suppressWarnings(mcmapply2(function(pkgName, subdir) {
-      pkgDir <- file.path(loc, pkgName, subdir)
+        pkgDir <- file.path(loc, pkgName, subdir)
+        stopifnot(file.exists(file.path(pkgDir, "DESCRIPTION")))
       if (file.exists(pkgDir)) {
         logfun(repo)(pkgName, "Calculating test coverage")
         pkgCovg <- tryCatch(package_coverage(path = pkgDir),
                             error = function(e) NULL)
         percentCovg <- tryCatch(percent_coverage(pkgCovg),
                                 error = function(e) NULL)
-        if (percentCovg > 90 && !is.nan(percentCovg)) {
+        if(is.null(percentCovg) || is.nan(percentCovg)) {
+            label <- "label-danger"
+        } else if (percentCovg > 90) {
           label <- "label-success"
-        } else if (percentCovg > 75 && !is.nan(percentCovg)) {
+        } else if (percentCovg > 75) {
           label <- "label-warning"
         } else {
           label <- "label-danger"
