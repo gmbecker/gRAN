@@ -104,8 +104,29 @@ install.packages2 <- function(pkgs, repos, lib,  ..., param = SwitchrParam(),
         if(!file.exists(fil))
             return("output missing")
         tmp = readLines(fil)
-        outcome = tmp[length(tmp)]
-        if(grepl("* DONE", outcome, fixed=TRUE))
+        ## for some reason this isn't always the last line, e.g. from histry 0.2.1
+
+
+        ##       * installing *source* package ‘histry’ ...
+        ## ** R
+        ## ** inst
+        ## ** preparing package for lazy loading
+        ## Warning: replacing previous import ‘graph::addNode’ by ‘XML::addNode’ when loading ‘CodeDepends’
+        ## Warning: replacing previous import ‘graph::plot’ by ‘graphics::plot’ when loading ‘CodeDepends’
+        ## ** help
+        ## *** installing help indices
+        ## ** building package indices
+        ## ** installing vignettes
+        ## ** testing if installed package can be loaded
+        ## Warning: replacing previous import ‘graph::addNode’ by ‘XML::addNode’ when loading ‘CodeDepends’
+        ## Warning: replacing previous import ‘graph::plot’ by ‘graphics::plot’ when loading ‘CodeDepends’
+        ## * DONE (histry)
+        ## Loading required package: histry                                                                                
+        
+
+        ## outcome = tmp[length(tmp)]
+        donemsg = paste0("* DONE (", p, ")")
+        if(any(grepl(donemsg, tmp, fixed = TRUE)))
             "ok"
         else
             fil
