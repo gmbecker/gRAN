@@ -18,8 +18,8 @@ makeWinBins <- function(repo,
 
     # Clean up the Windows binary builds directory
     updateArchive(repo,
-                  repodest = windowsbindir,
-                  archive = file.path(windowsbindir, "Archive"),
+                  repodest = bindir,
+                  archive = file.path(bindir, "Archive"),
                   ext = "\\.zip$")
 
     # Make binary builds
@@ -40,15 +40,15 @@ makeWinBins <- function(repo,
                               "", basename(srcpkg)), ".zip")
         if (file.exists(file.path(virtualstore, binpkg))) {
             file.rename(from = file.path(virtualstore, binpkg),
-                        to = file.path(windowsbindir, binpkg))
+                        to = file.path(bindir, binpkg))
         } else if (file.exists(file.path(getwd(), binpkg))) {
             file.rename(from = file.path(getwd(), binpkg),
-                        to = file.path(windowsbindir, binpkg))
+                        to = file.path(bindir, binpkg))
         } else {
             message(getwd(), " is the working dir and no zips were created here")
         }
     }, pkgName = srcbuilds, mc.cores = cores)
 
     # Create PACKAGES files
-    write_PACKAGES(windowsbindir)
+    write_PACKAGES(bindir)
 }
