@@ -22,6 +22,8 @@ makeWinBins <- function(repo,
                   archive = file.path(bindir, "Archive"),
                   ext = "\\.zip$")
 
+    oldwd = setwd(staging(repo))
+    on.exit(setwd(oldwd))
     # Make binary builds
     srcbuilds <- list.files(srcbuilddir,
                             pattern = "\\.tar\\..*$",
@@ -47,7 +49,7 @@ makeWinBins <- function(repo,
         } else {
             message(getwd(), " is the working dir and no zips were created here")
         }
-    }, pkgName = srcbuilds, mc.cores = cores)
+    }, srcpkg = srcbuilds, mc.cores = cores)
 
     # Create PACKAGES files
     write_PACKAGES(bindir)

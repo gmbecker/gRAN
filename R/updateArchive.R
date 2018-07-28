@@ -18,6 +18,8 @@ updateArchive <- function (repo, repodest = destination(repo),
 
   # Identify which packages are new vs which are old
   builtpkgs <- list.files(repodest, pattern = ext, full.names = FALSE)
+  if(!length(builtpkgs))
+    return(NULL)
   noextfiles <- gsub(ext, "", builtpkgs)
   pkgs <- sapply(strsplit(builtpkgs, "_", fixed = TRUE), "[", 1L)
   verstxt <- gsub("[a-zA-Z0-9\\.]*_", "", noextfiles)

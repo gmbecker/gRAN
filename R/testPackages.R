@@ -230,10 +230,9 @@ cleanupInstOut = function(outdir = staging_logs(repo), repo)
     tar,
     " --no-build-vignettes"
   )
-  env = c(paste0('R_LIBS="', temp_lib(repo), '"'),
-          paste0('R_HOME="', R.home(), '"'))
-  args = c("check", tar, "--no-build-vignettes")
-  cmd = file.path(R.home("bin"), "Rcmd")
+  env = paste0('R_LIBS=', shQuote(temp_lib(repo)))
+  args = c("CMD", "check", tar, "--no-build-vignettes")
+  cmd = file.path(R.home("bin"), "R")
   out = tryCatch(
     system_w_init(
       cmd,
