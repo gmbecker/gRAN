@@ -40,6 +40,7 @@ pkgHTML <- function(repo,
     dir.create(docdir, showWarnings = FALSE, recursive = TRUE)
     check_dir <- file.path(staging(repo), paste0(pkg_name, '.Rcheck'))
 
+    revdeps <- NULL ##make sure this always exists
     # There may or may not be an Rcheck dir
     if (file.exists(check_dir)) {
 
