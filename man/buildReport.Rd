@@ -6,7 +6,8 @@
 \usage{
 buildReport(repo, theme = "bootstrap",
   reportfile = file.path(destination(repo), "buildreport.html"),
-  riskrpt = FALSE, jsonrpt = TRUE, splashname = "index.html")
+  riskrpt = FALSE, jsonrpt = TRUE, splashname = "index.html",
+  cores = 1L)
 }
 \arguments{
 \item{repo}{A GRANRepository object}
@@ -20,6 +21,8 @@ buildReport(repo, theme = "bootstrap",
 \item{jsonrpt}{Whether to create a JSON version of the build report}
 
 \item{splashname}{Filename for the package HTML splash page}
+
+\item{cores}{Number of cores to use when generating coverage reports.}
 }
 \value{
 None

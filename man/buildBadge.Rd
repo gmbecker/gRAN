@@ -4,12 +4,14 @@
 \alias{buildBadge}
 \title{Create Badges for build status}
 \usage{
-buildBadge(status, pkg_name)
+buildBadge(status, pkg_name, repo)
 }
 \arguments{
 \item{status}{The build status for the package}
 
 \item{pkg_name}{Name of the package}
+
+\item{repo}{GRANRepository object.}
 }
 \value{
 Badge href tag

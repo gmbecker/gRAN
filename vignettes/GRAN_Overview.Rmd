@@ -125,6 +125,18 @@ updated to reflect the results of that step.
 * The `GRANRepsitory` object is returned
 
 
+## Clearing temporary artifacts
+
+In order to get a clean slate  we can clear the repository, which will empty it completely (optionally excluding the code checkouts) via `clear\_repo` or we can clear just temporary files without wiping the recorded results with `clear\_temp\_files`.
+
+```{r clear, echo=TRUE}
+repo <- clear_temp_files(repo, checkout = FALSE, logs = FALSE)
+repo <- clear_repo(repo, checkout = TRUE)
+repo_results(repo)
+```
+
+
+
 ## Tools for managing repository stability
 
 GRANBase also provides tools to navigate the tension between stability

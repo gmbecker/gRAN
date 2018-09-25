@@ -108,7 +108,11 @@ pkgHTML <- function(repo,
       createSticker(pkg_name, destination = docdir)
 
       # Create package intro
-      status <- bres$lastAttemptStatus[bres$name == pkg_name]
+        status <- bres$lastAttemptStatus[bres$name == pkg_name]
+        ## showing "up-to-date" is not the most helpful...
+        if(status == "up-to-date")
+            status <- bres$lastbuiltstatus[bres$name == pkg_name]
+                      
       description <- as.character(descr_df$Description)
       maintainer <- emailTag(as.character(descr_df$Maintainer))
       authors <- emailTag(as.character(descr_df$Author))
@@ -120,7 +124,7 @@ pkgHTML <- function(repo,
                       "<a href=\"../../src/contrib/buildreport.html\">",
                       "<span class=\"label label-primary\">GRAN",
                               repo_name(repo), "</span></a>", "</p> ",
-                      "<p>Build status: ", buildBadge(status, pkg_name), "</p>",
+                      "<p>Build status: ", buildBadge(status, pkg_name, repo), "</p>",
                       "<tcplaceholder/>",
                       "<p>Authors: ", authors, "</p> ",
                       "<p>Maintainer: ", maintainer, "</p> ")
@@ -490,50 +494,60 @@ emailTag <- function(item) {
 #' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @param status The build status for the package
 #' @param pkg_name Name of the package
+#' @param repo GRANRepository object.
 #' @return Badge href tag
-buildBadge <- function(status, pkg_name) {
+buildBadge <- function(status, pkg_name, repo) {
   # Create badges for build status
-  checkrep <- file.path("..", "..", "CheckResults",
+    checkrep <- file.path(check_result_dir(repo),
                         paste0(pkg_name, "_CHECK.log"))
-  pkglog <- file.path("..", "..", "SinglePkgLogs",
+    pkglog <- file.path(pkg_log_dir(repo), 
                       paste0(pkg_name, ".log"))
-  install_results <- file.path("..", "..", "InstallResults",
+    install_results <- file.path(install_result_dir(repo),
                                paste0(pkg_name, ".out"))
-  if (is.na(status) || status == "NA") {
-    label <- "label-default"
-    log <- ""
-  } else if (status == "ok") {
-    label <- "label-primary"
-    log <- pkglog
-  } else if (status == "build failed" || status == "source checkout failed") {
-    label <- "label-danger"
-    log <- pkglog
-  } else if (status == "check fail" || status == "Unable to check - missing tarball") {
-    label <- "label-danger"
-    log <- checkrep
-  } else if (status == "check note(s)") {
-    label <- "label-info"
-    log <- checkrep
-  } else if (status == "check warning(s)") {
-    label <- "label-warning"
-    log <- checkrep
-  } else if (status == "install failed") {
-    label <- "label-danger"
-    log <- install_results
-  } else if (status == "up-to-date") {
-    label <- "label-success"
-    log <- install_results
-  } else if (status == "ok - not tested") {
-    label <- "label-primary"
-    log <- pkglog
-  } else if (status == "GRAN FAILURE" || status == "Dependency build failure") {
-    label <- "label-danger"
-    log <- pkglog
-  } else {
-    label <- "label-default"
-    log <- pkglog
-  }
-  paste("<a href=\"", log, "\"><span class=\"label",
-        label, "\">", status, "</span></a>")
+
+    #label and log don't ahve to agree
+    
+    if (is.na(status) || status == "NA") {
+        label <- "label-default"
+        log <- ""
+    } else if (status == "ok") {
+        label <- "label-primary"
+        log <- pkglog
+    } else if (status == "build failed" || status == "source checkout failed") {
+        label <- "label-danger"
+        log <- pkglog
+    } else if (status == "check fail" ||
+               status == "Unable to check - missing tarball") {
+        label <- "label-danger"
+        log <- checkrep
+    } else if (status == "check note(s)") {
+        label <- "label-info"
+        log <- checkrep
+    } else if (status == "check warning(s)") {
+        label <- "label-warning"
+        log <- checkrep
+    } else if (status == "install failed") {
+        label <- "label-danger"
+        log <- install_results
+    } else if (status == "up-to-date") {
+        label <- "label-success"
+        ##log <- install_results
+        ## we want the check results so we can see the warnings
+        ## or notes
+        log <- checkrep
+    } else if (status == "ok - not tested") {
+        label <- "label-primary"
+        log <- pkglog
+    } else if (status == "GRAN FAILURE" ||
+               status == "Dependency build failure") {
+        label <- "label-danger"
+        log <- pkglog
+    } else {
+        label <- "label-default"
+        log <- pkglog
+    }
+    paste("<a href=\"", log, "\"><span class=\"label",
+          label, "\">", status, "</span></a>")
 }
 
+        

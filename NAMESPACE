@@ -3,7 +3,7 @@
 export(buildReport)
 export(buildRiskReport)
 export(clear_repo)
-export(clear_temp_fils)
+export(clear_temp_files)
 export(createSticker)
 export(emailNotifier)
 export(identifyRisk)

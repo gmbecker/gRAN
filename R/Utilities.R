@@ -231,3 +231,31 @@ getOS <- function(){
 encode_string <- function(x) {
   tolower(paste(strtoi(charToRaw(as.character(x)), 16L), collapse = ""))
 }
+
+globalVariables("getRversion")
+getRversion2 <- function() {
+    if(exists("getRversion"))
+        getRversion()
+    else
+        paste(R.version$major, R.version$minor)
+}
+
+#' Protect against binary incompatibility in R versions (3.4- <-> 3.5+)
+#' @param repo GRANRepository being built
+#' @return \code{repo}, after clearing the temporary library location
+#' if packages in it were built using a different R version
+checkAndFixLibLoc = function(repo) {
+    libloc <- temp_lib(repo)
+    inst <- installed.packages(lib.loc = libloc)
+    if(dim(inst)[1] == 0)
+        return(repo)
+    
+    bldvrs <- inst[,"Built"]
+    currvers <-  getRversion2()
+    allbvers = unique(bldvrs)
+    if(length(allbvers) > 1 || allbvers != currvers) {
+        message("Found mismatching R versions in LibLoc. Clearing temporary library.")
+        clear_temp_files(repo, checkout = FALSE, logs = FALSE)
+    }
+    return(repo)
+}

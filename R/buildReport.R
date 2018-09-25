@@ -81,11 +81,11 @@ buildReport <- function(repo, theme = "bootstrap",
   log_closer <- "</code></pre></html>"
   for (i in 1:length(tmpman$lastAttemptStatus)) {
     # Prettify the logs
-    checkrep <- file.path("..", "..", "CheckResults",
-                          paste0(tmpman$name[i], "_CHECK.log"))
+      checkrep <- file.path(check_result_dir(repo),
+                            paste0(tmpman$name[i], "_CHECK.log"))
     pkglog <- file.path("..", "..", "SinglePkgLogs",
                         paste0(tmpman$name[i], ".log"))
-    install_results <- file.path("..", "..", "InstallResults",
+    install_results <- file.path(install_result_dir(repo),
                                  paste0(tmpman$name[i], ".out"))
     x_loc <- file.path(destination(repo), checkrep)
     if (file.exists(x_loc) && !grepl(log_closer,
@@ -118,10 +118,9 @@ buildReport <- function(repo, theme = "bootstrap",
 
     # Create badges
     status <- tmpman$lastAttemptStatus[i]
-    #oldstatus <- tmpman$lastbuiltstatus[i]
-    tmpman$lastAttemptStatus[i] <- buildBadge(status, tmpman$name[i])
-    #tmpman$lastbuiltstatus[i] <- buildBadge(oldstatus, tmpman$name[i])
-
+    oldstatus <- tmpman$lastbuiltstatus[i]
+    tmpman$lastAttemptStatus[i] <- buildBadge(status, tmpman$name[i], repo = repo)
+  
     # Create hrefs for email IDs
     tmpman$maintainer[i] <- emailTag(tmpman$maintainer[i])
 

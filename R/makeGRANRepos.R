@@ -60,7 +60,7 @@ setMethod("makeRepo", "GRANRepository",
     if(!is.null(repo2) ) {
         res = repo_results(repo)
         res2 = repo_results(repo2)
-        if(any(!is.na(res$lastAttempt)) &&
+        if(any(!is.na(res$lastAttempt)) && any(!is.na(res2$lastAttempt)) && 
         (max(res$lastAttempt, na.rm=TRUE) < max(res2$lastAttempt, na.rm=TRUE))) {
             warning("Loading latest results from specified repository")
             repo = repo2
@@ -77,6 +77,8 @@ setMethod("makeRepo", "GRANRepository",
         repo_results(repo)$suspended <- manifest_df(repo)$name %in% suspended_pkgs(repo)
     }
 
+    message(paste("Checking for (and fixing) R version mismatch in packages installed to temp library", Sys.time()))
+    repo = checkAndFixLibLoc(repo)
 
     message(paste("Building", sum(getBuilding(repo)), "packages"))
     ##package, build thine self!
