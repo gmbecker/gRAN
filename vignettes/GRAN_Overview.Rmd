@@ -61,7 +61,7 @@ repo <- makeRepo(man,
                 basedir = repdir,
                 destination = repdir,
                 cores = 1L,
-                install_test = FALSE,
+                install_test = TRUE,
                 check_test = FALSE)
 ```
 
@@ -130,11 +130,17 @@ updated to reflect the results of that step.
 In order to get a clean slate  we can clear the repository, which will empty it completely (optionally excluding the code checkouts) via `clear\_repo` or we can clear just temporary files without wiping the recorded results with `clear\_temp\_files`.
 
 ```{r clear, echo=TRUE}
-repo <- clear_temp_files(repo, checkout = FALSE, logs = FALSE)
-repo <- clear_repo(repo, checkout = TRUE)
-repo_results(repo)
+repo2 <- clear_temp_files(repo, checkout = FALSE, logs = FALSE)
+repo2 <- clear_repo(repo2, checkout = TRUE)
+repo_results(repo2)
 ```
 
+We can then build the repo again using the expected machinery.
+
+```{r makeagain, echo=TRUE}
+repo3 <- makeRepo(repo, install_test = FALSE, check_test = FALSE)
+
+```
 
 
 ## Tools for managing repository stability
