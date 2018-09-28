@@ -34,7 +34,7 @@ createSticker <- function(pkgName, destination) {
     }
 
     # Create the sticker
-    hexSticker::sticker(system.file2("assets", "images", "pkg.png"),
+    res = try(hexSticker::sticker(system.file2("assets", "images", "pkg.png"),
                         package = pkgName,
                         filename = file.path(destination,
                                              paste0(pkgName, ".png")),
@@ -43,9 +43,10 @@ createSticker <- function(pkgName, destination) {
                         s_width = 0.9, s_height = 0.9,
                         p_color = as.character(pkgFontColor[as.character(x)]),
                         h_fill = as.character(pkgFillColor[as.character(y)]),
-                        h_color = as.character(pkgOutlineColor[as.character(z)]))
-  } else {
-    file.copy(from = system.file2("assets", "images", "pkg.png"),
-              to = file.path(destination, paste0(pkgName, ".png")))
+                        h_color = as.character(pkgOutlineColor[as.character(z)])))
+    if(!is(res, "try-error"))
+        return(res)
   }
+  file.copy(from = system.file2("assets", "images", "pkg.png"),
+              to = file.path(destination, paste0(pkgName, ".png")))
 }
