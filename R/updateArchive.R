@@ -25,7 +25,10 @@ updateArchive <- function (repo, repodest = destination(repo),
   verstxt <- gsub("[a-zA-Z0-9\\.]*_", "", noextfiles)
   vers <- package_version(verstxt)
   df <- data.frame(file = builtpkgs, package = pkgs,
-                   version = vers, stringsAsFactors = FALSE)
+                   ##                 version = vers, stringsAsFactors = FALSE)
+                   ## we are using compareVersion which
+                   ## doesn't support package_version objs
+                   version = verstxt, stringsAsFactors = FALSE)
   #df <- df[order(df$package, df$version, decreasing = TRUE), ]
   newestinds <- findNewestRows(df)
   df$newest <- FALSE
