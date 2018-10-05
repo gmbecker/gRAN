@@ -103,9 +103,13 @@ buildBranchesInRepo <- function(repo, cores = 1,
                   repodest = ".",
                   archive = file.path(".", "Archive"))
     if(!temp)
-        write_PACKAGES(".", type = "source", latestOnly = FALSE)
+        update_PACKAGES(".", type = "source", latestOnly = FALSE,
+                        strict = FALSE,
+                        verbose = TRUE, logfun = logfun(repo))
     else
-        write_PACKAGES(".", type = "source", latestOnly = TRUE)
+        update_PACKAGES(".", type = "source", latestOnly = TRUE,
+                        strict = FALSE,
+                        verbose = TRUE, logfun = logfun(repo))
     if(any(res %in% c("failed", "build timed-out"))) {
         warning("Warning: not all packages were succesfully built")
     }

@@ -85,7 +85,8 @@ clear_repo = function(repo, all = TRUE, checkout = FALSE, archivedir = NA) {
         file.copy(fils, archivedir, overwrite = FALSE)
     }
     res = .clearhelper(d, repo, "deployed packages")
-    write_PACKAGES(d)
+    ## this doesn't do anything???
+    ##write_PACKAGES(d)
     if(!res)
         warning("Failed to fully clear packages from deployed repository")
     repo = resetResults(repo)

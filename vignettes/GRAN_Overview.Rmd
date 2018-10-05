@@ -139,7 +139,6 @@ We can then build the repo again using the expected machinery.
 
 ```{r makeagain, echo=TRUE}
 repo3 <- makeRepo(repo, install_test = FALSE, check_test = FALSE)
-
 ```
 
 
