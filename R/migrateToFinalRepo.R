@@ -52,7 +52,7 @@ migrateToFinalRepo = function(repo)
     on.exit(setwd(oldwd))
     updateArchive(repo)
     createMeta(repo)
-    update_PACKAGES(type="source", latestOnly = TRUE, verbose = TRUE, logfun = logfun(repo),
+    update_PACKAGES(type="source", latestOnly = TRUE, verbose = TRUE, logfun = update_pkgs_logfun(repo),
                     strict = FALSE)
     repo <- updateResults(repo)
     dummy <- pkgHTML(repo)

@@ -51,7 +51,7 @@ makeWinBins <- function(repo,
         }
     }, srcpkg = srcbuilds, mc.cores = cores)
 
-    # Create PACKAGES files
+    ## Create PACKAGES files
     update_PACKAGES(bindir, type = "win.binary", verbose = TRUE,
-                    logfun= logfun(repo))
+                    logfun= update_pkgs_logfun(repo))
 }

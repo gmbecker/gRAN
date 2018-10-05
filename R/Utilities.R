@@ -259,3 +259,11 @@ checkAndFixLibLoc = function(repo) {
     }
     return(repo)
 }
+
+update_pkgs_logfun = function(repo, pkg = "NA" ) {
+    fun = logfun(repo)
+    force(fun)
+    function(msg) {
+        fun(pkg, msg)
+    }
+}
