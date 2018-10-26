@@ -490,6 +490,13 @@ emailTag <- function(item) {
   item
 }
 
+.to_gran_url = function(path, repo) {
+    stopifnot(grepl(dest_base(repo), path, fixed = TRUE))
+    gsub(file.path(dest_base(repo), repo_name(repo)),
+         repo_url(repo), path, fixed = TRUE)
+}
+
+
 #' Create Badges for build status
 #' @author Dinakar Kulkarni <kulkard2@gene.com>
 #' @param status The build status for the package
@@ -546,7 +553,7 @@ buildBadge <- function(status, pkg_name, repo) {
         label <- "label-default"
         log <- pkglog
     }
-    paste("<a href=\"", log, "\"><span class=\"label",
+    paste("<a href=\"", .to_gran_url(log, repo), "\"><span class=\"label",
           label, "\">", status, "</span></a>")
 }
 
