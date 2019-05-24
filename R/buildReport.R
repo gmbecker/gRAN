@@ -81,21 +81,21 @@ buildReport <- function(repo, theme = "bootstrap",
   log_closer <- "</code></pre></html>"
   for (i in 1:length(tmpman$lastAttemptStatus)) {
     # Prettify the logs
-      checkrep <- file.path(check_result_dir(repo),
-                            paste0(tmpman$name[i], "_CHECK.log"))
-    pkglog <- file.path("..", "..", "SinglePkgLogs",
-                        paste0(tmpman$name[i], ".log"))
-    install_results <- file.path(install_result_dir(repo),
-                                 paste0(tmpman$name[i], ".out"))
-    x_loc <- file.path(destination(repo), checkrep)
+    check_log <- paste0(tmpman$name[i], "_CHECK.log")
+    pkg_log <- paste0(tmpman$name[i], ".log")
+    install_log <- paste0(tmpman$name[i], ".out")
+
+    x_loc <- file.path(check_result_dir(repo), check_log)
     if (file.exists(x_loc) && !grepl(log_closer,
                                     readChar(x_loc, file.info(x_loc)$size))) {
+      ## The current check logs to not have an EOL character. Add one here.
+      cat("", file = x_loc, append = TRUE, sep = "\n")
       cat(log_closer, file = x_loc, append = TRUE, sep = "\n")
       lines <- readLines(x_loc, -1, warn = FALSE)
       lines[1] <- paste(log_header, lines[1], sep = "\n")
       writeLines(lines, x_loc)
     }
-    y_loc <- file.path(destination(repo), pkglog)
+    y_loc <- file.path(pkg_log_dir(repo), pkg_log)
     if (file.exists(y_loc)) {
       lines <- readLines(y_loc, -1, warn = FALSE)
       lines <- gsub(log_closer, "", lines)
@@ -107,7 +107,7 @@ buildReport <- function(repo, theme = "bootstrap",
       writeLines(lines, y_loc)
       cat(log_closer, file = y_loc, append = TRUE, sep = "\n")
     }
-    z_loc <- file.path(destination(repo), install_results)
+    z_loc <- file.path(install_result_dir(repo), install_log)
     if (file.exists(z_loc) && !grepl(log_closer,
                                     readChar(z_loc, file.info(z_loc)$size))) {
       cat(log_closer, file = z_loc, append = TRUE, sep = "\n")
@@ -125,7 +125,7 @@ buildReport <- function(repo, theme = "bootstrap",
     tmpman$maintainer[i] <- emailTag(tmpman$maintainer[i])
 
     # Build history
-    tmpman$Chronicles[i] <- createHyperlink(pkglog, "Build log")
+    tmpman$Chronicles[i] <- createHyperlink(y_loc, "Build log")
 
     # Package documentation
     pkg_doc <- file.path(pkg_doc_dir(repo),

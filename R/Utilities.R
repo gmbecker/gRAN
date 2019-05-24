@@ -14,7 +14,6 @@ system.file2 <- function(..., package = "GRANBase") {
         return("")
 }
 
-
 getPkgNames <- function(path)
 {
     path = normalizePath2(path)
@@ -25,7 +24,6 @@ getPkgNames <- function(path)
     else if (grepl(".tar", path, fixed=TRUE))
         gsub(basename(path), "([^_]*)_.*", "\\1")
 }
-
 
 getCheckoutLocs <- function(codir, manifest = manifest_df(repo),
     branch = manifest$branch, repo)
@@ -70,7 +68,6 @@ getCOedVersions <- function(codir, manifest = manifest_df(repo),
                   })
     unlist(vers)
 }
-
 
 isOkStatus <- function(status= repo_results(repo)$status,
     repo)
@@ -134,7 +131,6 @@ install.packages2 <- function(pkgs, repos, lib,  ..., param = SwitchrParam(),
     ret
 }
 
-
 getBuilding <- function(repo, results= repo_results(repo))
 {
     results$building & isOkStatus( repo = repo)
@@ -146,12 +142,10 @@ getBuildingManifest <- function(repo, results = repo_results(repo),
     manifest[getBuilding(repo, results),]
 }
 
-
 getBuildingResults <- function(repo, results = repo_results(repo))
 {
     results[getBuilding(repo, results),]
 }
-
 
 trim_PACKAGES <- function(dir) {
 
@@ -192,7 +186,6 @@ deltaDF <- function(new_df, old_df) {
   delta <- suppressWarnings(suppressMessages(anti_join(new_df, old_df)))
   return(delta)
 }
-
 
 #' Checks whether an email ID is valid
 #' @author Dinakar Kulkarni <kulkard2@gene.com>
@@ -266,4 +259,37 @@ update_pkgs_logfun = function(repo, pkg = "NA" ) {
     function(msg) {
         fun(pkg, msg)
     }
+}
+
+## Remove a package from a GRANRepository object.
+.removePkg <- function(repo, package) {
+    not_found <- TRUE
+    ## pkg_manifest and pkg_version
+    pm <- manifest_df(repo)
+    if (package %in% pm$name) {
+        manifest_df(repo) <- pm[pm$name != package,]
+        not_found <- FALSE
+    }
+    pv <- versions_df(manifest(repo))
+    if (package %in% pv$name) {
+        versions_df(manifest(repo)) <- pv[pv$name != package,]
+        not_found <- FALSE
+    }
+    ## results
+    res <- repo_results(repo)
+    if (package %in% res$name) {
+        repo_results(repo) <- res[res$name != package,]
+        not_found <- FALSE
+    }
+    ## suspended
+    suspended <- suspended_pkgs(repo)
+    if (package %in% suspended) {
+        suspended_pkgs(repo) <- suspended[suspended != package]
+        not_found <- FALSE
+    }
+
+    if (not_found)
+        message(paste0("'", package, "' not found in repo object"))
+
+    repo
 }
