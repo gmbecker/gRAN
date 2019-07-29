@@ -125,7 +125,8 @@ buildReport <- function(repo, theme = "bootstrap",
     tmpman$maintainer[i] <- emailTag(tmpman$maintainer[i])
 
     # Build history
-    tmpman$Chronicles[i] <- createHyperlink(y_loc, "Build log")
+    pkg_log_uri <- file.path('..', '..', 'SinglePkgLogs', pkg_log)
+    tmpman$Chronicles[i] <- createHyperlink(pkg_log_uri, "Build log")
 
     # Package documentation
     pkg_doc <- file.path(pkg_doc_dir(repo),
