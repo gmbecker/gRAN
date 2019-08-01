@@ -41,6 +41,7 @@ pkgHTML <- function(repo,
     check_dir <- file.path(staging(repo), paste0(pkg_name, '.Rcheck'))
 
     revdeps <- NULL ##make sure this always exists
+    descr_df <- NULL ## make sure this always exists
     # There may or may not be an Rcheck dir
     if (file.exists(check_dir)) {
 
@@ -85,10 +86,11 @@ pkgHTML <- function(repo,
       } else {
         desc_header <- ""
         desc_html <- ""
+        logfun(repo)("NA", paste("No DESCRIPTION info available for", pkg_name))
       }
 
       # Create HTML for reverse deps
-      if (!(is.data.frame(revdeps) && ncol(revdeps)==0)) {
+      if (!(is.null(revdeps) || (is.data.frame(revdeps) && ncol(revdeps)==0))) {
         revdeps_header <- "<br/><h4>Reverse Dependencies</h4><hr>"
         revdeps_html <- htmlTable(t(revdeps),
                         css.cell = ("padding-left: 0.5em; padding-right: 0.5em"),
@@ -112,11 +114,20 @@ pkgHTML <- function(repo,
         ## showing "up-to-date" is not the most helpful...
         if(status == "up-to-date")
             status <- bres$lastbuiltstatus[bres$name == pkg_name]
-                      
-      description <- as.character(descr_df$Description)
-      maintainer <- emailTag(as.character(descr_df$Maintainer))
-      authors <- emailTag(as.character(descr_df$Author))
-      title <- as.character(descr_df$Title)
+
+      if (!is.null(descr_df)) {
+        description <- as.character(descr_df$Description)
+        maintainer <- emailTag(as.character(descr_df$Maintainer))
+        authors <- emailTag(as.character(descr_df$Author))
+        title <- as.character(descr_df$Title)
+        logfun(repo)("NA", paste("Extracting basic package info for", pkg_name))
+      } else {
+        description <- ""
+        maintainer <- ""
+        authors <- ""
+        title <- ""
+        logfun(repo)("NA", paste("No basic package info for", pkg_name))
+      }      
       intro <- paste0("<h2>", pkg_name, ": ",title, "</h2><hr> ",
               "<img src=\"", pkg_name, ".png\" height=\"160\" align=\"right\">",
                       "<strong><p>", description, "</p></strong> ",
