@@ -158,7 +158,7 @@ pkgHTML <- function(repo,
       # Copy reference manual, vignettes and NEWS into pkg docs dir
       reference_man <- file.path(check_dir, paste0(pkg_name, '-manual.pdf'))
       if (file.exists(reference_man)) {
-        file.copy(reference_man, docdir)
+        file.copy(reference_man, docdir, overwrite = TRUE)
         manref_url <- paste("<p>Reference Manual:",
                             createHyperlink(paste0(pkg_name, '-manual.pdf'),
                                       label = paste0(pkg_name, '-manual.pdf')),
@@ -178,7 +178,7 @@ pkgHTML <- function(repo,
           vign_vec <- c()
           for (rnw_file in rnw_files) {
             pdf_file <- paste0(file_path_sans_ext(rnw_file), ".pdf")
-            file.copy(pdf_file, docdir)
+            file.copy(pdf_file, docdir, overwrite = TRUE)
             vign_url <- createHyperlink(basename(pdf_file),
                                         label = basename(pdf_file))
             vign_vec <- append(vign_vec, vign_url)
@@ -194,7 +194,7 @@ pkgHTML <- function(repo,
           vign_vec2 <- c()
           for (rmd_file in rmd_files) {
             html_file <- paste0(file_path_sans_ext(rmd_file), ".html")
-            file.copy(html_file, docdir)
+            file.copy(html_file, docdir, overwrite = TRUE)
             vign_url2 <- createHyperlink(basename(html_file),
                                          label = basename(html_file))
             vign_vec2 <- append(vign_vec2, vign_url2)
@@ -215,7 +215,7 @@ pkgHTML <- function(repo,
               markdownToHTML(file = news_file,
                              output = file.path(docdir, basename(news_file)))
             } else {
-              file.copy(news_file, docdir)
+              file.copy(news_file, docdir, overwrite = TRUE)
             }
             news_url <- createHyperlink(basename(news_file),
                                         label = basename(news_file))
@@ -238,7 +238,7 @@ pkgHTML <- function(repo,
               markdownToHTML(file = readme_file,
                              output = file.path(docdir, basename(readme_file)))
             } else {
-              file.copy(readme_file, docdir)
+              file.copy(readme_file, docdir, overwrite = TRUE)
             }
             readme_url <- createHyperlink(basename(readme_file),
                                           label = basename(readme_file))
