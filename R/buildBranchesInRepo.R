@@ -35,7 +35,7 @@ buildBranchesInRepo <- function(repo, cores = 1,
                 repoLoc <- file.path(repoLoc, "src", "contrib")
         }
         #opts = c("--no-build-vignettes", "--no-manual", "--no-resave-data")
-        opts <- c("--no-build-vignettes", "--no-resave-data")
+        opts <- "--no-build-vignettes --no-resave-data"
     } else {
         repoLoc <- staging(repo)
         opts <- "--resave-data"
