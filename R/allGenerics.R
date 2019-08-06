@@ -11,6 +11,7 @@
 #' out package sources. The list elements (assumed to be a character vector of
 #' length 2, user then password) are applied when the name is contained in a
 #' package's url
+#' @param constrained_build Whether to constrain side-effects of build
 #' @param ... Additional arguments, typically used for the construction of a
 #' \code{GRANRepository} object if one does not already exist.
 #' @return A GRANRepository object which has used to create a repository.
@@ -24,5 +25,6 @@ setGeneric("makeRepo", function(x, cores = 1,
                                 build_pkgs = NULL,
                                 scm_auth = list("bioconductor.org" =
                                     c("readonly", "readonly")),
+                                constrained_build = FALSE,
                                 ...)
            standardGeneric("makeRepo"))

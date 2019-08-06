@@ -4,8 +4,9 @@ setMethod("makeRepo", "PkgManifest",
           function(x, cores = 1, build_pkgs = NULL,
                    scm_auth = list("bioconductor.org" =
                        c("readonly", "readonly")),
-                   ...
-                   ) {
+                   constrained_build = FALSE,
+                   ...) 
+          {
 
               vers = data.frame(name= manifest_df(x)$name,
                   version = NA, stringsAsFactors = FALSE)
@@ -14,6 +15,7 @@ setMethod("makeRepo", "PkgManifest",
 
               makeRepo(sessMan, cores = cores, scm_auth = scm_auth,
                        build_pkgs = build_pkgs,
+                       constrained_build = FALSE,
                        ...)
           })
 
@@ -25,12 +27,15 @@ setMethod("makeRepo", "SessionManifest",
           function(x, cores = 1, build_pkgs = NULL,
                    scm_auth = list("bioconductor.org" =
                        c("readonly", "readonly")),
-                   ...
-                   ) {
+                   constrained_build = FALSE,
+                   ...) 
+          {
 
               repo = GRANRepository(manifest = x, param = RepoBuildParam(...))
               makeRepo(repo, cores = cores, scm_auth = scm_auth,
-                       build_pkgs = build_pkgs, ...)
+                       build_pkgs = build_pkgs, 
+                       constrained_build = FALSE,
+                       ...)
           })
 
 
@@ -42,6 +47,7 @@ setMethod("makeRepo", "GRANRepository",
           function(x, cores = 1, build_pkgs = NULL,
                    scm_auth = list("bioconductor.org" =
                                        c("readonly", "readonly")),
+                   constrained_build = FALSE,
                    ...) {
     message(paste("Started makeRepo at", Sys.time()))
     if(!haveGit()) {
@@ -82,7 +88,9 @@ setMethod("makeRepo", "GRANRepository",
 
     message(paste("Building", sum(getBuilding(repo)), "packages"))
     ##package, build thine self!
-    repo = GRANonGRAN(repo)
+    if (!constrained_build) {
+       repo = GRANonGRAN(repo)
+    }
     ##do checkouts
     message(paste("Starting makeSrcDirs", Sys.time()))
     message(paste("Building", sum(getBuilding(repo)), "packages"))
@@ -90,7 +98,9 @@ setMethod("makeRepo", "GRANRepository",
     ##add reverse dependencies to build list
     repo = addRevDeps(repo)
     ##do checkouts again to grab reverse deps
-    repo = makeSrcDirs(repo, cores = cores, scm_auth = scm_auth)
+    if (!constrained_build) {
+      repo = makeSrcDirs(repo, cores = cores, scm_auth = scm_auth)
+    }
     ##build temp repository
     message(paste("Starting buildBranchesInRepo", Sys.time()))
     message(paste("Building", sum(getBuilding(repo)), "packages"))
@@ -101,7 +111,7 @@ setMethod("makeRepo", "GRANRepository",
     ##test packges
     message(paste("Invoking package tests", Sys.time()))
     message(paste("Building", sum(getBuilding(repo)), "packages"))
-    repo = doPkgTests(repo, cores = cores)
+    repo = doPkgTests(repo, cores = cores, constrained_build)
     ##copy successfully built tarballs to final repository
     message(paste("starting migrateToFinalRepo", Sys.time()))
     message(paste("Built", sum(getBuilding(repo)), "packages"))
@@ -124,7 +134,9 @@ setMethod("makeRepo", "character",
           function(x, cores = 1, build_pkgs = NULL,
                    scm_auth = list("bioconductor.org" =
                        c("readonly", "readonly")),
-                   ...) {
+                   constrained_build = FALSE,
+                   ...) 
+          {
 
               if(!grepl("^(http|git|.*repo\\.R)", x))
                   x2 = list.files(x, pattern = "repo\\.R", full.names = TRUE,
@@ -137,5 +149,7 @@ setMethod("makeRepo", "character",
                        "with the location",
                        x)
               makeRepo(repo, cores = cores, build_pkgs = build_pkgs,
-                       scm_auth = scm_auth, ...)
+                       scm_auth = scm_auth, 
+                       constrained_build = constrained_build,
+                       ...)
           })

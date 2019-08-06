@@ -1,4 +1,4 @@
-doPkgTests <- function(repo, cores = 1)
+doPkgTests <- function(repo, cores = 1, constrained_build = FALSE)
 {
   logfun(repo)(
     "NA",
@@ -16,7 +16,7 @@ doPkgTests <- function(repo, cores = 1)
     repo_results(repo)$building = TRUE
 
   if (install_test_on(repo)) {
-    repo = installTest(repo, cores = cores)
+    repo = installTest(repo, cores = cores, constrained_build = constrained_build)
     repo = buildBranchesInRepo(repo,
                                temp = FALSE,
                                incremental = TRUE,
@@ -34,7 +34,7 @@ doPkgTests <- function(repo, cores = 1)
 }
 
 #' @importFrom utils update.packages
-installTest <- function(repo, cores = 1)
+installTest <- function(repo, cores = 1, constrained_build)
 {
   logfun(repo)(
     "NA",
@@ -95,8 +95,10 @@ installTest <- function(repo, cores = 1)
 
   # Update packages in the temporary library,
   # given that we always want to test with the latest available packages
-  update.packages(lib.loc = loc, repos = dep_repos(repo),
-                  ask = FALSE, instlib = loc)
+  if (!constrained_build) {
+    update.packages(lib.loc = loc, repos = dep_repos(repo),
+                    ask = FALSE, instlib = loc)
+  }
 
   res = install.packages2(bres$name,
                           lib = loc,
