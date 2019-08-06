@@ -133,7 +133,7 @@ GRANonGRAN <- function(repo) {
         ## Use read.dcf to extract the live versions of GRANBase and switchr
         curr_switchr_ver <- read.dcf(switchr_conn, fields = "Version")
         curr_gran_ver <- read.dcf(gran_conn, fields = "Version")
-        curr_grancore_ver <- read.dcf(gran_conn, fields = "Version")
+        curr_grancore_ver <- read.dcf(grancore_conn, fields = "Version")
         
         ## Close the open URL connections
         close(switchr_conn)
