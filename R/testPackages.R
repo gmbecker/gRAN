@@ -81,8 +81,7 @@ installTest <- function(repo, cores = 1)
   ##bres is in an entirely different space because the packages that failed
   ## earlier steps (e.g., build fail, or were up to date) are excluded.
   ## it's a data.frame, so we need to remove the rows we don't want, unlike above
-  bresgraninds = grep("^GRAN", bres$name)
-  bres = bres[-bresgraninds, ]
+  bres <- subset(bres,!(grepl("^GRAN", bres$name)))
 
   ## protect ourselves here by asserting dimension conformity was preserved:
   ## bres should contain 1 row for each TRUE in binds
