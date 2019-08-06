@@ -129,8 +129,14 @@ buildBranchesInRepo <- function(repo, cores = 1,
 
     ## incremental build logic. If incremental == TRUE,
     ## we only rebuild if the package version number has bumped.
-    vnum <- read.dcf(file.path(checkout, "DESCRIPTION"))[1,"Version"]
-    pkg <- getPkgNames(checkout)
+    if (!is.na(checkout)) {
+      vnum <- read.dcf(file.path(checkout, "DESCRIPTION"))[1,"Version"]
+      pkg <- getPkgNames(checkout)
+    } else {
+      ret <- "checkout failed"
+      names(ret) <- "0.0-0"
+      return(ret)
+    }
 
     if(!is.na(vers_restr) && vnum != vers_restr) {
         logfun(repo)(pkg, paste("Wrong version number for pkg",

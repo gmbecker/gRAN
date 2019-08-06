@@ -28,8 +28,25 @@ getPkgNames <- function(path)
 getCheckoutLocs <- function(codir, manifest = manifest_df(repo),
     branch = manifest$branch, repo)
 {
-    mapply(getPkgDir, basepath = codir, subdir = manifest$subdir,
-           scm_type = manifest$type, branch = branch, name = manifest$name)
+    mapply(function(basepath, subdir, scm_type, branch, name)
+      tryCatch(getPkgDir(basepath = basepath, subdir = subdir,
+                         scm_type = scm_type, branch = branch,
+                         name = name), 
+               error = function(e) {
+                 warning("Failed to getPkgDir for ",
+                         "pkg ", name, ", ",
+                         "basepath ", basepath, ", ",
+                         "branch ", branch, ", ",
+                         "subdir ", subdir, ", ",
+                         "scm_type ", scm_type, ", ",
+                         "with error: ", e)
+                 NA
+                 }),
+      basepath = codir, 
+      subdir = manifest$subdir,
+      scm_type = manifest$type, 
+      branch = branch,
+      name = manifest$name)
 }
 
 getMaintainers <- function(codir, manifest = manifest_df(repo),
