@@ -120,23 +120,8 @@ install.packages2 <- function(pkgs, repos, lib,  ..., param = SwitchrParam(),
         tmp = readLines(fil)
         ## for some reason this isn't always the last line, e.g. from histry 0.2.1
 
-
-        ##       * installing *source* package ‘histry’ ...
-        ## ** R
-        ## ** inst
-        ## ** preparing package for lazy loading
-        ## Warning: replacing previous import ‘graph::addNode’ by ‘XML::addNode’ when loading ‘CodeDepends’
-        ## Warning: replacing previous import ‘graph::plot’ by ‘graphics::plot’ when loading ‘CodeDepends’
-        ## ** help
-        ## *** installing help indices
-        ## ** building package indices
-        ## ** installing vignettes
-        ## ** testing if installed package can be loaded
-        ## Warning: replacing previous import ‘graph::addNode’ by ‘XML::addNode’ when loading ‘CodeDepends’
-        ## Warning: replacing previous import ‘graph::plot’ by ‘graphics::plot’ when loading ‘CodeDepends’
-        ## * DONE (histry)
-        ## Loading required package: histry                                                                                
-        
+        ## NOTE: Removed R CMD INSTALL output for histry 0.2.1 that was here. 
+        ##       Asterisks in the output were causing problems for roxygen.
 
         ## outcome = tmp[length(tmp)]
         donemsg = paste0("* DONE (", p, ")")

@@ -4,8 +4,9 @@
 \alias{createMeta}
 \title{Create package metadata files in the "Meta" folder}
 \usage{
-createMeta(repo, repodest = destination(repo), metadir = metadatadir(repo),
-  archive_dir = archivedir(repo), serialize_json = FALSE)
+createMeta(repo, repodest = destination(repo),
+  metadir = metadatadir(repo), archive_dir = archivedir(repo),
+  serialize_json = FALSE)
 }
 \arguments{
 \item{repo}{A GRAN repo object}

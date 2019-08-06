@@ -13,8 +13,8 @@
 \alias{makeRepo,character}
 \title{makeRepo}
 \usage{
-makeRepo(x, cores = 1, build_pkgs = NULL, scm_auth = list(bioconductor.org
-  = c("readonly", "readonly")), ...)
+makeRepo(x, cores = 1, build_pkgs = NULL,
+  scm_auth = list(bioconductor.org = c("readonly", "readonly")), ...)
 
 \S4method{makeRepo}{PkgManifest}(x, cores = 1, build_pkgs = NULL,
   scm_auth = list(bioconductor.org = c("readonly", "readonly")), ...)
