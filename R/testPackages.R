@@ -3,7 +3,7 @@ doPkgTests <- function(repo, cores = 1)
   logfun(repo)(
     "NA",
     paste0(
-      "Beginning testing of GRAN packages before migration to",
+      "Beginning testing of GRAN packages before migration to ",
       "final repository using ",
       cores,
       " cores: ",
