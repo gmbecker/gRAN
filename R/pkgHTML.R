@@ -502,9 +502,12 @@ emailTag <- function(item) {
 }
 
 .to_gran_url = function(path, repo) {
-    stopifnot(grepl(dest_base(repo), path, fixed = TRUE))
-    gsub(file.path(dest_base(repo), repo_name(repo)),
-         repo_url(repo), path, fixed = TRUE)
+    if (grepl(dest_base(repo), path, fixed = TRUE)) {
+        gsub(file.path(dest_base(repo), repo_name(repo)),
+             repo_url(repo), path, fixed = TRUE)
+    } else {
+        ""
+    }
 }
 
 
