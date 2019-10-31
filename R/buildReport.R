@@ -22,9 +22,19 @@ buildReport <- function(repo, theme = "bootstrap",
                 cores = 1L) {
 
   # Overall Build Stats
-  title <- paste0("<title>GRAN", repo_name(repo), " Build Report</title>")
-  summary_header <- paste0("<h2>Overall Build Stats for GRAN",
-                          repo_name(repo), "</h2>")
+  if (nchar(platform(repo)) > 0) {
+    common_name <- paste0("GRAN", repo_name(repo), " Build Report on ", platform(repo))
+  } else {
+    common_name <- paste0("GRAN", repo_name(repo), " Build Report")
+  }
+  title <- paste0("<title>", common_name, "</title>")
+  topheader <- paste0("<h1><center>", common_name, "</center></h1>")
+  if ((nchar(r_version(repo)) > 0) && (nchar(bioc_version(repo) > 0))) {
+    subheader <- paste0("<h2><center>(R ", r_version(repo), "/Bioc ", bioc_version(repo), ")</center></h2>")
+  } else {
+    subheader <- ""
+  }
+  summary_header <- paste0("<h2>Overall Build Stats</h2>")
   results_df <- repo_results(repo)
   results_df <- results_df[!(results_df$name %in% suspended_pkgs(repo)), ]
   lastattempt <- results_df$lastAttemptStatus
@@ -209,7 +219,7 @@ buildReport <- function(repo, theme = "bootstrap",
   final_html <- paste("<!doctype html>
                       <html> <head>", title, css_tag, js_tag, ds_script,
                       "<body style=\"padding: 20px;\"></head>",
-                      summary_header, attmpthtml, "<br/>", build_header,
+                      topheader, subheader, summary_header, attmpthtml, "<br/>", build_header,
                       build_html, risk_rpt_html, dl_json_link,
                       manifestreport_link, "</body></html>")
   write(final_html, reportfile)

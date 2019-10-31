@@ -212,7 +212,7 @@ notifyManifest <- function(manifest, repo, ...) {
     if (isValidEmail(emailID)) {
       subDF <- manifest[manifest[, "email"] == emailID,]
       emailSubject <-
-        paste0("Packages that failed to build on GRAN",
+        paste0("Packages that failed to build on ", platform(repo), " GRAN",
                repo@param@repo_name,
                ": ",
                Sys.time())
