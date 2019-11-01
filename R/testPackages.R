@@ -408,9 +408,10 @@ testCoverage <- function(repo, cores = 1) {
     ##                & repo_results(repo)$status != "up-to-date")
     bres <- getBuildingResults(repo)
     mandf <- getBuildingManifest(repo)
+    calc_coverage <- TRUE
     if (nrow(bres) == 0) {
       logfun(repo)("NA", "No packages to check test coverage for")
-      return(repo)
+      calc_coverage <- FALSE
     }
 
     bres <- subset(bres,!(grepl("^GRAN", bres$name)))
@@ -419,38 +420,41 @@ testCoverage <- function(repo, cores = 1) {
     stopifnot(identical(bres[["name"]], mandf[["name"]]))
     coverageDir <- coverage_report_dir(repo)
 
-    # Begin test coverage calculations
-    coverage <- suppressWarnings(mcmapply2(function(pkgName, subdir) {
+    if (calc_coverage) {
+      # Begin test coverage calculations
+      coverage <- suppressWarnings(mcmapply2(function(pkgName, subdir) {
         pkgDir <- file.path(loc, pkgName, subdir)
         stopifnot(file.exists(file.path(pkgDir, "DESCRIPTION")))
-      if (file.exists(pkgDir)) {
-        logfun(repo)(pkgName, "Calculating test coverage")
-        pkgCovg <- tryCatch(package_coverage(path = pkgDir),
-                            error = function(e) NULL)
-        percentCovg <- tryCatch(percent_coverage(pkgCovg),
-                                error = function(e) NULL)
-        if(is.null(percentCovg) || is.nan(percentCovg)) {
+        if (file.exists(pkgDir)) {
+          logfun(repo)(pkgName, "Calculating test coverage")
+          pkgCovg <- tryCatch(package_coverage(path = pkgDir),
+                              error = function(e) NULL)
+          percentCovg <- tryCatch(percent_coverage(pkgCovg),
+                                  error = function(e) NULL)
+          if(is.null(percentCovg) || is.nan(percentCovg)) {
             label <- "label-danger"
-        } else if (percentCovg > 90) {
-          label <- "label-success"
-        } else if (percentCovg > 75) {
-          label <- "label-warning"
-        } else {
-          label <- "label-danger"
+          } else if (percentCovg > 90) {
+            label <- "label-success"
+          } else if (percentCovg > 75) {
+            label <- "label-warning"
+          } else {
+            label <- "label-danger"
+          }
+          cvgrptfile <- file.path(coverageDir, paste0(pkgName, "-covr-report.html"))
+          dummy <- tryCatch(report(pkgCovg, file = cvgrptfile, browse = FALSE),
+                            error = function(e) NULL)
+          logfun(repo)(pkgName, "Completed test coverage")
+          if (is.numeric(percentCovg) && !is.nan(percentCovg)) {
+            paste("<span class=\"label", label, "\">",
+                  paste(round(percentCovg, digits = 2), "%"), "</span>")
+          } else {
+            "<span class=\"label label-default\">Details</span>"
+          }
         }
-        cvgrptfile <- file.path(coverageDir, paste0(pkgName, "-covr-report.html"))
-        dummy <- tryCatch(report(pkgCovg, file = cvgrptfile, browse = FALSE),
-                          error = function(e) NULL)
-        logfun(repo)(pkgName, "Completed test coverage")
-        if (is.numeric(percentCovg) && !is.nan(percentCovg)) {
-          paste("<span class=\"label", label, "\">",
-                paste(round(percentCovg, digits = 2), "%"), "</span>")
-        } else {
-          "<span class=\"label label-default\">Details</span>"
-        }
-      }
-    }, pkgName = bres$name, subdir = mandf$subdir, mc.cores = cores))
-
+      }, pkgName = bres$name, subdir = mandf$subdir, mc.cores = cores))
+    } else {
+      coverage <- data.frame(coverage=character(), name=character())
+    }
     logfun(repo)("NA", paste("Completed test coverage reports for",
                              length(bres$name),"packages."))
     covg <- as.data.frame(coverage)
