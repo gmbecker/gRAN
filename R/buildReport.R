@@ -110,7 +110,7 @@ buildReport <- function(repo, theme = "bootstrap",
       lines <- readLines(y_loc, -1, warn = FALSE)
       lines <- gsub(log_closer, "", lines)
       lines <- gsub(log_header, "", lines)
-      lines <- rev(lines)[1:500] # Retain only last 500 lines
+      lines <- rev(lines)[1:1000] # Retain only last 1000 lines
       lines <- rev(lines)
       lines[1] <- paste(log_header, lines[1], sep = "\n")
       lines <- lines[!is.na(lines)]
