@@ -416,16 +416,15 @@ testCoverage <- function(repo, cores = 1) {
 
     bres <- subset(bres,!(grepl("^GRAN", bres$name)))
     mandf <- subset(mandf,!(grepl("^GRAN", mandf$name)))
+    scmCheckoutsLoc <- getCheckoutLocs(loc, mandf, mandf$branch)
     ## protective assertion
     stopifnot(identical(bres[["name"]], mandf[["name"]]))
     coverageDir <- coverage_report_dir(repo)
 
     if (calc_coverage) {
       # Begin test coverage calculations
-      coverage <- suppressWarnings(mcmapply2(function(pkgName, subdir) {
-        pkgDir <- file.path(loc, pkgName, subdir)
-        stopifnot(file.exists(file.path(pkgDir, "DESCRIPTION")))
-        if (file.exists(pkgDir)) {
+      coverage <- suppressWarnings(mcmapply2(function(pkgName, pkgDir) {
+        if (file.exists(pkgDir) && file.exists(file.path(pkgDir, "DESCRIPTION"))) {
           logfun(repo)(pkgName, "Calculating test coverage")
           pkgCovg <- tryCatch(package_coverage(path = pkgDir),
                               error = function(e) NULL)
@@ -450,8 +449,10 @@ testCoverage <- function(repo, cores = 1) {
           } else {
             "<span class=\"label label-default\">Details</span>"
           }
+        } else {
+          "<span class=\"label label-default\">Details</span>"
         }
-      }, pkgName = bres$name, subdir = mandf$subdir, mc.cores = cores))
+      }, pkgName = bres$name, pkgDir = scmCheckoutsLoc, mc.cores = cores))
     } else {
       coverage <- data.frame(coverage=character(), name=character())
     }
