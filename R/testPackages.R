@@ -416,13 +416,13 @@ testCoverage <- function(repo, cores = 1) {
 
     bres <- subset(bres,!(grepl("^GRAN", bres$name)))
     mandf <- subset(mandf,!(grepl("^GRAN", mandf$name)))
-    scmCheckoutsLoc <- getCheckoutLocs(loc, mandf, mandf$branch)
     ## protective assertion
     stopifnot(identical(bres[["name"]], mandf[["name"]]))
     coverageDir <- coverage_report_dir(repo)
 
     if (calc_coverage) {
       # Begin test coverage calculations
+      scmCheckoutsLoc <- getCheckoutLocs(loc, mandf, mandf$branch)
       coverage <- suppressWarnings(mcmapply2(function(pkgName, pkgDir) {
         if (file.exists(pkgDir) && file.exists(file.path(pkgDir, "DESCRIPTION"))) {
           logfun(repo)(pkgName, "Calculating test coverage")
