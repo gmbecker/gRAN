@@ -408,14 +408,17 @@ testCoverage <- function(repo, cores = 1) {
     ##                & repo_results(repo)$status != "up-to-date")
     bres <- getBuildingResults(repo)
     mandf <- getBuildingManifest(repo)
+
+    # Exclude GRAN packages
+    bres <- subset(bres,!(grepl("^GRAN", bres$name)))
+    mandf <- subset(mandf,!(grepl("^GRAN", mandf$name)))
+    
     calc_coverage <- TRUE
     if (nrow(bres) == 0) {
       logfun(repo)("NA", "No packages to check test coverage for")
       calc_coverage <- FALSE
     }
-
-    bres <- subset(bres,!(grepl("^GRAN", bres$name)))
-    mandf <- subset(mandf,!(grepl("^GRAN", mandf$name)))
+    
     ## protective assertion
     stopifnot(identical(bres[["name"]], mandf[["name"]]))
     coverageDir <- coverage_report_dir(repo)
