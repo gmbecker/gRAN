@@ -395,7 +395,9 @@ reversals <- function(pkg_name) {
 #' @param pkg_name The name of the package (string)
 #' @return Package external URL
 determinePkgURL <- function(pkg_name) {
-  cran_url <- paste0("https://cran.r-project.org/package=", pkg_name)
+  cran_mirror <- getOption("switchr_cran_mirror", "https://cran.r-project.org")
+  
+  cran_url <- paste0(cran_mirror, "/package=", pkg_name)
   bioc_home <- "https://www.bioconductor.org/packages/release"
   bioc_soft_url <- paste0(bioc_home, "/bioc/html/", pkg_name, ".html")
   bioc_exp_url <- paste0(bioc_home, "/data/experiment/html/", pkg_name, ".html")
